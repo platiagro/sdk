@@ -23,6 +23,9 @@ setup(
         "minio==5.0.6",
         # Helps with structured data operations
         "pandas==0.25.3",
+        # Replacement for pickle to work efficiently
+        # on Python objects containing large data
+        "joblib==0.14.1",
     ],
     extras_require=extras,
     python_requires=">=3.5.0",
