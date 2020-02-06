@@ -19,6 +19,10 @@ setup(
     url="https://github.com/platiagro/sdk",
     packages=[],
     install_requires=[
+        # Access object storage server
+        "minio==5.0.6",
+        # Helps with structured data operations
+        "pandas==0.25.3",
     ],
     extras_require=extras,
     python_requires=">=3.5.0",
