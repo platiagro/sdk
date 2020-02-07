@@ -17,7 +17,7 @@ setup(
     description="Python SDK for PlatIAgro.",
     license="Apache",
     url="https://github.com/platiagro/sdk",
-    packages=[],
+    packages=["platiagro"],
     install_requires=[
         # Access object storage server
         "minio==5.0.6",
