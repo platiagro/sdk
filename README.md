@@ -36,6 +36,14 @@ Install the testing requirements:
 pip install .[testing]
 ```
 
+Export these environment variables:
+
+```bash
+export MINIO_ENDPOINT=play.min.io
+export MINIO_ACCESS_KEY=Q3AM3UQ867SPQQA43P2F
+export MINIO_SECRET_KEY=zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG
+```
+
 Use the following command to run all tests:
 
 ```bash
