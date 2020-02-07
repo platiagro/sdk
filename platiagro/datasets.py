@@ -1,26 +1,17 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps, loads
-from os import SEEK_SET, getenv
+from os import SEEK_SET
 from os.path import join
 from typing import List, Tuple
 
 import pandas as pd
-from minio import Minio
 from minio.error import NoSuchBucket, NoSuchKey
 
 from .featuretypes import infer_featuretypes
+from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
-BUCKET_NAME = "anonymous"
 PREFIX = "datasets"
-
-client = Minio(
-    endpoint=getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000"),
-    access_key=getenv("MINIO_ACCESS_KEY", "minio"),
-    secret_key=getenv("MINIO_SECRET_KEY", "minio123"),
-    region=getenv("MINIO_REGION_NAME", "us-east-1"),
-    secure=False,
-)
 
 
 def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
@@ -34,7 +25,7 @@ def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
     """
     try:
         object_name = join(PREFIX, name)
-        stat = client.stat_object(
+        stat = MINIO_CLIENT.stat_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
@@ -42,7 +33,7 @@ def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
         columns = loads(stat.metadata["X-Amz-Meta-Columns"])
         featuretypes = loads(stat.metadata["X-Amz-Meta-Featuretypes"])
 
-        data = client.get_object(
+        data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
@@ -81,14 +72,14 @@ def save_dataset(name: str, df: pd.DataFrame):
     csv_buffer = BytesIO(csv_bytes)
     file_length = len(csv_bytes)
 
-    try:
-        # uploads file to MinIO
-        client.put_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
-            data=csv_buffer,
-            length=file_length,
-            metadata=metadata,
-        )
-    except NoSuchBucket:
-        raise FileNotFoundError("No such file or directory: '{}'".format(name))
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
+    # uploads file to MinIO
+    MINIO_CLIENT.put_object(
+        bucket_name=BUCKET_NAME,
+        object_name=object_name,
+        data=csv_buffer,
+        length=file_length,
+        metadata=metadata,
+    )

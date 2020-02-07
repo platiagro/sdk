@@ -1,22 +1,14 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from os import SEEK_SET, getenv
+from os import SEEK_SET
 from os.path import join
 
 from joblib import dump, load
-from minio import Minio
 from minio.error import NoSuchBucket, NoSuchKey
 
-BUCKET_NAME = "anonymous"
-PREFIX = "models"
+from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
-client = Minio(
-    endpoint=getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000"),
-    access_key=getenv("MINIO_ACCESS_KEY", "minio"),
-    secret_key=getenv("MINIO_SECRET_KEY", "minio123"),
-    region=getenv("MINIO_REGION_NAME", "us-east-1"),
-    secure=False,
-)
+PREFIX = "models"
 
 
 def load_model(name: str) -> object:
@@ -30,7 +22,7 @@ def load_model(name: str) -> object:
     """
     try:
         object_name = join(PREFIX, name)
-        data = client.get_object(
+        data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
@@ -53,19 +45,19 @@ def save_model(name: str, model: object):
         name (str): the dataset name.
         model (object): the model.
     """
-    try:
-        object_name = join(PREFIX, name)
+    object_name = join(PREFIX, name)
 
-        model_buffer = BytesIO()
-        dump(model, model_buffer)
-        model_buffer.seek(0, SEEK_SET)
+    model_buffer = BytesIO()
+    dump(model, model_buffer)
+    model_buffer.seek(0, SEEK_SET)
 
-        # uploads file to MinIO
-        client.put_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
-            data=model_buffer,
-            length=model_buffer.getbuffer().nbytes,
-        )
-    except NoSuchBucket:
-        raise FileNotFoundError("No such file or directory: '{}'".format(name))
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
+    # uploads file to MinIO
+    MINIO_CLIENT.put_object(
+        bucket_name=BUCKET_NAME,
+        object_name=object_name,
+        data=model_buffer,
+        length=model_buffer.getbuffer().nbytes,
+    )

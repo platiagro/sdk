@@ -7,7 +7,8 @@ from unittest import TestCase
 import pandas as pd
 from minio import Minio
 
-from platiagro import BUCKET_NAME, client, load_dataset, save_dataset
+from platiagro import load_dataset, save_dataset
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
 class TestDatasets(TestCase):
@@ -19,7 +20,7 @@ class TestDatasets(TestCase):
 
     def make_bucket(self):
         try:
-            client.make_bucket(BUCKET_NAME)
+            MINIO_CLIENT.make_bucket(BUCKET_NAME)
         except:
             pass
 
@@ -35,7 +36,7 @@ class TestDatasets(TestCase):
             "columns": dumps(columns),
             "featuretypes": dumps(featuretypes),
         }
-        client.put_object(
+        MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name="datasets/iris",
             data=file,

@@ -6,7 +6,8 @@ from unittest import TestCase
 from joblib import dump
 from minio import Minio
 
-from platiagro import BUCKET_NAME, client, load_model, save_model
+from platiagro import load_model, save_model
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
 class MockModel:
@@ -23,7 +24,7 @@ class TestModels(TestCase):
 
     def make_bucket(self):
         try:
-            client.make_bucket(BUCKET_NAME)
+            MINIO_CLIENT.make_bucket(BUCKET_NAME)
         except:
             pass
 
@@ -32,7 +33,7 @@ class TestModels(TestCase):
         model_buffer = BytesIO()
         dump(model, model_buffer)
         model_buffer.seek(0, SEEK_SET)
-        client.put_object(
+        MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name="models/mock",
             data=model_buffer,
