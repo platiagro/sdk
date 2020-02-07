@@ -15,7 +15,7 @@ BUCKET_NAME = "anonymous"
 PREFIX = "datasets"
 
 client = Minio(
-    endpoint=getenv("MINIO_ENDPOINT", "minio-service.kubeflow"),
+    endpoint=getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000"),
     access_key=getenv("MINIO_ACCESS_KEY", "minio"),
     secret_key=getenv("MINIO_SECRET_KEY", "minio123"),
     region=getenv("MINIO_REGION_NAME", "us-east-1"),
