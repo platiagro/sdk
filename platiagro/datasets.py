@@ -68,7 +68,7 @@ def save_dataset(name: str, df: pd.DataFrame):
     }
 
     # converts DataFrame to bytes-like
-    csv_bytes = df.to_csv().encode("utf-8")
+    csv_bytes = df.to_csv(header=False, index=False).encode("utf-8")
     csv_buffer = BytesIO(csv_bytes)
     file_length = len(csv_bytes)
 
