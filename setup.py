@@ -17,7 +17,7 @@ setup(
     description="Python SDK for PlatIAgro.",
     license="Apache",
     url="https://github.com/platiagro/sdk",
-    packages=["platiagro"],
+    packages=find_packages(),
     install_requires=[
         # Access object storage server
         "minio==5.0.6",
@@ -28,13 +28,14 @@ setup(
         "joblib==0.14.1",
     ],
     extras_require=extras,
-    python_requires=">=3.5.0",
+    python_requires=">=3.6.0",
     classifiers=[
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
