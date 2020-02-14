@@ -10,7 +10,7 @@ def infer_featuretypes(df, nrows=5):
     """Infer featuretypes from DataFrame columns.
 
     Args:
-        df (pandas.DataFaame): the dataset.
+        df (pandas.DataFrame): the dataset.
         nrows (int): the number of rows to inspect.
 
     Returns:
