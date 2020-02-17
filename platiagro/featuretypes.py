@@ -46,7 +46,7 @@ def validate_featuretypes(featuretypes):
         featuretypes (list): the list of feature types.
 
     Raises:
-        ValueError: when an invalid feature type."""
+        ValueError: when an invalid feature type is found."""
     valid_ones = [DATETIME, NUMERICAL, CATEGORICAL]
     if any(f not in valid_ones for f in featuretypes):
-        raise ValueError("an invalid feature type was informed. only {} are allowed".format(', '.join(valid_ones)))
+        raise ValueError("featuretype must be one of {}".format(', '.join(valid_ones)))
