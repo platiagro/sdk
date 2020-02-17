@@ -14,6 +14,24 @@ from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 PREFIX = "datasets"
 
 
+def list_datasets() -> List:
+    """Lists all datasets from object storage.
+
+    Returns:
+        A list of all datasets names.
+    """
+    datasets = []
+
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
+    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
+    for obj in objects:
+        name = obj.object_name[len(PREFIX) + 1:]
+        datasets.append(name)
+    return datasets
+
+
 def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
     """Retrieves a dataset and its feature types.
 

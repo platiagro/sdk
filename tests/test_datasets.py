@@ -7,7 +7,7 @@ from unittest import TestCase
 import pandas as pd
 from minio import Minio
 
-from platiagro import load_dataset, save_dataset
+from platiagro import list_datasets, load_dataset, save_dataset
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -43,6 +43,11 @@ class TestDatasets(TestCase):
             length=file.getbuffer().nbytes,
             metadata=metadata,
         )
+
+    def test_list_datasets(self):
+        result = list_datasets()
+        expected = ["iris", "test"]
+        self.assertListEqual(result, expected)
 
     def test_load_dataset(self):
         with self.assertRaises(FileNotFoundError):
