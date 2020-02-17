@@ -37,3 +37,16 @@ def is_datetime(column):
         except ValueError:
             return False
     return True
+
+
+def validate_featuretypes(featuretypes):
+    """Verifies whether all feature types are valid.
+
+    Args:
+        featuretypes (list): the list of feature types.
+
+    Raises:
+        ValueError: when an invalid feature type."""
+    valid_ones = [DATETIME, NUMERICAL, CATEGORICAL]
+    if any(f not in valid_ones for f in featuretypes):
+        raise ValueError("an invalid feature type was informed. only {} are allowed".format(', '.join(valid_ones)))

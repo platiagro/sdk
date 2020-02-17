@@ -3,12 +3,12 @@ from io import BytesIO
 from json import dumps, loads
 from os import SEEK_SET
 from os.path import join
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .featuretypes import infer_featuretypes
+from .featuretypes import infer_featuretypes, validate_featuretypes
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
 PREFIX = "datasets"
@@ -49,17 +49,23 @@ def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
     return df, featuretypes
 
 
-def save_dataset(name: str, df: pd.DataFrame):
+def save_dataset(name: str, df: pd.DataFrame, featuretypes: Optional[List] = None):
     """Saves a dataset and its feature types.
 
     Args:
         name (str): the dataset name.
         df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
+        featuretypes (list, optional): the feature types. Defaults to None.
     """
     object_name = join(PREFIX, name)
 
     columns = df.columns.values.tolist()
-    featuretypes = infer_featuretypes(df)
+    if featuretypes is None:
+        featuretypes = infer_featuretypes(df)
+    else:
+        if len(columns) != len(featuretypes):
+            raise ValueError("featuretypes must be the same length as the DataFrame columns")
+        validate_featuretypes(featuretypes)
 
     # will store columns and featuretypes as metadata
     metadata = {

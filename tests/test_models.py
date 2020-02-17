@@ -11,7 +11,7 @@ from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
 class MockModel:
-    def predict(x):
+    def predict(self, x):
         return True
 
 

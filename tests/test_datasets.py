@@ -66,6 +66,14 @@ class TestDatasets(TestCase):
         df = pd.DataFrame({"col0": []})
         save_dataset("test", df)
 
+        with self.assertRaises(ValueError):
+            df = pd.DataFrame({"col0": []})
+            save_dataset("test", df, [])
+
+        with self.assertRaises(ValueError):
+            df = pd.DataFrame({"col0": []})
+            save_dataset("test", df, ["int"])
+
         df = pd.DataFrame({
             "col0": ["2000-01-01", "2001-01-01", "2002-01-01", "2003-01-01"],
             "col1": [5.1, 4.9, 4.7, 4.6],
