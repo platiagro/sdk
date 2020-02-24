@@ -8,7 +8,6 @@ from typing import List, Tuple, Dict, Optional
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .featuretypes import infer_featuretypes, validate_featuretypes
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
 PREFIX = "datasets"
@@ -67,37 +66,23 @@ def load_dataset(name: str) -> pd.DataFrame:
 
 def save_dataset(name: str,
                  df: pd.DataFrame,
-                 featuretypes: Optional[List[str]] = None,
                  metadata: Optional[Dict[str, str]] = None):
-    """Saves a dataset, its feature types, and metadata.
+    """Saves a dataset and its metadata to the object storage.
 
     Args:
         name (str): the dataset name.
         df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
-        featuretypes (list, optional): the feature types. Defaults to None.
         metadata (dict, optional): metadata about the dataset. Defaults to None.
-
-    Raises:
-        ValueError: If len(featuretypes) is different from len(df.columns).
-        ValueError: If an invalid featuretype is found.
     """
     object_name = join(PREFIX, name)
 
     columns = df.columns.values.tolist()
-    if featuretypes is None:
-        featuretypes = infer_featuretypes(df)
-    else:
-        if len(columns) != len(featuretypes):
-            raise ValueError(
-                "featuretypes must be the same length as the DataFrame columns")
-        validate_featuretypes(featuretypes)
 
     if metadata is None:
         metadata = {}
 
-    # will store columns and featuretypes as metadata
+    # will store columns as metadata
     metadata["columns"] = columns
-    metadata["featuretypes"] = featuretypes
 
     # tries to encode metadata as json
     # obs: MinIO requires the metadata to be a Dict[str, str]
@@ -140,9 +125,6 @@ def load_metadata(name: str) -> Dict:
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
-
-        columns = loads(stat.metadata["X-Amz-Meta-Columns"])
-        featuretypes = loads(stat.metadata["X-Amz-Meta-Featuretypes"])
 
         metadata = {}
         for k, v in stat.metadata.items():
