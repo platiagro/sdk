@@ -96,7 +96,7 @@ class TestDatasets(TestCase):
 
     def test_load_metadata(self):
         with self.assertRaises(FileNotFoundError):
-            load_dataset("UNK")
+            load_metadata("UNK")
 
         expected = {
             "columns": ["col0", "col1", "col2", "col3", "col4", "col5"],
