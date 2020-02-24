@@ -7,7 +7,7 @@ from unittest import TestCase
 import pandas as pd
 from minio import Minio
 
-from platiagro import list_datasets, load_dataset, save_dataset
+from platiagro import list_datasets, load_dataset, save_dataset, load_metadata
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -16,7 +16,15 @@ class TestDatasets(TestCase):
     def setUp(self):
         """Prepares a dataset for tests."""
         self.make_bucket()
+        self.empty_bucket()
         self.create_mock_dataset()
+
+    def empty_bucket(self):
+        try:
+            for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
+                MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
+        except:
+            pass
 
     def make_bucket(self):
         try:
@@ -35,6 +43,7 @@ class TestDatasets(TestCase):
         metadata = {
             "columns": dumps(columns),
             "featuretypes": dumps(featuretypes),
+            "filename": dumps("iris.data"),
         }
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
@@ -46,14 +55,14 @@ class TestDatasets(TestCase):
 
     def test_list_datasets(self):
         result = list_datasets()
-        expected = ["iris", "test"]
+        expected = ["iris"]
         self.assertListEqual(result, expected)
 
     def test_load_dataset(self):
         with self.assertRaises(FileNotFoundError):
             load_dataset("UNK")
 
-        expected_df = pd.DataFrame({
+        expected = pd.DataFrame({
             "col0": ["01/01/2000", "01/01/2001", "01/01/2002", "01/01/2003"],
             "col1": [5.1, 4.9, 4.7, 4.6],
             "col2": [3.5, 3.0, 3.2, 3.1],
@@ -61,11 +70,8 @@ class TestDatasets(TestCase):
             "col4": [0.2, 0.2, 0.2, 0.2],
             "col5": ["Iris-setosa", "Iris-setosa", "Iris-setosa", "Iris-setosa"],
         })
-        expected_featuretypes = ["DateTime", "Numerical", "Numerical",
-                                 "Numerical", "Numerical", "Categorical"]
-        result_df, result_featuretypes = load_dataset("iris")
-        self.assertTrue(result_df.equals(expected_df))
-        self.assertListEqual(result_featuretypes, expected_featuretypes)
+        result = load_dataset("iris")
+        self.assertTrue(result.equals(expected))
 
     def test_save_dataset(self):
         df = pd.DataFrame({"col0": []})
@@ -88,3 +94,16 @@ class TestDatasets(TestCase):
             "col5": ["Iris-setosa", "Iris-setosa", "Iris-setosa", "Iris-setosa"],
         })
         save_dataset("test", df)
+
+    def test_load_metadata(self):
+        with self.assertRaises(FileNotFoundError):
+            load_dataset("UNK")
+
+        expected = {
+            "columns": ["col0", "col1", "col2", "col3", "col4", "col5"],
+            "featuretypes": ["DateTime", "Numerical", "Numerical",
+                             "Numerical", "Numerical", "Categorical"],
+            "filename": "iris.data",
+        }
+        result = load_metadata("iris")
+        self.assertDictEqual(result, expected)

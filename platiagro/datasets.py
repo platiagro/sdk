@@ -3,7 +3,7 @@ from io import BytesIO
 from json import dumps, loads
 from os import SEEK_SET
 from os.path import join
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Dict, Optional
 
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
@@ -14,7 +14,7 @@ from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 PREFIX = "datasets"
 
 
-def list_datasets() -> List:
+def list_datasets() -> List[str]:
     """Lists all datasets from object storage.
 
     Returns:
@@ -32,24 +32,20 @@ def list_datasets() -> List:
     return datasets
 
 
-def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
-    """Retrieves a dataset and its feature types.
+def load_dataset(name: str) -> pd.DataFrame:
+    """Retrieves a dataset as a pandas.DataFrame.
 
     Args:
         name (str): the dataset name.
 
     Returns:
-        tuple: A `pandas.DataFrame` and a list of feature types.
+        A `pandas.DataFrame`.
+
+    Raises:
+        FileNotFoundError: If dataset does not exist in the object storage.
     """
     try:
         object_name = join(PREFIX, name)
-        stat = MINIO_CLIENT.stat_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
-        )
-
-        columns = loads(stat.metadata["X-Amz-Meta-Columns"])
-        featuretypes = loads(stat.metadata["X-Amz-Meta-Featuretypes"])
 
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
@@ -58,22 +54,32 @@ def load_dataset(name: str) -> Tuple[pd.DataFrame, List]:
     except (NoSuchBucket, NoSuchKey):
         raise FileNotFoundError("No such file or directory: '{}'".format(name))
 
+    metadata = load_metadata(name)
+    columns = metadata["columns"]
+
     csv_buffer = BytesIO()
     for d in data.stream(32*1024):
         csv_buffer.write(d)
     csv_buffer.seek(0, SEEK_SET)
-
     df = pd.read_csv(csv_buffer, header=None, names=columns, index_col=False)
-    return df, featuretypes
+    return df
 
 
-def save_dataset(name: str, df: pd.DataFrame, featuretypes: Optional[List] = None):
-    """Saves a dataset and its feature types.
+def save_dataset(name: str,
+                 df: pd.DataFrame,
+                 featuretypes: Optional[List[str]] = None,
+                 metadata: Optional[Dict[str, str]] = None):
+    """Saves a dataset, its feature types, and metadata.
 
     Args:
         name (str): the dataset name.
         df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
         featuretypes (list, optional): the feature types. Defaults to None.
+        metadata (dict, optional): metadata about the dataset. Defaults to None.
+
+    Raises:
+        ValueError: If len(featuretypes) is different from len(df.columns).
+        ValueError: If an invalid featuretype is found.
     """
     object_name = join(PREFIX, name)
 
@@ -82,14 +88,21 @@ def save_dataset(name: str, df: pd.DataFrame, featuretypes: Optional[List] = Non
         featuretypes = infer_featuretypes(df)
     else:
         if len(columns) != len(featuretypes):
-            raise ValueError("featuretypes must be the same length as the DataFrame columns")
+            raise ValueError(
+                "featuretypes must be the same length as the DataFrame columns")
         validate_featuretypes(featuretypes)
 
+    if metadata is None:
+        metadata = {}
+
     # will store columns and featuretypes as metadata
-    metadata = {
-        "columns": dumps(columns),
-        "featuretypes": dumps(featuretypes),
-    }
+    metadata["columns"] = columns
+    metadata["featuretypes"] = featuretypes
+
+    # tries to encode metadata as json
+    # obs: MinIO requires the metadata to be a Dict[str, str]
+    for k, v in metadata.items():
+        metadata[str(k)] = dumps(v)
 
     # converts DataFrame to bytes-like
     csv_bytes = df.to_csv(header=False, index=False).encode("utf-8")
@@ -107,3 +120,36 @@ def save_dataset(name: str, df: pd.DataFrame, featuretypes: Optional[List] = Non
         length=file_length,
         metadata=metadata,
     )
+
+
+def load_metadata(name: str) -> Dict:
+    """Retrieves the metadata of a dataset.
+
+    Args:
+        name (str): the dataset name.
+
+    Returns:
+        dict: The metadata.
+
+    Raises:
+        FileNotFoundError: If dataset does not exist in the object storage.
+    """
+    try:
+        object_name = join(PREFIX, name)
+        stat = MINIO_CLIENT.stat_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+
+        columns = loads(stat.metadata["X-Amz-Meta-Columns"])
+        featuretypes = loads(stat.metadata["X-Amz-Meta-Featuretypes"])
+
+        metadata = {}
+        for k, v in stat.metadata.items():
+            if k.startswith("X-Amz-Meta-"):
+                key = k[len("X-Amz-Meta-"):].lower()
+                metadata[key] = loads(v)
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError("No such file or directory: '{}'".format(name))
+
+    return metadata
