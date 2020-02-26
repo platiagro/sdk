@@ -1,5 +1,8 @@
 from setuptools import find_packages, setup
 
+with open("requirements.txt") as f:
+    requirements = f.read().splitlines()
+
 extras = {
     "testing": [
         "pytest>=4.4.0",
@@ -18,15 +21,7 @@ setup(
     license="Apache",
     url="https://github.com/platiagro/sdk",
     packages=find_packages(),
-    install_requires=[
-        # Access object storage server
-        "minio==5.0.6",
-        # Helps with structured data operations
-        "pandas==0.25.3",
-        # Replacement for pickle to work efficiently
-        # on Python objects containing large data
-        "joblib==0.14.1",
-    ],
+    install_requires=requirements,
     extras_require=extras,
     python_requires=">=3.6.0",
     classifiers=[
