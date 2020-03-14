@@ -35,7 +35,7 @@ class TestModels(TestCase):
         model_buffer.seek(0, SEEK_SET)
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="models/mock",
+            object_name="experiments/mock/model",
             data=model_buffer,
             length=model_buffer.getbuffer().nbytes,
         )

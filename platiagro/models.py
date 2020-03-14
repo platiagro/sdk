@@ -8,26 +8,27 @@ from minio.error import NoSuchBucket, NoSuchKey
 
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
-PREFIX = "models"
+PREFIX = "experiments"
+MODEL_FILE = "model"
 
 
-def load_model(name: str) -> object:
+def load_model(experiment_id: str) -> object:
     """Retrieves a model.
 
     Args:
-        name (str): the model name.
+        experiment_id (str): the experiment id.
 
     Returns:
         object: A model.
     """
     try:
-        object_name = join(PREFIX, name)
+        object_name = join(PREFIX, experiment_id, MODEL_FILE)
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
     except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("No such file or directory: '{}'".format(name))
+        raise FileNotFoundError("No such file or directory: '{}'".format(experiment_id))
 
     model_buffer = BytesIO()
     for d in data.stream(32*1024):
@@ -38,14 +39,14 @@ def load_model(name: str) -> object:
     return model
 
 
-def save_model(name: str, model: object):
+def save_model(experiment_id: str, model: object):
     """Serializes and saves a model.
 
     Args:
-        name (str): the dataset name.
+        experiment_id (str): the experiment id.
         model (object): the model.
     """
-    object_name = join(PREFIX, name)
+    object_name = join(PREFIX, experiment_id, MODEL_FILE)
 
     model_buffer = BytesIO()
     dump(model, model_buffer)
