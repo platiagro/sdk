@@ -5,3 +5,5 @@ pandas==0.25.3
 # Replacement for pickle to work efficiently
 # on Python objects containing large data
 joblib==0.14.1
+# Makes statistical graphics
+seaborn==0.10.0
