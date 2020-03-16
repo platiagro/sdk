@@ -17,11 +17,12 @@ METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def save_metrics(experiment_id: str, **kwargs):
+def save_metrics(experiment_id: str, operator_id: str, **kwargs):
     """Saves metrics of an experiment to the object storage.
 
     Args:
-        experiment_id (str): the experiment name.
+        experiment_id (str): the experiment uuid.
+        operator_id (str): the operator uuid.
         kwargs (dict): the metrics dict.
     """
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
@@ -47,8 +48,11 @@ def save_metrics(experiment_id: str, **kwargs):
     # makes plots for some metrics
     if CONFUSION_MATRIX in kwargs:
         confusion_matrix = kwargs[CONFUSION_MATRIX]
+        plt.clf()
         plot = plot_confusion_matrix(confusion_matrix)
-        save_figure(experiment_id=experiment_id, figure=plot.figure)
+        save_figure(experiment_id=experiment_id, operator_id=operator_id,
+                    figure=plot.figure)
+        plt.clf()
 
 
 def encode_metrics(metrics: Dict) -> Dict:

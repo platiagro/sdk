@@ -116,9 +116,9 @@ API Reference with examples.
 
 >>> data = confusion_matrix(y_test, y_pred, labels=labels)
 >>> confusion_matrix = pd.DataFrame(data, columns=labels, index=labels)
->>> save_metrics(experiment_id="test", confusion_matrix=confusion_matrix)
->>> save_metrics(experiment_id="test", accuracy=0.7)
->>> save_metrics(experiment_id="test", r2_score=-3.0)
+>>> save_metrics(experiment_id="test", operator_id="test", confusion_matrix=confusion_matrix)
+>>> save_metrics(experiment_id="test", operator_id="test", accuracy=0.7)
+>>> save_metrics(experiment_id="test", operator_id="test", r2_score=-3.0)
 ```
 
 ### Figures
@@ -126,7 +126,7 @@ API Reference with examples.
 ```python
 >>> from platiagro import list_figures
 
->>> list_figures(experiment_id="test")
+>>> list_figures(experiment_id="test", operator_id="test")
 ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAC6CAIAAAB3B9X3AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG6SURBVHhe7dIxAQAADMOg+TfdicgLGrhBIBCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhDB9ho69eEGiUHfAAAAAElFTkSuQmCC']
 ```
 
@@ -137,5 +137,5 @@ API Reference with examples.
 
 data = np.random.rand(10, 12)
 plot = sns.heatmap(data)
-save_figure(experiment_id="test", figure=plot.figure)
+save_figure(experiment_id="test", operator_id="test", figure=plot.figure)
 ```

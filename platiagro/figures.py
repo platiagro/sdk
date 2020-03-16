@@ -9,14 +9,16 @@ import matplotlib.figure
 
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
 
-PREFIX = "experiments"
+PREFIX_1 = "experiments"
+PREFIX_2 = "operators"
 
 
-def list_figures(experiment_id: str) -> List[str]:
+def list_figures(experiment_id: str, operator_id: str) -> List[str]:
     """Lists all figures from object storage as data URI scheme.
 
-    Args
-        experiment_id (str): the experiment name.
+    Args:
+        experiment_id (str): the experiment uuid.
+        operator_id (str): the operator uuid.
 
     Returns:
         A list of data URIs.
@@ -26,7 +28,7 @@ def list_figures(experiment_id: str) -> List[str]:
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    prefix = join(PREFIX, experiment_id, "figure-")
+    prefix = join(PREFIX_1, experiment_id, PREFIX_2, operator_id, "figure-")
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
     for obj in objects:
         data = MINIO_CLIENT.get_object(
@@ -42,18 +44,20 @@ def list_figures(experiment_id: str) -> List[str]:
     return figures
 
 
-def save_figure(experiment_id: str, figure: matplotlib.figure.Figure):
+def save_figure(experiment_id: str, operator_id: str,
+                figure: matplotlib.figure.Figure):
     """Saves a matplotlib figure to the object storage.
 
     Args
-        experiment_id (str): the experiment name.
+        experiment_id (str): the experiment uuid.
+        operator_id (str): the operator uuid.
         figure (matplotlib.figure.Figure): a matplotlib figure.
     """
     if not isinstance(figure, matplotlib.figure.Figure):
         raise TypeError("figure must be a matplotlib figure")
 
     figure_name = "figure-{}.png".format(next(_get_candidate_names()))
-    object_name = join(PREFIX, experiment_id, figure_name)
+    object_name = join(PREFIX_1, experiment_id, PREFIX_2, operator_id, figure_name)
 
     buffer = BytesIO()
     figure.savefig(buffer, format="png")
