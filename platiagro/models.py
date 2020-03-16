@@ -16,7 +16,7 @@ def load_model(experiment_id: str) -> object:
     """Retrieves a model.
 
     Args:
-        experiment_id (str): the experiment id.
+        experiment_id (str): the experiment uuid.
 
     Returns:
         object: A model.
@@ -43,7 +43,7 @@ def save_model(experiment_id: str, model: object):
     """Serializes and saves a model.
 
     Args:
-        experiment_id (str): the experiment id.
+        experiment_id (str): the experiment uuid.
         model (object): the model.
     """
     object_name = join(PREFIX, experiment_id, MODEL_FILE)

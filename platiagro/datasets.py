@@ -3,7 +3,7 @@ from io import BytesIO
 from json import dumps, loads
 from os import SEEK_SET
 from os.path import join
-from typing import List, Tuple, Dict, Optional
+from typing import List, Dict, Optional
 
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
