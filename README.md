@@ -118,7 +118,7 @@ API Reference with examples.
 >>> confusion_matrix = pd.DataFrame(data, columns=labels, index=labels)
 >>> save_metrics(experiment_id="test", operator_id="test", confusion_matrix=confusion_matrix)
 >>> save_metrics(experiment_id="test", operator_id="test", accuracy=0.7)
->>> save_metrics(experiment_id="test", operator_id="test", r2_score=-3.0)
+>>> save_metrics(experiment_id="test", operator_id="test", reset=True, r2_score=-3.0)
 ```
 
 ### Figures

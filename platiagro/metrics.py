@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from json import dumps
+from json import loads, dumps
 from io import BytesIO
 from os.path import join
 from typing import Dict
@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from minio.error import NoSuchKey
 
 from .figures import save_figure
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
@@ -17,25 +18,45 @@ METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def save_metrics(experiment_id: str, operator_id: str, **kwargs):
+def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
+                 **kwargs):
     """Saves metrics of an experiment to the object storage.
 
     Args:
         experiment_id (str): the experiment uuid.
         operator_id (str): the operator uuid.
+        reset (str): whether to reset the metrics. default: False.
         kwargs (dict): the metrics dict.
     """
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
 
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
+    encoded_metrics = []
+
+    # retrieves the metrics saved previosuly
+    if not reset:
+        try:
+            data = MINIO_CLIENT.get_object(
+                bucket_name=BUCKET_NAME,
+                object_name=object_name,
+            )
+            buffer = b""
+            for d in data.stream(32*1024):
+                buffer += d
+            encoded_metrics = loads(buffer.decode("utf-8"))
+        except NoSuchKey:
+            pass
+
+    # appends new metrics
+    encoded_metrics.append(encode_metrics(kwargs))
+
     # puts metrics into buffer
-    encoded_metrics = encode_metrics(kwargs)
     buffer = BytesIO()
     buffer.write(dumps(encoded_metrics).encode())
     buffer.seek(0)
     length = buffer.getbuffer().nbytes
-
-    # ensures MinIO bucket exists
-    make_bucket(BUCKET_NAME)
 
     # uploads metrics to MinIO
     MINIO_CLIENT.put_object(

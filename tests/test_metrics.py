@@ -20,3 +20,5 @@ class TestMetrics(TestCase):
         confusion_matrix = pd.DataFrame(data, columns=labels, index=labels)
         save_metrics(experiment_id="test", operator_id="test",
                      confusion_matrix=confusion_matrix)
+        save_metrics(experiment_id="test", operator_id="test", reset=True,
+                     r2_score=-3.0)
