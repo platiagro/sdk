@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from base64 import b64encode
 from io import BytesIO
-from os import SEEK_SET
 from os.path import join
 from tempfile import _get_candidate_names
 from typing import List
