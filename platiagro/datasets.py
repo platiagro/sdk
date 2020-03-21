@@ -17,7 +17,7 @@ def list_datasets() -> List[str]:
     """Lists all datasets from object storage.
 
     Returns:
-        A list of all datasets names.
+        list: A list of all datasets names.
     """
     datasets = []
 
@@ -38,7 +38,7 @@ def load_dataset(name: str) -> pd.DataFrame:
         name (str): the dataset name.
 
     Returns:
-        A `pandas.DataFrame`.
+        pandas.DataFrame: A `pandas.DataFrame`.
 
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
@@ -53,7 +53,7 @@ def load_dataset(name: str) -> pd.DataFrame:
     except (NoSuchBucket, NoSuchKey):
         raise FileNotFoundError("No such file or directory: '{}'".format(name))
 
-    metadata = load_metadata(name)
+    metadata = stat_dataset(name)
     columns = metadata["columns"]
 
     csv_buffer = BytesIO()
@@ -107,7 +107,7 @@ def save_dataset(name: str,
     )
 
 
-def load_metadata(name: str) -> Dict:
+def stat_dataset(name: str) -> Dict[str, str]:
     """Retrieves the metadata of a dataset.
 
     Args:

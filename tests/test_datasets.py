@@ -7,7 +7,7 @@ from unittest import TestCase
 import pandas as pd
 from minio import Minio
 
-from platiagro import list_datasets, load_dataset, save_dataset, load_metadata
+from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -93,9 +93,9 @@ class TestDatasets(TestCase):
                              "Numerical", "Numerical", "Categorical"],
         })
 
-    def test_load_metadata(self):
+    def test_stat_dataset(self):
         with self.assertRaises(FileNotFoundError):
-            load_metadata("UNK")
+            stat_dataset("UNK")
 
         expected = {
             "columns": ["col0", "col1", "col2", "col3", "col4", "col5"],
@@ -103,5 +103,5 @@ class TestDatasets(TestCase):
                              "Numerical", "Numerical", "Categorical"],
             "filename": "iris.data",
         }
-        result = load_metadata("iris")
+        result = stat_dataset("iris")
         self.assertDictEqual(result, expected)

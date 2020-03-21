@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
+from json import dumps, loads
 from os import SEEK_SET
 from os.path import join
+from typing import Dict, Optional
 
 from joblib import dump, load
 from minio.error import NoSuchBucket, NoSuchKey
@@ -39,18 +41,29 @@ def load_model(experiment_id: str) -> object:
     return model
 
 
-def save_model(experiment_id: str, model: object):
+def save_model(experiment_id: str,
+               model: object,
+               metadata: Optional[Dict[str, str]] = None):
     """Serializes and saves a model.
 
     Args:
         experiment_id (str): the experiment uuid.
         model (object): the model.
+        metadata (dict, optional): metadata about the dataset. Defaults to None.
     """
     object_name = join(PREFIX, experiment_id, MODEL_FILE)
 
     model_buffer = BytesIO()
     dump(model, model_buffer)
     model_buffer.seek(0, SEEK_SET)
+
+    if metadata is None:
+        metadata = {}
+
+    # tries to encode metadata as json
+    # obs: MinIO requires the metadata to be a Dict[str, str]
+    for k, v in metadata.items():
+        metadata[str(k)] = dumps(v)
 
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
@@ -61,4 +74,35 @@ def save_model(experiment_id: str, model: object):
         object_name=object_name,
         data=model_buffer,
         length=model_buffer.getbuffer().nbytes,
+        metadata=metadata,
     )
+
+
+def stat_model(experiment_id: str) -> Dict[str, str]:
+    """Retrieves the metadata of a model.
+
+    Args:
+        experiment_id (str): the experiment uuid.
+
+    Returns:
+        dict: The metadata.
+
+    Raises:
+        FileNotFoundError: If model does not exist in the object storage.
+    """
+    try:
+        object_name = join(PREFIX, experiment_id, MODEL_FILE)
+        stat = MINIO_CLIENT.stat_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+
+        metadata = {}
+        for k, v in stat.metadata.items():
+            if k.startswith("X-Amz-Meta-"):
+                key = k[len("X-Amz-Meta-"):].lower()
+                metadata[key] = loads(v)
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError("No such file or directory: '{}'".format(experiment_id))
+
+    return metadata

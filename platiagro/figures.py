@@ -21,7 +21,7 @@ def list_figures(experiment_id: str, operator_id: str) -> List[str]:
         operator_id (str): the operator uuid.
 
     Returns:
-        A list of data URIs.
+        list: A list of data URIs.
     """
     figures = []
 
@@ -48,10 +48,13 @@ def save_figure(experiment_id: str, operator_id: str,
                 figure: matplotlib.figure.Figure):
     """Saves a matplotlib figure to the object storage.
 
-    Args
+    Args:
         experiment_id (str): the experiment uuid.
         operator_id (str): the operator uuid.
         figure (matplotlib.figure.Figure): a matplotlib figure.
+
+    Raises:
+        TypeError: when a figure is not a matplotlib figure.
     """
     if not isinstance(figure, matplotlib.figure.Figure):
         raise TypeError("figure must be a matplotlib figure")
