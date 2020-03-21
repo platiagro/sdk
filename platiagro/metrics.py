@@ -25,8 +25,8 @@ def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
     Args:
         experiment_id (str): the experiment uuid.
         operator_id (str): the operator uuid.
-        reset (str): whether to reset the metrics. default: False.
-        kwargs (dict): the metrics dict.
+        reset (bool): whether to reset the metrics. default: False.
+        **kwargs: the metrics dict.
     """
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
 

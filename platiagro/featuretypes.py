@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from dateutil.parser import parse
+from typing import List
+
+import pandas as pd
 
 DATETIME = "DateTime"
 CATEGORICAL = "Categorical"
 NUMERICAL = "Numerical"
 
 
-def infer_featuretypes(df, nrows=5):
+def infer_featuretypes(df: pd.DataFrame, nrows: int = 5):
     """Infer featuretypes from DataFrame columns.
 
     Args:
@@ -28,9 +31,16 @@ def infer_featuretypes(df, nrows=5):
     return featuretypes
 
 
-def is_datetime(column):
-    """Returns whether a column is a DateTime."""
-    for _, value in column.iteritems():
+def is_datetime(series: pd.Series):
+    """Returns whether a series contains datetime values.
+
+    Args:
+        series (pandas.Series): the series.
+
+    Returns:
+        bool: True if series contains datetime values, otherwise False.
+    """
+    for _, value in series.iteritems():
         try:
             parse(value)
             break
@@ -39,14 +49,15 @@ def is_datetime(column):
     return True
 
 
-def validate_featuretypes(featuretypes):
+def validate_featuretypes(featuretypes: List[str]):
     """Verifies whether all feature types are valid.
 
     Args:
         featuretypes (list): the list of feature types.
 
     Raises:
-        ValueError: when an invalid feature type is found."""
+        ValueError: when an invalid feature type is found.
+    """
     valid_ones = [DATETIME, NUMERICAL, CATEGORICAL]
     if any(f not in valid_ones for f in featuretypes):
-        raise ValueError("featuretype must be one of {}".format(', '.join(valid_ones)))
+        raise ValueError("featuretype must be one of {}".format(", ".join(valid_ones)))
