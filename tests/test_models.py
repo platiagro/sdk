@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps
-from os import SEEK_SET, getenv
+from os import SEEK_SET
 from unittest import TestCase
 
 from joblib import dump
-from minio import Minio
+from minio.error import BucketAlreadyOwnedByYou
 
 from platiagro import load_model, save_model, stat_model
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
@@ -26,7 +26,7 @@ class TestModels(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except:
+        except BucketAlreadyOwnedByYou:
             pass
 
     def create_mock_model(self):

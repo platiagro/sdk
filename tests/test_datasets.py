@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps
-from os import getenv
 from unittest import TestCase
 
+from minio.error import BucketAlreadyOwnedByYou
 import pandas as pd
-from minio import Minio
 
 from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
@@ -20,16 +19,13 @@ class TestDatasets(TestCase):
         self.create_mock_dataset()
 
     def empty_bucket(self):
-        try:
-            for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
-                MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
-        except:
-            pass
+        for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
+            MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
 
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except:
+        except BucketAlreadyOwnedByYou:
             pass
 
     def create_mock_dataset(self):
@@ -81,7 +77,7 @@ class TestDatasets(TestCase):
             "col1": [5.1, 4.9, 4.7, 4.6],
             "col2": [3.5, 3.0, 3.2, 3.1],
             "col3": [1.4, 1.4, 1.3, 1.5],
-            "col4": [0.2, 0.2, 0.2, 0.2],
+            "col4": [0.2, float('nan'), 0.2, 0.2],
             "col5": ["Iris-setosa", "Iris-setosa", "Iris-setosa", "Iris-setosa"],
         })
         save_dataset("test", df)
