@@ -42,7 +42,7 @@ def is_datetime(series: pd.Series):
     """
     for _, value in series.iteritems():
         try:
-            parse(value)
+            parse(str(value))
             break
         except ValueError:
             return False
