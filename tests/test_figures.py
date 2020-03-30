@@ -3,7 +3,9 @@ from io import BytesIO
 from unittest import TestCase
 
 import matplotlib.pyplot as plt
+from minio.error import BucketAlreadyOwnedByYou
 import numpy as np
+
 from platiagro import list_figures, save_figure
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
@@ -17,16 +19,13 @@ class TestFigures(TestCase):
         self.create_mock_figure()
 
     def empty_bucket(self):
-        try:
-            for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
-                MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
-        except:
-            pass
+        for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
+            MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
 
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except:
+        except BucketAlreadyOwnedByYou:
             pass
 
     def create_mock_figure(self):

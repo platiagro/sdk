@@ -18,7 +18,7 @@ class TestFeaturetypes(TestCase):
         df = pd.DataFrame({
             "col0": ["01-01-2019", "01-01-2020", "01-01-2021"],
             "col1": ["Iris-setosa", "Iris-setosa", "Iris-setosa"],
-            "col2": [5.1, 4.9, 4.7],
+            "col2": [5.1, float('nan'), 4.7],
         })
         expected = [DATETIME, CATEGORICAL, NUMERICAL]
         result = infer_featuretypes(df)
