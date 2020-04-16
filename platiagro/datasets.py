@@ -53,14 +53,11 @@ def load_dataset(name: str) -> pd.DataFrame:
     except (NoSuchBucket, NoSuchKey):
         raise FileNotFoundError("No such file or directory: '{}'".format(name))
 
-    metadata = stat_dataset(name)
-    columns = metadata["columns"]
-
     csv_buffer = BytesIO()
     for d in data.stream(32*1024):
         csv_buffer.write(d)
     csv_buffer.seek(0, SEEK_SET)
-    df = pd.read_csv(csv_buffer, header=None, names=columns, index_col=False)
+    df = pd.read_csv(csv_buffer, header=0, index_col=False)
     return df
 
 
@@ -76,13 +73,8 @@ def save_dataset(name: str,
     """
     object_name = join(PREFIX, name)
 
-    columns = df.columns.values.tolist()
-
     if metadata is None:
         metadata = {}
-
-    # will store columns as metadata
-    metadata["columns"] = columns
 
     # tries to encode metadata as json
     # obs: MinIO requires the metadata to be a Dict[str, str]
@@ -90,7 +82,7 @@ def save_dataset(name: str,
         metadata[str(k)] = dumps(v)
 
     # converts DataFrame to bytes-like
-    csv_bytes = df.to_csv(header=False, index=False).encode("utf-8")
+    csv_bytes = df.to_csv(header=True, index=False).encode("utf-8")
     csv_buffer = BytesIO(csv_bytes)
     file_length = len(csv_bytes)
 
@@ -121,6 +113,7 @@ def stat_dataset(name: str) -> Dict[str, str]:
     """
     try:
         object_name = join(PREFIX, name)
+
         stat = MINIO_CLIENT.stat_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
@@ -131,6 +124,22 @@ def stat_dataset(name: str) -> Dict[str, str]:
             if k.startswith("X-Amz-Meta-"):
                 key = k[len("X-Amz-Meta-"):].lower()
                 metadata[key] = loads(v)
+
+        # reads first line of data (columns)
+        data = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+        buffer = ""
+        for d in data.stream(32*1024):
+            dstr = d.decode("utf-8")
+            index = dstr.find("\n")
+            buffer += dstr[:index]
+            if index > -1:
+                break
+        columns = buffer.split(",")
+        metadata["columns"] = columns
+
     except (NoSuchBucket, NoSuchKey):
         raise FileNotFoundError("No such file or directory: '{}'".format(name))
 
