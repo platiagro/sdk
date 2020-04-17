@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps, loads
-from os import SEEK_SET
 from os.path import join
 from typing import List, Dict, Optional
 
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
+from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket
 
 PREFIX = "datasets"
+FILE_EXTENSION = ".csv.gz"
+METADATA_EXTENSION = ".metadata"
+COMPRESSION = "gzip"
 
 
 def list_datasets() -> List[str]:
@@ -44,21 +46,15 @@ def load_dataset(name: str) -> pd.DataFrame:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
     try:
-        object_name = join(PREFIX, name)
-
-        data = MINIO_CLIENT.get_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
+        path = join("s3://", BUCKET_NAME, PREFIX, name + FILE_EXTENSION)
+        return pd.read_csv(
+            S3FS.open(path),
+            header=0,
+            index_col=False,
+            compression=COMPRESSION,
         )
-    except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("No such file or directory: '{}'".format(name))
-
-    csv_buffer = BytesIO()
-    for d in data.stream(32*1024):
-        csv_buffer.write(d)
-    csv_buffer.seek(0, SEEK_SET)
-    df = pd.read_csv(csv_buffer, header=0, index_col=False)
-    return df
+    except FileNotFoundError:
+        raise FileNotFoundError("The specified dataset does not exist")
 
 
 def save_dataset(name: str,
@@ -71,31 +67,31 @@ def save_dataset(name: str,
         df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
         metadata (dict, optional): metadata about the dataset. Defaults to None.
     """
-    object_name = join(PREFIX, name)
-
-    if metadata is None:
-        metadata = {}
-
-    # tries to encode metadata as json
-    # obs: MinIO requires the metadata to be a Dict[str, str]
-    for k, v in metadata.items():
-        metadata[str(k)] = dumps(v)
-
-    # converts DataFrame to bytes-like
-    csv_bytes = df.to_csv(header=True, index=False).encode("utf-8")
-    csv_buffer = BytesIO(csv_bytes)
-    file_length = len(csv_bytes)
-
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
     # uploads file to MinIO
+    path = join(BUCKET_NAME, PREFIX, name + FILE_EXTENSION)
+    df.to_csv(
+        S3FS.open(path, "w"),
+        header=True,
+        index=False,
+        compression=COMPRESSION,
+    )
+
+    if metadata is None:
+        metadata = {}
+
+    # encodes metadata to JSON format
+    buffer = BytesIO(dumps(metadata).encode())
+
+    # uploads metadata to MinIO
+    object_name = join(PREFIX, name + METADATA_EXTENSION)
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
-        data=csv_buffer,
-        length=file_length,
-        metadata=metadata,
+        data=buffer,
+        length=buffer.getbuffer().nbytes,
     )
 
 
@@ -111,36 +107,30 @@ def stat_dataset(name: str) -> Dict[str, str]:
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
+    metadata = {}
     try:
-        object_name = join(PREFIX, name)
-
-        stat = MINIO_CLIENT.stat_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
-        )
-
-        metadata = {}
-        for k, v in stat.metadata.items():
-            if k.startswith("X-Amz-Meta-"):
-                key = k[len("X-Amz-Meta-"):].lower()
-                metadata[key] = loads(v)
-
-        # reads first line of data (columns)
+        # reads the .metadata file
+        object_name = join(PREFIX, name + METADATA_EXTENSION)
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
-        buffer = ""
-        for d in data.stream(32*1024):
-            dstr = d.decode("utf-8")
-            index = dstr.find("\n")
-            buffer += dstr[:index]
-            if index > -1:
-                break
-        columns = buffer.split(",")
+        # decodes the metadata (which is in JSON format)
+        metadata = loads(data.read())
+
+        # also reads the 1st line of data: column names
+        path = join("s3://", BUCKET_NAME, PREFIX, name + FILE_EXTENSION)
+        df = pd.read_csv(
+            S3FS.open(path),
+            header=0,
+            index_col=False,
+            nrows=1,
+            compression=COMPRESSION,
+        )
+        columns = df.columns.tolist()
         metadata["columns"] = columns
 
     except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("No such file or directory: '{}'".format(name))
+        raise FileNotFoundError("The specified dataset does not exist")
 
     return metadata

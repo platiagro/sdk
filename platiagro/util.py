@@ -3,6 +3,7 @@ from os import getenv
 
 from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou
+from s3fs.core import S3FileSystem
 
 BUCKET_NAME = "anonymous"
 
@@ -12,6 +13,15 @@ MINIO_CLIENT = Minio(
     secret_key=getenv("MINIO_SECRET_KEY", "minio123"),
     region=getenv("MINIO_REGION_NAME", "us-east-1"),
     secure=False,
+)
+
+S3FS = S3FileSystem(
+    key=getenv("MINIO_ACCESS_KEY", "minio"),
+    secret=getenv("MINIO_SECRET_KEY", "minio123"),
+    use_ssl=False,
+    client_kwargs={
+        "endpoint_url": "http://{}".format(getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")),
+    }
 )
 
 

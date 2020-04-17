@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from gzip import compress
 from io import BytesIO
 from json import dumps
 from unittest import TestCase
@@ -6,7 +7,8 @@ from unittest import TestCase
 from minio.error import BucketAlreadyOwnedByYou
 import pandas as pd
 
-from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset
+from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
+    DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -28,25 +30,39 @@ class TestDatasets(TestCase):
         except BucketAlreadyOwnedByYou:
             pass
 
-    def create_mock_dataset(self):
-        file = BytesIO(b"01/01/2000,5.1,3.5,1.4,0.2,Iris-setosa\n" +
-                       b"01/01/2001,4.9,3.0,1.4,0.2,Iris-setosa\n" +
-                       b"01/01/2002,4.7,3.2,1.3,0.2,Iris-setosa\n" +
-                       b"01/01/2003,4.6,3.1,1.5,0.2,Iris-setosa")
-        columns = ["col0", "col1", "col2", "col3", "col4", "col5"]
-        featuretypes = ["DateTime", "Numerical", "Numerical",
-                        "Numerical", "Numerical", "Categorical"]
-        metadata = {
-            "columns": dumps(columns),
-            "featuretypes": dumps(featuretypes),
-            "filename": dumps("iris.data"),
-        }
+    def mock_columns(self, size=1e4):
+        return ["col{}".format(i) for i in range(int(size))]
+
+    def mock_values(self, size=1e4):
+        values = ["01/01/2000", 5.1, 3.5, 1.4, 0.2, "Iris-setosa"]
+        return [values[i % len(values)] for i in range(int(size))]
+
+    def mock_featuretypes(self, size=1e4):
+        ftypes = [DATETIME, NUMERICAL, NUMERICAL,
+                  NUMERICAL, NUMERICAL, CATEGORICAL]
+        return [ftypes[i % len(ftypes)] for i in range(int(size))]
+
+    def create_mock_dataset(self, size=1e6):
+        header = ",".join(self.mock_columns()) + "\n"
+        rows = "\n".join([",".join([str(v) for v in self.mock_values()])
+                          for x in range(int(size))])
+        buffer = BytesIO(compress((header + rows).encode()))
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="datasets/iris",
-            data=file,
-            length=file.getbuffer().nbytes,
-            metadata=metadata,
+            object_name="datasets/mock.csv.gz",
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
+        )
+        metadata = {
+            "featuretypes": self.mock_featuretypes(),
+            "filename": "mock.data",
+        }
+        buffer = BytesIO(dumps(metadata).encode())
+        MINIO_CLIENT.put_object(
+            bucket_name=BUCKET_NAME,
+            object_name="datasets/mock.metadata",
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
         )
 
     def test_list_datasets(self):
@@ -57,36 +73,30 @@ class TestDatasets(TestCase):
         with self.assertRaises(FileNotFoundError):
             load_dataset("UNK")
 
-        expected = pd.DataFrame({
-            "col0": ["01/01/2000", "01/01/2001", "01/01/2002", "01/01/2003"],
-            "col1": [5.1, 4.9, 4.7, 4.6],
-            "col2": [3.5, 3.0, 3.2, 3.1],
-            "col3": [1.4, 1.4, 1.3, 1.5],
-            "col4": [0.2, 0.2, 0.2, 0.2],
-            "col5": ["Iris-setosa", "Iris-setosa", "Iris-setosa", "Iris-setosa"],
-        })
-        result = load_dataset("iris")
+        expected = pd.DataFrame(
+            data=[self.mock_values() for x in range(int(1e6))],
+            columns=self.mock_columns(),
+        )
+        result = load_dataset("mock")
         self.assertTrue(result.equals(expected))
 
     def test_save_dataset(self):
         df = pd.DataFrame({"col0": []})
         save_dataset("test", df)
 
-        df = pd.DataFrame({
-            "col0": ["2000-01-01", "2001-01-01", "2002-01-01", "2003-01-01"],
-            "col1": [5.1, 4.9, 4.7, 4.6],
-            "col2": [3.5, 3.0, 3.2, 3.1],
-            "col3": [1.4, 1.4, 1.3, 1.5],
-            "col4": [0.2, float('nan'), 0.2, 0.2],
-            "col5": ["Iris-setosa", "Iris-setosa", "Iris-setosa", "Iris-setosa"],
-        })
+        df = pd.DataFrame(
+            data=[self.mock_values() for x in range(int(1e6))],
+            columns=self.mock_columns(),
+        )
         save_dataset("test", df)
 
-        df = pd.DataFrame({"col0": []})
+        df = pd.DataFrame(
+            data=[self.mock_values() for x in range(int(1e6))],
+            columns=self.mock_columns(),
+        )
         save_dataset("test", df, metadata={
             "filename": "test.data",
-            "featuretypes": ["DateTime", "Numerical", "Numerical",
-                             "Numerical", "Numerical", "Categorical"],
+            "featuretypes": self.mock_featuretypes(),
         })
 
     def test_stat_dataset(self):
@@ -94,10 +104,9 @@ class TestDatasets(TestCase):
             stat_dataset("UNK")
 
         expected = {
-            "columns": ["col0", "col1", "col2", "col3", "col4", "col5"],
-            "featuretypes": ["DateTime", "Numerical", "Numerical",
-                             "Numerical", "Numerical", "Categorical"],
-            "filename": "iris.data",
+            "columns": self.mock_columns(),
+            "featuretypes": self.mock_featuretypes(),
+            "filename": "mock.data",
         }
-        result = stat_dataset("iris")
+        result = stat_dataset("mock")
         self.assertDictEqual(result, expected)
