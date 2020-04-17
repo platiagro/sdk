@@ -10,9 +10,8 @@ from minio.error import NoSuchBucket, NoSuchKey
 from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket
 
 PREFIX = "datasets"
-FILE_EXTENSION = ".csv.gz"
+FILE_EXTENSION = ".csv"
 METADATA_EXTENSION = ".metadata"
-COMPRESSION = "gzip"
 
 
 def list_datasets() -> List[str]:
@@ -51,7 +50,6 @@ def load_dataset(name: str) -> pd.DataFrame:
             S3FS.open(path),
             header=0,
             index_col=False,
-            compression=COMPRESSION,
         )
     except FileNotFoundError:
         raise FileNotFoundError("The specified dataset does not exist")
@@ -76,7 +74,6 @@ def save_dataset(name: str,
         S3FS.open(path, "w"),
         header=True,
         index=False,
-        compression=COMPRESSION,
     )
 
     if metadata is None:
@@ -125,7 +122,6 @@ def stat_dataset(name: str) -> Dict[str, str]:
             header=0,
             index_col=False,
             nrows=1,
-            compression=COMPRESSION,
         )
         columns = df.columns.tolist()
         metadata["columns"] = columns

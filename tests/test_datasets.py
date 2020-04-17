@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from gzip import compress
 from io import BytesIO
 from json import dumps
 from unittest import TestCase
@@ -42,14 +41,14 @@ class TestDatasets(TestCase):
                   NUMERICAL, NUMERICAL, CATEGORICAL]
         return [ftypes[i % len(ftypes)] for i in range(int(size))]
 
-    def create_mock_dataset(self, size=1e6):
+    def create_mock_dataset(self, size=1e2):
         header = ",".join(self.mock_columns()) + "\n"
         rows = "\n".join([",".join([str(v) for v in self.mock_values()])
                           for x in range(int(size))])
-        buffer = BytesIO(compress((header + rows).encode()))
+        buffer = BytesIO((header + rows).encode())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="datasets/mock.csv.gz",
+            object_name="datasets/mock.csv",
             data=buffer,
             length=buffer.getbuffer().nbytes,
         )
@@ -74,7 +73,7 @@ class TestDatasets(TestCase):
             load_dataset("UNK")
 
         expected = pd.DataFrame(
-            data=[self.mock_values() for x in range(int(1e6))],
+            data=[self.mock_values() for x in range(int(1e2))],
             columns=self.mock_columns(),
         )
         result = load_dataset("mock")
@@ -85,13 +84,13 @@ class TestDatasets(TestCase):
         save_dataset("test", df)
 
         df = pd.DataFrame(
-            data=[self.mock_values() for x in range(int(1e6))],
+            data=[self.mock_values() for x in range(int(1e2))],
             columns=self.mock_columns(),
         )
         save_dataset("test", df)
 
         df = pd.DataFrame(
-            data=[self.mock_values() for x in range(int(1e6))],
+            data=[self.mock_values() for x in range(int(1e2))],
             columns=self.mock_columns(),
         )
         save_dataset("test", df, metadata={
