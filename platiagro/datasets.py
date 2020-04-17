@@ -27,8 +27,9 @@ def list_datasets() -> List[str]:
 
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
     for obj in objects:
-        name = obj.object_name[len(PREFIX) + 1:]
-        datasets.append(name)
+        if obj.object_name.endswith(FILE_EXTENSION):
+            name = obj.object_name[len(PREFIX) + 1:-len(FILE_EXTENSION)]
+            datasets.append(name)
     return datasets
 
 
