@@ -29,14 +29,14 @@ class TestDatasets(TestCase):
         except BucketAlreadyOwnedByYou:
             pass
 
-    def mock_columns(self, size=1e4):
+    def mock_columns(self, size=1e3):
         return ["col{}".format(i) for i in range(int(size))]
 
-    def mock_values(self, size=1e4):
+    def mock_values(self, size=1e3):
         values = ["01/01/2000", 5.1, 3.5, 1.4, 0.2, "Iris-setosa"]
         return [values[i % len(values)] for i in range(int(size))]
 
-    def mock_featuretypes(self, size=1e4):
+    def mock_featuretypes(self, size=1e3):
         ftypes = [DATETIME, NUMERICAL, NUMERICAL,
                   NUMERICAL, NUMERICAL, CATEGORICAL]
         return [ftypes[i % len(ftypes)] for i in range(int(size))]
