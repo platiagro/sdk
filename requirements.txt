@@ -7,3 +7,5 @@ pandas==0.25.3
 joblib==0.14.1
 # Makes statistical graphics
 seaborn==0.10.0
+# Filesystem interface for S3
+s3fs==0.4.2

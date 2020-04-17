@@ -38,7 +38,7 @@ def list_figures(experiment_id: str, operator_id: str) -> List[str]:
         buffer = b""
         for d in data.stream(32*1024):
             buffer += d
-        encoded_figure = b64encode(buffer).decode("utf8")
+        encoded_figure = b64encode(buffer).decode()
         figure = "data:image/png;base64,{}".format(encoded_figure)
         figures.append(figure)
     return figures

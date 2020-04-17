@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from json import loads, dumps
 from io import BytesIO
+from json import loads, dumps
 from os.path import join
 from typing import Dict
 
@@ -42,10 +42,7 @@ def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
                 bucket_name=BUCKET_NAME,
                 object_name=object_name,
             )
-            buffer = b""
-            for d in data.stream(32*1024):
-                buffer += d
-            encoded_metrics = loads(buffer.decode("utf-8"))
+            encoded_metrics = loads(data.read())
         except NoSuchKey:
             pass
 
