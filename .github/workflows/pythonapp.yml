@@ -5,7 +5,7 @@ name: Python application
 
 on:
   push:
-    branches: [ master, feature/dataset-versioning ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
