@@ -94,8 +94,9 @@ def save_dataset(name: str,
     # stores columns as metadata
     metadata["columns"] = df.columns.tolist()
 
-    # stores featuretypes as metadata
-    metadata["featuretypes"] = infer_featuretypes(df)
+    if "featuretypes" not in metadata:
+        # stores featuretypes as metadata
+        metadata["featuretypes"] = infer_featuretypes(df)
 
     # stores filename as metadata
     metadata["filename"] = filename
