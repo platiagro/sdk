@@ -1,7 +1,7 @@
 # PlatIAgro SDK
 
 [![Build Status](https://github.com/platiagro/sdk/workflows/Python%20application/badge.svg)](https://github.com/platiagro/sdk/actions?query=workflow%3A%22Python+application%22)
-[![codecov](https://codecov.io/gh/platiagro/sdk/branch/master/graph/badge.svg)](https://codecov.io/gh/platiagro/sdk)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=platiagro_sdk&metric=alert_status)](https://sonarcloud.io/dashboard?id=platiagro_sdk)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Gitter](https://badges.gitter.im/platiagro/community.svg)](https://gitter.im/platiagro/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 [![Known Vulnerabilities](https://snyk.io/test/github/platiagro/sdk/badge.svg?targetFile=requirements.txt)](https://snyk.io/test/github/platiagro/sdk?targetFile=requirements.txt)

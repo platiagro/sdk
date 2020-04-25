@@ -48,18 +48,19 @@ class TestDatasets(TestCase):
         buffer = BytesIO((header + rows).encode())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="datasets/mock.csv",
+            object_name="datasets/mock/19700101000000000000.csv",
             data=buffer,
             length=buffer.getbuffer().nbytes,
         )
         metadata = {
+            "columns": self.mock_columns(),
             "featuretypes": self.mock_featuretypes(),
-            "filename": "mock.data",
+            "filename": "19700101000000000000.csv",
         }
         buffer = BytesIO(dumps(metadata).encode())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="datasets/mock.metadata",
+            object_name="datasets/mock/.metadata",
             data=buffer,
             length=buffer.getbuffer().nbytes,
         )
@@ -94,8 +95,7 @@ class TestDatasets(TestCase):
             columns=self.mock_columns(),
         )
         save_dataset("test", df, metadata={
-            "filename": "test.data",
-            "featuretypes": self.mock_featuretypes(),
+            "featuretypes": [CATEGORICAL for ft in self.mock_featuretypes()],
         })
 
     def test_stat_dataset(self):
@@ -105,7 +105,7 @@ class TestDatasets(TestCase):
         expected = {
             "columns": self.mock_columns(),
             "featuretypes": self.mock_featuretypes(),
-            "filename": "mock.data",
+            "filename": "19700101000000000000.csv",
         }
         result = stat_dataset("mock")
         self.assertDictEqual(result, expected)
