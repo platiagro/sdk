@@ -46,11 +46,11 @@ def load_dataset(name: str) -> pd.DataFrame:
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
-    # finds the filepath
+    # gets the filename from metadata
     metadata = stat_dataset(name)
+    filename = metadata["filename"]
 
     try:
-        filename = metadata["filename"]
         path = join(BUCKET_NAME, PREFIX, name, filename)
         return pd.read_csv(
             S3FS.open(path),
@@ -63,16 +63,31 @@ def load_dataset(name: str) -> pd.DataFrame:
 
 def save_dataset(name: str,
                  df: pd.DataFrame,
-                 metadata: Optional[Dict[str, str]] = None):
+                 metadata: Optional[Dict[str, str]] = None,
+                 read_only: bool = False):
     """Saves a dataset and its metadata to the object storage.
 
     Args:
         name (str): the dataset name.
         df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
         metadata (dict, optional): metadata about the dataset. Defaults to None.
+        read_only (bool, optional): whether the dataset will be read only. Defaults to False.
+
+    Raises:
+        PermissionError: If dataset was read only.
     """
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
+
+    try:
+        # gets metadata (if dataset already exists)
+        metadata = stat_dataset(name)
+        was_read_only = metadata["read_only"]
+    except FileNotFoundError:
+        was_read_only = False
+
+    if was_read_only:
+        raise PermissionError("The specified dataset was marked as read only")
 
     # generates a filename using current UTC datetime
     filename = datetime.utcnow().strftime("%Y%m%d%H%M%S%f") + ".csv"
@@ -91,15 +106,13 @@ def save_dataset(name: str,
     if metadata is None:
         metadata = {}
 
-    # stores columns as metadata
+    # stores metadata: columns, filename, read_only, featuretypes
     metadata["columns"] = df.columns.tolist()
+    metadata["filename"] = filename
+    metadata["read_only"] = read_only
 
     if "featuretypes" not in metadata:
-        # stores featuretypes as metadata
         metadata["featuretypes"] = infer_featuretypes(df)
-
-    # stores filename as metadata
-    metadata["filename"] = filename
 
     # encodes metadata to JSON format
     buffer = BytesIO(dumps(metadata).encode())

@@ -98,6 +98,13 @@ class TestDatasets(TestCase):
             "featuretypes": [CATEGORICAL for ft in self.mock_featuretypes()],
         })
 
+        df = pd.DataFrame({"col0": []})
+        save_dataset("test", df, read_only=True)
+
+        with self.assertRaises(PermissionError):
+            df = pd.DataFrame({"col0": []})
+            save_dataset("test", df)
+
     def test_stat_dataset(self):
         with self.assertRaises(FileNotFoundError):
             stat_dataset("UNK")
