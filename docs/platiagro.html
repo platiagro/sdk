@@ -89,7 +89,7 @@
 </div>
 <dl class="function">
 <dt id="platiagro.save_dataset">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_dataset</code><span class="sig-paren">(</span><em class="sig-param">name: str</em>, <em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">metadata: Optional[Dict[str</em>, <em class="sig-param">str]] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_dataset" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_dataset</code><span class="sig-paren">(</span><em class="sig-param">name: str</em>, <em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">metadata: Optional[Dict[str</em>, <em class="sig-param">str]] = None</em>, <em class="sig-param">read_only: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a dataset and its metadata to the object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -97,7 +97,11 @@
 <li><p><strong>name</strong> (<em>str</em>) – the dataset name.</p></li>
 <li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – the dataset as a <cite>pandas.DataFrame</cite>.</p></li>
 <li><p><strong>metadata</strong> (<em>dict</em><em>, </em><em>optional</em>) – metadata about the dataset. Defaults to None.</p></li>
+<li><p><strong>read_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether the dataset will be read only. Defaults to False.</p></li>
 </ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>PermissionError</strong> – If dataset was read only.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -434,7 +438,7 @@
       &copy;2020, Fabio Beranizo Fontes Lopes.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
