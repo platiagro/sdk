@@ -39,7 +39,7 @@ def list_figures(experiment_id: str, operator_id: str) -> List[str]:
         for d in data.stream(32*1024):
             buffer += d
         encoded_figure = b64encode(buffer).decode()
-        figure = "data:image/png;base64,{}".format(encoded_figure)
+        figure = f"data:image/png;base64,{encoded_figure}"
         figures.append(figure)
     return figures
 
@@ -59,7 +59,8 @@ def save_figure(experiment_id: str, operator_id: str,
     if not isinstance(figure, matplotlib.figure.Figure):
         raise TypeError("figure must be a matplotlib figure")
 
-    figure_name = "figure-{}.png".format(next(_get_candidate_names()))
+    random_str = next(_get_candidate_names())
+    figure_name = f"figure-{random_str}.png"
     object_name = join(PREFIX_1, experiment_id, PREFIX_2, operator_id, figure_name)
 
     buffer = BytesIO()

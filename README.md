@@ -54,7 +54,7 @@ pytest
 Use the following command to run lint:
 
 ```bash
-flake8
+flake8 --max-line-length 127 platiagro/
 ```
 
 ## API

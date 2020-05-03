@@ -60,4 +60,5 @@ def validate_featuretypes(featuretypes: List[str]):
     """
     valid_ones = [DATETIME, NUMERICAL, CATEGORICAL]
     if any(f not in valid_ones for f in featuretypes):
-        raise ValueError("featuretype must be one of {}".format(", ".join(valid_ones)))
+        valid_str = ", ".join(valid_ones)
+        raise ValueError(f"featuretype must be one of {valid_str}")
