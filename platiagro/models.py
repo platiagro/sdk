@@ -30,7 +30,7 @@ def load_model(experiment_id: str) -> object:
             object_name=object_name,
         )
     except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("No such file or directory: '{}'".format(experiment_id))
+        raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
 
     model_buffer = BytesIO()
     for d in data.stream(32*1024):
@@ -103,6 +103,6 @@ def stat_model(experiment_id: str) -> Dict[str, str]:
                 key = k[len("X-Amz-Meta-"):].lower()
                 metadata[key] = loads(v)
     except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("No such file or directory: '{}'".format(experiment_id))
+        raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
 
     return metadata
