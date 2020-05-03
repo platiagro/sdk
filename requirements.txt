@@ -1,11 +1,11 @@
 # Access object storage server
-minio==5.0.6
+minio>=5.0.6
 # Helps with structured data operations
-pandas==0.25.3
+pandas>=0.25.3
 # Replacement for pickle to work efficiently
 # on Python objects containing large data
-joblib==0.14.1
+joblib>=0.14.1
 # Makes statistical graphics
-seaborn==0.10.0
+seaborn>=0.10.0
 # Filesystem interface for S3
-s3fs==0.4.2
+s3fs>=0.3.0
