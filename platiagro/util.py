@@ -31,9 +31,49 @@ def make_bucket(name):
     """Creates the bucket in MinIO. Ignores exception if bucket already exists.
 
     Args:
-        name: the bucket name
+        name: the bucket name.
     """
     try:
         MINIO_CLIENT.make_bucket(name)
     except BucketAlreadyOwnedByYou:
         pass
+
+
+def get_experiment_id():
+    """Looks for an experiment id in various locations.
+
+    1st env variable "EXPERIMENT_ID".
+    2nd notebook metadata.
+
+    Returns:
+        str: the experiment uuid.
+
+    Raises:
+        TypeError: when experiment id is undefinded everywhere.
+    """
+    experiment_id = getenv("EXPERIMENT_ID")
+
+    if experiment_id is not None:
+        return experiment_id
+
+    raise TypeError("experiment_id is undefined")
+
+
+def get_operator_id():
+    """Looks for an operator id in various locations.
+
+    1st env variable "OPERATOR_ID".
+    2nd notebook metadata.
+
+    Returns:
+        str: the operator uuid.
+
+    Raises:
+        TypeError: when operator id is undefinded everywhere.
+    """
+    operator_id = getenv("OPERATOR_ID")
+
+    if operator_id is not None:
+        return operator_id
+
+    raise TypeError("operator_id is undefined")

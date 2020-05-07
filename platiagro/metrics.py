@@ -2,7 +2,7 @@
 from io import BytesIO
 from json import loads, dumps
 from os.path import join
-from typing import Dict
+from typing import Dict, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,23 +11,32 @@ import seaborn as sns
 from minio.error import NoSuchKey
 
 from .figures import save_figure
-from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
+from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
+    get_operator_id, make_bucket
 
 PREFIX = "experiments"
 METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
+def save_metrics(reset: bool = False,
+                 experiment_id: Optional[str] = None,
+                 operator_id: Optional[str] = None,
                  **kwargs):
     """Saves metrics of an experiment to the object storage.
 
     Args:
-        experiment_id (str): the experiment uuid.
-        operator_id (str): the operator uuid.
-        reset (bool): whether to reset the metrics. default: False.
+        reset (bool): whether to reset the metrics. Defaults to False.
+        experiment_id (str, optional): the experiment uuid. Defaults to None
+        operator_id (str, optional): the operator uuid. Defaults to None
         **kwargs: the metrics dict.
     """
+    if experiment_id is None:
+        experiment_id = get_experiment_id()
+
+    if operator_id is None:
+        operator_id = get_operator_id()
+
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
 
     # ensures MinIO bucket exists
@@ -68,7 +77,8 @@ def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
         confusion_matrix = kwargs[CONFUSION_MATRIX]
         plt.clf()
         plot = plot_confusion_matrix(confusion_matrix)
-        save_figure(experiment_id=experiment_id, operator_id=operator_id,
+        save_figure(experiment_id=experiment_id,
+                    operator_id=operator_id,
                     figure=plot.figure)
         plt.clf()
 

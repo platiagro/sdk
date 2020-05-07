@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from os import environ
 from unittest import TestCase
 
 import numpy as np
@@ -9,6 +10,19 @@ from platiagro import save_metrics
 class TestMetrics(TestCase):
 
     def test_save_metrics(self):
+        with self.assertRaises(TypeError):
+            save_metrics(accuracy=1.0)
+
+        environ["EXPERIMENT_ID"] = "test"
+        with self.assertRaises(TypeError):
+            save_metrics(accuracy=1.0)
+
+        environ["OPERATOR_ID"] = "test"
+        save_metrics(accuracy=1.0)
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+
         with self.assertRaises(TypeError):
             save_metrics(experiment_id="test", operator_id="test",
                          accuracy=lambda x: "WUT")
