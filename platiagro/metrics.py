@@ -19,14 +19,14 @@ METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def list_metrics(experiment_id: Optional[str] = None) -> List[str]:
-    """Lists all metrics of an experiment from object storage.
+def list_metrics(experiment_id: Optional[str] = None) -> List[Dict[str, object]]:
+    """Lists all metrics of an experiment.
 
     Args:
         experiment_id (str, optional): the experiment uuid. Defaults to None.
 
     Returns:
-        list: A list of data URIs.
+        list: A list of metrics.
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
@@ -105,14 +105,14 @@ def save_metrics(reset: bool = False,
         plt.clf()
 
 
-def encode_metrics(metrics: Dict) -> Dict:
+def encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
     """Prepares metric values for JSON encoding.
 
     Args:
         metrics (dict): the dictionary of metrics.
 
     Returns:
-        (dict): the dictionary of metrics after encoding.
+        (list): the list of metrics after encoding.
 
     Raises:
         TypeError: If a metric is not any of these types:
@@ -122,12 +122,12 @@ def encode_metrics(metrics: Dict) -> Dict:
     for k, v in metrics.items():
         if isinstance(v, (np.ndarray, pd.Series)):
             encoded_metrics.append({k: v.tolist()})
-        if isinstance(v, pd.DataFrame):
+        elif isinstance(v, pd.DataFrame):
             encoded_metrics.append({k: v.values.tolist()})
         elif isinstance(v, (int, float, str)):
             encoded_metrics.append({k: v})
         else:
-            raise TypeError("{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame")
+            raise TypeError(f"{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame, pandas.Series")
     return encoded_metrics
 
 

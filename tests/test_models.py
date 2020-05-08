@@ -64,7 +64,7 @@ class TestModels(TestCase):
 
         environ["EXPERIMENT_ID"] = "test"
         model = MockModel()
-        save_model(model=model)
+        save_model()
         del environ["EXPERIMENT_ID"]
 
         model = MockModel()

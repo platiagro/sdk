@@ -68,7 +68,7 @@ def get_experiment_id():
         kernel_id = connection_file.split("-", 1)[1].split(".")[0]
 
         # then extract experiment id from notebook metadata
-        sessions = get(f"{JUPYTER_ENDPOINT}/sessions")
+        sessions = get(f"{JUPYTER_ENDPOINT}/api/sessions").json()
         for sess in sessions:
             if sess["kernel"]["id"] == kernel_id:
                 filename = sess["notebook"]["name"]
@@ -104,7 +104,7 @@ def get_operator_id():
         kernel_id = connection_file.split("-", 1)[1].split(".")[0]
 
         # then extract experiment id from notebook metadata
-        sessions = get(f"{JUPYTER_ENDPOINT}/sessions").json()
+        sessions = get(f"{JUPYTER_ENDPOINT}/api/sessions").json()
         for sess in sessions:
             if sess["kernel"]["id"] == kernel_id:
                 filename = sess["notebook"]["name"]
