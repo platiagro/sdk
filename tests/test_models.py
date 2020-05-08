@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from json import dumps
 from os import SEEK_SET, environ
 from unittest import TestCase
 
@@ -19,7 +18,7 @@ class MockModel:
 class TestModels(TestCase):
 
     def setUp(self):
-        """Prepares a dataset for tests."""
+        """Prepares a model for tests."""
         self.make_bucket()
         self.create_mock_model()
 
@@ -31,15 +30,14 @@ class TestModels(TestCase):
 
     def create_mock_model(self):
         model = {"model": MockModel()}
-        model_buffer = BytesIO()
-        dump(model, model_buffer)
-        model_buffer.seek(0, SEEK_SET)
+        buffer = BytesIO()
+        dump(model, buffer)
+        buffer.seek(0, SEEK_SET)
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name="experiments/mock/model",
-            data=model_buffer,
-            length=model_buffer.getbuffer().nbytes,
-            metadata={"author": dumps("fabio.beranizo@gmail.com")},
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
         )
 
     def test_load_model(self):

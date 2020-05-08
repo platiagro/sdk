@@ -43,10 +43,7 @@ def list_figures(experiment_id: Optional[str] = None,
             bucket_name=BUCKET_NAME,
             object_name=obj.object_name,
         )
-        buffer = b""
-        for d in data.stream(32*1024):
-            buffer += d
-        encoded_figure = b64encode(buffer).decode()
+        encoded_figure = b64encode(data.read()).decode()
         figure = f"data:image/png;base64,{encoded_figure}"
         figures.append(figure)
     return figures

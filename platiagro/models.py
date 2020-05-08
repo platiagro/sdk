@@ -34,13 +34,9 @@ def load_model(experiment_id: Optional[str] = None) -> Dict[str, object]:
     except (NoSuchBucket, NoSuchKey):
         raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
 
-    model_buffer = BytesIO()
-    for d in data.stream(32*1024):
-        model_buffer.write(d)
-    model_buffer.seek(0, SEEK_SET)
-    model = load(model_buffer)
+    buffer = BytesIO(data.read())
 
-    return model
+    return load(buffer)
 
 
 def save_model(**kwargs):

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from json import loads, dumps
+from json import load, loads, dumps
 from os.path import join
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from minio.error import NoSuchKey
+from minio.error import NoSuchBucket, NoSuchKey
 
 from .figures import save_figure
 from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
@@ -17,6 +17,30 @@ from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
 PREFIX = "experiments"
 METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
+
+
+def list_metrics(experiment_id: Optional[str] = None) -> List[str]:
+    """Lists all metrics of an experiment from object storage.
+
+    Args:
+        experiment_id (str, optional): the experiment uuid. Defaults to None.
+
+    Returns:
+        list: A list of data URIs.
+    """
+    if experiment_id is None:
+        experiment_id = get_experiment_id()
+
+    try:
+        object_name = join(PREFIX, experiment_id, METRICS_FILE)
+        data = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
+
+    return load(data)
 
 
 def save_metrics(reset: bool = False,
@@ -33,9 +57,6 @@ def save_metrics(reset: bool = False,
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
-
-    if operator_id is None:
-        operator_id = get_operator_id()
 
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
 
@@ -56,24 +77,25 @@ def save_metrics(reset: bool = False,
             pass
 
     # appends new metrics
-    encoded_metrics.append(encode_metrics(kwargs))
+    encoded_metrics.extend(encode_metrics(kwargs))
 
     # puts metrics into buffer
-    buffer = BytesIO()
-    buffer.write(dumps(encoded_metrics).encode())
-    buffer.seek(0)
-    length = buffer.getbuffer().nbytes
+    buffer = BytesIO(dumps(encoded_metrics).encode())
 
     # uploads metrics to MinIO
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
         data=buffer,
-        length=length,
+        length=buffer.getbuffer().nbytes,
     )
 
     # makes plots for some metrics
     if CONFUSION_MATRIX in kwargs:
+
+        if operator_id is None:
+            operator_id = get_operator_id()
+
         confusion_matrix = kwargs[CONFUSION_MATRIX]
         plt.clf()
         plot = plot_confusion_matrix(confusion_matrix)
@@ -93,16 +115,17 @@ def encode_metrics(metrics: Dict) -> Dict:
         (dict): the dictionary of metrics after encoding.
 
     Raises:
-        TypeError: If a metric is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame.
+        TypeError: If a metric is not any of these types:
+        int, float, str, numpy.ndarray, pandas.DataFrame, pandas.Series.
     """
-    encoded_metrics = {}
+    encoded_metrics = []
     for k, v in metrics.items():
-        if isinstance(v, np.ndarray):
-            encoded_metrics[k] = v.tolist()
-        elif isinstance(v, pd.DataFrame):
-            encoded_metrics[k] = v.to_dict()
+        if isinstance(v, (np.ndarray, pd.Series)):
+            encoded_metrics.append({k: v.tolist()})
+        if isinstance(v, pd.DataFrame):
+            encoded_metrics.append({k: v.values.tolist()})
         elif isinstance(v, (int, float, str)):
-            encoded_metrics[k] = v
+            encoded_metrics.append({k: v})
         else:
             raise TypeError("{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame")
     return encoded_metrics
