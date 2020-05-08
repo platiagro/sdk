@@ -66,8 +66,8 @@ Load and save models
   from platiagro import load_model
 
   class Predictor(object):
-      def __init__(self, dataset=None, target=None, experiment_id=None):
-          self.model = load_model(experiment_id)
+      def __init__(self):
+          self.model = load_model()
 
       def predict(self, X)
           return self.model.predict(X)
@@ -78,26 +78,22 @@ Load and save models
 
   from platiagro import save_model
 
-  experiment_id = "48f2668a-e31a-4b5a-a91a-28fd649f7adc"
-
   model = MockModel()
-  save_model(experiment_id, model)
-
-.. autofunction:: stat_model
-
-.. code-block:: python
-
-  from platiagro import stat_model
-
-  experiment_id = "48f2668a-e31a-4b5a-a91a-28fd649f7adc"
-
-  stat_model(experiment_id)
-  {'author': 'example@email.com'}
+  save_model(model=model)
 
 Save metrics
 ------------
 
 .. currentmodule:: platiagro
+
+.. autofunction:: list_metrics
+
+.. code-block:: python
+
+  from platiagro import list_metrics
+
+  list_metrics()
+  [{'accuracy': 0.7}]
 
 .. autofunction:: save_metrics
 
@@ -108,15 +104,11 @@ Save metrics
   from platiagro import save_metrics
   from sklearn.metrics import confusion_matrix
 
-  experiment_id = "99284308-cd3f-47d4-ab71-9c57acbb4d7b"
-  operator_id = "57c9b20a-72b1-40f1-a361-976ff66e4b1f"
-
   data = confusion_matrix(y_test, y_pred, labels=labels)
   confusion_matrix = pd.DataFrame(data, columns=labels, index=labels)
-  save_metrics(experiment_id, operator_id, confusion_matrix=confusion_matrix)
-  save_metrics(experiment_id, operator_id, accuracy=0.7)
-  save_metrics(experiment_id, operator_id, reset=True, r2_score=-3.0)
-
+  save_metrics(confusion_matrix=confusion_matrix)
+  save_metrics(accuracy=0.7)
+  save_metrics(reset=True, r2_score=-3.0)
 
 List and save figures
 ---------------------
@@ -129,7 +121,7 @@ List and save figures
 
   from platiagro import list_figures
 
-  list_figures(experiment_id, operator_id)
+  list_figures()
   ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAAC6CAIAAAB3B9X3AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG6SURBVHhe7dIxAQAADMOg+TfdicgLGrhBIBCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhCJQCQCkQhEIhDB9ho69eEGiUHfAAAAAElFTkSuQmCC']
 
 .. autofunction:: save_figure
@@ -140,12 +132,9 @@ List and save figures
   import seaborn as sns
   from platiagro import save_figure
 
-  experiment_id = "99284308-cd3f-47d4-ab71-9c57acbb4d7b"
-  operator_id = "57c9b20a-72b1-40f1-a361-976ff66e4b1f"
-
   data = np.random.rand(10, 12)
   plot = sns.heatmap(data)
-  save_figure(experiment_id, operator_id, figure=plot.figure)
+  save_figure(figure=plot.figure)
 
 Get feature types
 -----------------
