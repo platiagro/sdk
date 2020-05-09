@@ -15,3 +15,5 @@ ipykernel>=5.2.0
 notebook>=6.0.2
 # Make HTTP requests simpler and more human-friendly
 requests>=2.23.0
+# Converts ML models into production REST/GRPC microservice
+seldon-core>=1.0.2,<1.1.0

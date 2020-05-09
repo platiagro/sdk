@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from os import getenv
 from os.path import basename
+from typing import Optional
 
 from IPython.lib import kernel
 from minio import Minio
@@ -32,11 +33,11 @@ S3FS = S3FileSystem(
 )
 
 
-def make_bucket(name):
+def make_bucket(name: str):
     """Creates the bucket in MinIO. Ignores exception if bucket already exists.
 
     Args:
-        name: the bucket name.
+        name (str): the bucket name.
     """
     try:
         MINIO_CLIENT.make_bucket(name)
@@ -44,17 +45,21 @@ def make_bucket(name):
         pass
 
 
-def get_experiment_id():
+def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None):
     """Looks for an experiment id in various locations.
 
     1st env variable "EXPERIMENT_ID".
     2nd notebook metadata.
 
+    Args:
+        raise_for_none (bool): Whether to raise TypeError if experiment id is undefined. Defaults to True.
+        default (str): A default value to return experiment id is undefined. Defaults to None.
+
     Returns:
         str: the experiment uuid.
 
     Raises:
-        TypeError: when experiment id is undefinded everywhere.
+        TypeError: when raise_for_none is True and experiment id is undefinded.
     """
     experiment_id = getenv("EXPERIMENT_ID")
 
@@ -77,14 +82,21 @@ def get_experiment_id():
     except (RuntimeError, ConnectionError):
         pass
 
-    raise TypeError("experiment_id is undefined")
+    if raise_for_none:
+        raise TypeError("experiment_id is undefined")
+
+    return default
 
 
-def get_operator_id():
+def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
     """Looks for an operator id in various locations.
 
     1st env variable "OPERATOR_ID".
     2nd notebook metadata.
+
+    Args:
+        raise_for_none (bool): Whether to raise TypeError if operator id is undefined. Defaults to True.
+        default (str): A default value to return operator id is undefined. Defaults to None.
 
     Returns:
         str: the operator uuid.
@@ -113,4 +125,7 @@ def get_operator_id():
     except (RuntimeError, ConnectionError):
         pass
 
-    raise TypeError("operator_id is undefined")
+    if raise_for_none:
+        raise TypeError("operator_id is undefined")
+
+    return default
