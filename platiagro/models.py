@@ -10,7 +10,7 @@ from minio.error import NoSuchBucket, NoSuchKey
 from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, make_bucket
 
 PREFIX = "experiments"
-MODEL_FILE = "model"
+MODEL_FILE = "model.joblib"
 
 
 def load_model(experiment_id: Optional[str] = None) -> Dict[str, object]:
