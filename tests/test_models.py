@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from json import dumps
-from os import SEEK_SET
+from os import SEEK_SET, environ
 from unittest import TestCase
 
 from joblib import dump
 from minio.error import BucketAlreadyOwnedByYou
 
-from platiagro import load_model, save_model, stat_model
+from platiagro import load_model, save_model
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -19,7 +18,7 @@ class MockModel:
 class TestModels(TestCase):
 
     def setUp(self):
-        """Prepares a dataset for tests."""
+        """Prepares a model for tests."""
         self.make_bucket()
         self.create_mock_model()
 
@@ -30,36 +29,48 @@ class TestModels(TestCase):
             pass
 
     def create_mock_model(self):
-        model = MockModel()
-        model_buffer = BytesIO()
-        dump(model, model_buffer)
-        model_buffer.seek(0, SEEK_SET)
+        model = {"model": MockModel()}
+        buffer = BytesIO()
+        dump(model, buffer)
+        buffer.seek(0, SEEK_SET)
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name="experiments/mock/model",
-            data=model_buffer,
-            length=model_buffer.getbuffer().nbytes,
-            metadata={"author": dumps("fabio.beranizo@gmail.com")},
+            object_name="experiments/mock/model.joblib",
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
         )
 
     def test_load_model(self):
         with self.assertRaises(FileNotFoundError):
             load_model("UNK")
 
+        with self.assertRaises(TypeError):
+            load_model()
+
+        environ["EXPERIMENT_ID"] = "mock"
+        model = load_model()
+        self.assertIsInstance(model, dict)
+        self.assertIsInstance(model["model"], MockModel)
+        del environ["EXPERIMENT_ID"]
+
         model = load_model("mock")
-        self.assertIsInstance(model, MockModel)
+        self.assertIsInstance(model, dict)
+        self.assertIsInstance(model["model"], MockModel)
 
     def test_save_model(self):
+        with self.assertRaises(TypeError):
+            model = MockModel()
+            save_model(model)
+
+        environ["EXPERIMENT_ID"] = "test"
         model = MockModel()
-        save_model("test", model)
+        save_model()
+        del environ["EXPERIMENT_ID"]
 
         model = MockModel()
-        save_model("test", model, metadata={"author": ""})
+        save_model(experiment_id="test",
+                   model=model)
 
-    def test_stat_model(self):
-        with self.assertRaises(FileNotFoundError):
-            stat_model("UNK")
-
-        expected = {"author": "fabio.beranizo@gmail.com"}
-        result = stat_model("mock")
-        self.assertDictEqual(result, expected)
+        model = MockModel()
+        save_model(experiment_id="test",
+                   model=model)

@@ -1,33 +1,63 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
-from json import loads, dumps
+from json import load, loads, dumps
 from os.path import join
-from typing import Dict
+from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from minio.error import NoSuchKey
+from minio.error import NoSuchBucket, NoSuchKey
 
 from .figures import save_figure
-from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket
+from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
+    get_operator_id, make_bucket
 
 PREFIX = "experiments"
 METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
+def list_metrics(experiment_id: Optional[str] = None) -> List[Dict[str, object]]:
+    """Lists all metrics of an experiment.
+
+    Args:
+        experiment_id (str, optional): the experiment uuid. Defaults to None.
+
+    Returns:
+        list: A list of metrics.
+    """
+    if experiment_id is None:
+        experiment_id = get_experiment_id()
+
+    try:
+        object_name = join(PREFIX, experiment_id, METRICS_FILE)
+        data = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
+
+    return load(data)
+
+
+def save_metrics(reset: bool = False,
+                 experiment_id: Optional[str] = None,
+                 operator_id: Optional[str] = None,
                  **kwargs):
     """Saves metrics of an experiment to the object storage.
 
     Args:
-        experiment_id (str): the experiment uuid.
-        operator_id (str): the operator uuid.
-        reset (bool): whether to reset the metrics. default: False.
+        reset (bool): whether to reset the metrics. Defaults to False.
+        experiment_id (str, optional): the experiment uuid. Defaults to None
+        operator_id (str, optional): the operator uuid. Defaults to None
         **kwargs: the metrics dict.
     """
+    if experiment_id is None:
+        experiment_id = get_experiment_id()
+
     object_name = join(PREFIX, experiment_id, METRICS_FILE)
 
     # ensures MinIO bucket exists
@@ -47,54 +77,57 @@ def save_metrics(experiment_id: str, operator_id: str, reset: bool = False,
             pass
 
     # appends new metrics
-    encoded_metrics.append(encode_metrics(kwargs))
+    encoded_metrics.extend(encode_metrics(kwargs))
 
     # puts metrics into buffer
-    buffer = BytesIO()
-    buffer.write(dumps(encoded_metrics).encode())
-    buffer.seek(0)
-    length = buffer.getbuffer().nbytes
+    buffer = BytesIO(dumps(encoded_metrics).encode())
 
     # uploads metrics to MinIO
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
         data=buffer,
-        length=length,
+        length=buffer.getbuffer().nbytes,
     )
 
     # makes plots for some metrics
     if CONFUSION_MATRIX in kwargs:
+
+        if operator_id is None:
+            operator_id = get_operator_id()
+
         confusion_matrix = kwargs[CONFUSION_MATRIX]
         plt.clf()
         plot = plot_confusion_matrix(confusion_matrix)
-        save_figure(experiment_id=experiment_id, operator_id=operator_id,
+        save_figure(experiment_id=experiment_id,
+                    operator_id=operator_id,
                     figure=plot.figure)
         plt.clf()
 
 
-def encode_metrics(metrics: Dict) -> Dict:
+def encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
     """Prepares metric values for JSON encoding.
 
     Args:
         metrics (dict): the dictionary of metrics.
 
     Returns:
-        (dict): the dictionary of metrics after encoding.
+        (list): the list of metrics after encoding.
 
     Raises:
-        TypeError: If a metric is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame.
+        TypeError: If a metric is not any of these types:
+        int, float, str, numpy.ndarray, pandas.DataFrame, pandas.Series.
     """
-    encoded_metrics = {}
+    encoded_metrics = []
     for k, v in metrics.items():
-        if isinstance(v, np.ndarray):
-            encoded_metrics[k] = v.tolist()
+        if isinstance(v, (np.ndarray, pd.Series)):
+            encoded_metrics.append({k: v.tolist()})
         elif isinstance(v, pd.DataFrame):
-            encoded_metrics[k] = v.to_dict()
+            encoded_metrics.append({k: v.values.tolist()})
         elif isinstance(v, (int, float, str)):
-            encoded_metrics[k] = v
+            encoded_metrics.append({k: v})
         else:
-            raise TypeError("{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame")
+            raise TypeError(f"{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame, pandas.Series")
     return encoded_metrics
 
 

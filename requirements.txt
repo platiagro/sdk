@@ -9,3 +9,11 @@ joblib>=0.14.1
 seaborn>=0.10.0
 # Filesystem interface for S3
 s3fs>=0.3.0
+# Jupyter kernel to work with Python code
+ipykernel>=5.2.0
+# Web-based notebook environment for interactive computing
+notebook>=6.0.2
+# Make HTTP requests simpler and more human-friendly
+requests>=2.23.0
+# Converts ML models into production REST/GRPC microservice
+seldon-core>=1.0.2,<1.1.0

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
+from os import environ
 from unittest import TestCase
 
 import matplotlib.pyplot as plt
@@ -38,6 +39,20 @@ class TestFigures(TestCase):
         )
 
     def test_list_figures(self):
+        with self.assertRaises(TypeError):
+            list_figures()
+
+        environ["EXPERIMENT_ID"] = "test"
+        with self.assertRaises(TypeError):
+            list_figures()
+
+        environ["OPERATOR_ID"] = "test"
+        result = list_figures()
+        self.assertTrue(isinstance(result, list))
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+
         result = list_figures(experiment_id="test", operator_id="test")
         self.assertTrue(isinstance(result, list))
 
@@ -50,4 +65,18 @@ class TestFigures(TestCase):
         s = 1 + np.sin(2 * np.pi * t)
         fig, ax = plt.subplots()
         ax.plot(t, s)
+
+        with self.assertRaises(TypeError):
+            save_figure(fig)
+
+        environ["EXPERIMENT_ID"] = "test"
+        with self.assertRaises(TypeError):
+            save_figure(fig)
+
+        environ["OPERATOR_ID"] = "test"
+        save_figure(fig)
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+
         save_figure(experiment_id="test", operator_id="test", figure=fig)
