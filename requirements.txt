@@ -10,6 +10,7 @@ seaborn>=0.10.0
 # Filesystem interface for S3
 s3fs>=0.3.0
 # Jupyter kernel to work with Python code
+tornado>=4.3,<6
 ipykernel>=5.2.0
 # Web-based notebook environment for interactive computing
 notebook>=6.0.2
