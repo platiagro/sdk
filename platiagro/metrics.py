@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import load, loads, dumps
-from os.path import join
 from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
@@ -32,7 +31,7 @@ def list_metrics(experiment_id: Optional[str] = None) -> List[Dict[str, object]]
         experiment_id = get_experiment_id()
 
     try:
-        object_name = join(PREFIX, experiment_id, METRICS_FILE)
+        object_name = f'{PREFIX}/{experiment_id}/{METRICS_FILE}'
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
@@ -58,7 +57,7 @@ def save_metrics(reset: bool = False,
     if experiment_id is None:
         experiment_id = get_experiment_id()
 
-    object_name = join(PREFIX, experiment_id, METRICS_FILE)
+    object_name = f'{PREFIX}/{experiment_id}/{METRICS_FILE}'
 
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)

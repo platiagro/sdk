@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from base64 import b64encode
 from io import BytesIO
-from os.path import join
 from tempfile import _get_candidate_names
 from typing import List, Optional
 
@@ -36,7 +35,7 @@ def list_figures(experiment_id: Optional[str] = None,
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    prefix = join(PREFIX_1, experiment_id, PREFIX_2, operator_id, "figure-")
+    prefix = f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/figure-'
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
     for obj in objects:
         data = MINIO_CLIENT.get_object(
@@ -73,7 +72,7 @@ def save_figure(figure: matplotlib.figure.Figure,
 
     random_str = next(_get_candidate_names())
     figure_name = f"figure-{random_str}.png"
-    object_name = join(PREFIX_1, experiment_id, PREFIX_2, operator_id, figure_name)
+    object_name = f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/{figure_name}'
 
     buffer = BytesIO()
     figure.savefig(buffer, format="png")

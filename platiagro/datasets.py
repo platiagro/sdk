@@ -2,7 +2,6 @@
 from datetime import datetime
 from io import BytesIO
 from json import dumps, loads
-from os.path import join
 from typing import List, Dict, Optional
 
 import pandas as pd
@@ -26,11 +25,13 @@ def list_datasets() -> List[str]:
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
-    for obj in objects:
-        if obj.object_name.endswith(METADATA_FILE):
-            name = obj.object_name[len(PREFIX) + 1:-len(METADATA_FILE)]
-            datasets.append(name)
+    datasets_folders = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
+    for folder in datasets_folders:
+        dataset_folder = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, folder.object_name)
+        for dataset_file in dataset_folder:
+            if dataset_file.object_name.endswith(METADATA_FILE):
+                name = dataset_file.object_name[(len(PREFIX) + 1):(-len(METADATA_FILE) - 1)]
+                datasets.append(name)
     return datasets
 
 
@@ -51,7 +52,7 @@ def load_dataset(name: str) -> pd.DataFrame:
     filename = metadata["filename"]
 
     try:
-        path = join(BUCKET_NAME, PREFIX, name, filename)
+        path = f'{BUCKET_NAME}/{PREFIX}/{name}/{filename}'
         return pd.read_csv(
             S3FS.open(path),
             header=0,
@@ -94,7 +95,7 @@ def save_dataset(name: str,
 
     # builds the location to save the file
     # eg. anonymous/datasets/iris/19700101000000000000.csv
-    path = join(BUCKET_NAME, PREFIX, name, filename)
+    path = f'{BUCKET_NAME}/{PREFIX}/{name}/{filename}'
 
     # uploads file to MinIO
     df.to_csv(
@@ -118,7 +119,7 @@ def save_dataset(name: str,
     buffer = BytesIO(dumps(metadata).encode())
 
     # uploads metadata to MinIO
-    object_name = join(PREFIX, name, METADATA_FILE)
+    object_name = f'{PREFIX}/{name}/{METADATA_FILE}'
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
@@ -142,7 +143,7 @@ def stat_dataset(name: str) -> Dict[str, str]:
     metadata = {}
     try:
         # reads the .metadata file
-        object_name = join(PREFIX, name, METADATA_FILE)
+        object_name = f'{PREFIX}/{name}/{METADATA_FILE}'
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
