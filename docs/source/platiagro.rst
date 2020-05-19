@@ -30,6 +30,17 @@ List, load and save datasets
   2  01/01/2002   4.7   3.2   1.3   0.2  Iris-setosa
   3  01/01/2003   4.6   3.1   1.5   0.2  Iris-setosa
 
+.. autofunction:: download_dataset
+
+.. code-block:: python
+
+  from platiagro import download_dataset
+
+  dataset = "iris"
+
+  download_dataset(dataset)
+  '/home/jovyan/iris'
+
 .. autofunction:: save_dataset
 
 .. code-block:: python

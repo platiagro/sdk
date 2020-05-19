@@ -88,6 +88,34 @@
 </pre></div>
 </div>
 <dl class="py function">
+<dt id="platiagro.download_dataset">
+<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">download_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#platiagro.download_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Downloads dataset file from object storage to local filesystem.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – the dataset name.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Path to the dataset in the local filesystem.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – If dataset does not exist in the object storage.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro</span> <span class="kn">import</span> <span class="n">download_dataset</span>
+
+<span class="n">dataset</span> <span class="o">=</span> <span class="s2">&quot;iris&quot;</span>
+
+<span class="n">download_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="s1">&#39;/home/jovyan/iris&#39;</span>
+</pre></div>
+</div>
+<dl class="py function">
 <dt id="platiagro.save_dataset">
 <code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">read_only</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a dataset and its metadata to the object storage.</p>
@@ -199,14 +227,14 @@
 <h2>Save metrics<a class="headerlink" href="#save-metrics" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
 <dt id="platiagro.list_metrics">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">list_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#platiagro.list_metrics" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists all metrics of an experiment from object storage.</p>
+<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">list_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>object<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#platiagro.list_metrics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists all metrics of an experiment.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>experiment_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the experiment uuid. Defaults to None.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of data URIs.</p>
+<dd class="field-even"><p>A list of metrics.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list</p>
