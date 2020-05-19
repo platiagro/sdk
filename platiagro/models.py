@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from os import SEEK_SET
-from os.path import join
 from typing import Dict, Optional
 
 from joblib import dump, load
@@ -26,7 +25,7 @@ def load_model(experiment_id: Optional[str] = None) -> Dict[str, object]:
         experiment_id = get_experiment_id()
 
     try:
-        object_name = join(PREFIX, experiment_id, MODEL_FILE)
+        object_name = f'{PREFIX}/{experiment_id}/{MODEL_FILE}'
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
@@ -50,7 +49,7 @@ def save_model(**kwargs):
     if experiment_id is None:
         experiment_id = get_experiment_id()
 
-    object_name = join(PREFIX, experiment_id, MODEL_FILE)
+    object_name = f'{PREFIX}/{experiment_id}/{MODEL_FILE}'
 
     model_buffer = BytesIO()
     dump(kwargs, model_buffer)
