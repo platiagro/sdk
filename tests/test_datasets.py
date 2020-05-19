@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps
+from os import getcwd
+from os.path import join, exists
 from unittest import TestCase
 
 from minio.error import BucketAlreadyOwnedByYou
 import pandas as pd
 
-from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
-    DATETIME, CATEGORICAL, NUMERICAL
+from platiagro import download_dataset, list_datasets, load_dataset, \
+    save_dataset, stat_dataset, DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 
@@ -79,6 +81,15 @@ class TestDatasets(TestCase):
         )
         result = load_dataset("mock")
         self.assertTrue(result.equals(expected))
+
+    def test_download_dataset(self):
+        with self.assertRaises(FileNotFoundError):
+            download_dataset("UNK")
+
+        expected = join(getcwd(), "mock")
+        result = download_dataset("mock")
+        self.assertEqual(result, expected)
+        self.assertTrue(exists(result))
 
     def test_save_dataset(self):
         df = pd.DataFrame({"col0": []})

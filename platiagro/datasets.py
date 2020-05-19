@@ -2,6 +2,7 @@
 from datetime import datetime
 from io import BytesIO
 from json import dumps, loads
+from os.path import getcwd
 from typing import List, Dict, Optional
 
 import pandas as pd
@@ -60,6 +61,36 @@ def load_dataset(name: str) -> pd.DataFrame:
         )
     except FileNotFoundError:
         raise FileNotFoundError("The specified dataset does not exist")
+
+
+def download_dataset(name: str) -> str:
+    """Downloads dataset file from object storage to local filesystem.
+
+    Args:
+        name (str): the dataset name.
+
+    Returns:
+        str: Path to the dataset in the local filesystem.
+
+    Raises:
+        FileNotFoundError: If dataset does not exist in the object storage.
+    """
+    # gets the filename from metadata
+    metadata = stat_dataset(name)
+    filename = metadata["filename"]
+
+    try:
+        destination_path = f"{getcwd()}/{name}"
+        object_name = f"{PREFIX}/{name}/{filename}"
+        MINIO_CLIENT.fget_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+            file_path=destination_path,
+        )
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError("The specified dataset does not exist")
+
+    return destination_path
 
 
 def save_dataset(name: str,
