@@ -49,9 +49,9 @@ def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
-    if 'uuid' in run_id:
+    if run_id == 'uuid':
         run_id = get_run_id()
-    elif 'latest' in run_id:
+    elif run_id == 'latest':
         runs_metadata = stat_runs_dataset(name)
         run_id = runs_metadata["run_id"]
 
@@ -93,9 +93,9 @@ def save_dataset(name: str,
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    if 'uuid' in run_id:
+    if run_id == 'uuid':
         run_id = get_run_id()
-    elif 'latest' in run_id:
+    elif run_id == 'latest':
         runs_metadata = stat_runs_dataset(name)
         run_id = runs_metadata["run_id"]
 
