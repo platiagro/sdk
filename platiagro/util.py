@@ -129,3 +129,27 @@ def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
         raise TypeError("operator_id is undefined")
 
     return default
+
+
+def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
+    """Looks for an run id in env variable "RUN_ID".
+
+    Args:
+        raise_for_none (bool): Whether to raise TypeError if run id is undefined. Defaults to False.
+        default (str): A default value to return run id is undefined. Defaults to None.
+
+    Returns:
+        str: the experiment uuid.
+
+    Raises:
+        TypeError: when raise_for_none is True and run id is undefinded.
+    """
+    run_id = getenv("RUN_ID")
+
+    if run_id is not None:
+        return run_id
+
+    if raise_for_none:
+        raise TypeError("run_id is undefined")
+
+    return default
