@@ -8,7 +8,7 @@ import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
 
 from .featuretypes import infer_featuretypes
-from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_run_id
+from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_operator_id, get_run_id
 
 PREFIX = "datasets"
 METADATA_FILE = ".metadata"
@@ -39,6 +39,8 @@ def list_datasets() -> List[str]:
 def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
     """Retrieves a dataset as a pandas.DataFrame.
 
+    If run_id exist try to load dataset from runs
+
     Args:
         name (str): the dataset name.
         run_id (str, optional): the run id of trainning pipeline. Defaults to None.
@@ -55,18 +57,20 @@ def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
         runs_metadata = stat_runs_dataset(name)
         run_id = runs_metadata["run_id"]
 
-    # gets the filename from metadata
-    metadata = stat_dataset(name, run_id)
-    filename = metadata["filename"]
-
     if run_id:
-        path = f'{BUCKET_NAME}/{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{filename}'
         try:
+            # gets the filename from metadata
+            metadata = stat_dataset(name, run_id)
+            filename = metadata["filename"]
+            path = f'{BUCKET_NAME}/{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{filename}'
             return pd.read_csv(S3FS.open(path), header=0, index_col=False)
         except FileNotFoundError:
             pass
 
     try:
+        # gets the filename from metadata
+        metadata = stat_dataset(name)
+        filename = metadata["filename"]
         path = f'{BUCKET_NAME}/{PREFIX}/{name}/{filename}'
         return pd.read_csv(S3FS.open(path), header=0, index_col=False)
     except FileNotFoundError:
@@ -99,8 +103,8 @@ def save_dataset(name: str,
         runs_metadata = stat_runs_dataset(name)
         run_id = runs_metadata["run_id"]
 
+    # gets metadata (if dataset already exists)
     try:
-        # gets metadata (if dataset already exists)
         metadata = stat_dataset(name, run_id)
         was_read_only = metadata["read_only"]
     except FileNotFoundError:
@@ -110,20 +114,28 @@ def save_dataset(name: str,
         raise PermissionError("The specified dataset was marked as read only")
 
     # generates a filename using current UTC datetime
-    filename = datetime.utcnow().strftime("%Y%m%d%H%M%S%f") + ".csv"
+    filename_prefix = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
+    filename = filename_prefix + ".csv"
 
-    # builds the location to save the file
-    # eg. anonymous/datasets/iris/19700101000000000000.csv
-    path = f'{BUCKET_NAME}/{PREFIX}/{name}/{filename}'
+    # stores metadata: columns, filename, read_only, featuretypes
+    object_metadata_name = f'{PREFIX}/{name}/{METADATA_FILE}'
+    if metadata is None:
+        metadata = {}
+    metadata["filename"] = filename
+    metadata["read_only"] = read_only
+    metadata["columns"] = df.columns.tolist()
+    if "featuretypes" not in metadata:
+        metadata["featuretypes"] = infer_featuretypes(df)
+
     if run_id:
-        # eg. anonymous/datasets/iris/runs/f16e4274-d296-4900-bbe3-de772353e020/19700101000000000000.csv
+        operator_id = get_operator_id()
+
+        # uploads file to MinIO
+        # eg. anonymous/datasets/iris/runs/f16e4274/19700101000000000000.csv
         path = f'{BUCKET_NAME}/{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{filename}'
+        df.to_csv(S3FS.open(path, "w"), header=True, index=False)
 
-    # uploads file to MinIO
-    df.to_csv(S3FS.open(path, "w"), header=True, index=False)
-
-    # create or update metadata in runs folder
-    if run_id:
+        # save the last run id on runs metadata
         runs_metadata = {}
         runs_metadata["run_id"] = run_id
         buffer = BytesIO(dumps(runs_metadata).encode())
@@ -135,27 +147,26 @@ def save_dataset(name: str,
             length=buffer.getbuffer().nbytes,
         )
 
-    if metadata is None:
-        metadata = {}
-
-    # stores metadata: columns, filename, read_only, featuretypes
-    metadata["columns"] = df.columns.tolist()
-    metadata["filename"] = filename
-    metadata["read_only"] = read_only
-
-    if "featuretypes" not in metadata:
-        metadata["featuretypes"] = infer_featuretypes(df)
+        # add dataset run history in metadata
+        run_metadata = {}
+        run_metadata["operatorId"] = operator_id
+        run_metadata["filename"] = filename
+        run_metadata["columns"] = df.columns.tolist()
+        metadata[filename_prefix] = run_metadata
+        object_metadata_name = f'{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{METADATA_FILE}'
+    else:
+        # uploads file to MinIO
+        # eg. anonymous/datasets/iris/19700101000000000000.csv
+        path = f'{BUCKET_NAME}/{PREFIX}/{name}/{filename}'
+        df.to_csv(S3FS.open(path, "w"), header=True, index=False)
 
     # encodes metadata to JSON format
     buffer = BytesIO(dumps(metadata).encode())
 
     # uploads metadata to MinIO
-    object_name = f'{PREFIX}/{name}/{METADATA_FILE}'
-    if run_id:
-        object_name = f'{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{METADATA_FILE}'
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
-        object_name=object_name,
+        object_name=object_metadata_name,
         data=buffer,
         length=buffer.getbuffer().nbytes,
     )
