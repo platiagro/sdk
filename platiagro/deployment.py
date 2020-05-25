@@ -2,11 +2,13 @@
 """A module for testing components before deployment."""
 from os import environ
 from random import randint
+from sys import stderr
 from subprocess import PIPE, Popen
 from typing import Optional
 
 from requests import Session
 from requests.adapters import HTTPAdapter
+from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
 
 from .util import get_experiment_id, get_operator_id
@@ -37,8 +39,11 @@ def test_deployment(contract: str,
     if port is None:
         port = randint(5000, 9000)
 
-    # start HTTP server
+    # exec cause cmd to inherit the shell process,
+    # instead of having the shell launch a child process.
+    # pserver.kill() would not work without exec
     cmd = (
+        f"exec "
         f"seldon-core-microservice "
         f"{module} "
         f"{interface_name} "
@@ -55,44 +60,42 @@ def test_deployment(contract: str,
         "OPERATOR_ID": operator_id,
         "PREDICTIVE_UNIT_SERVICE_PORT": f"{port}",
     })
-    pserver = Popen(
-        cmd,
-        env=env,
-        shell=True,
-        stdout=PIPE,
-    )
 
-    # verify the process is up and running
-    retry_strategy = Retry(
-        total=5,
-        backoff_factor=0.5,
-        status_forcelist=[429, 500, 502, 503, 504],
-        method_whitelist=["HEAD", "GET", "OPTIONS"]
-    )
-    adapter = HTTPAdapter(max_retries=retry_strategy)
-    sess = Session()
-    sess.mount("http://", adapter)
-    sess.get(f"http://localhost:{port}/health/ping")
+    # start HTTP server
+    with Popen(cmd, env=env, shell=True, stdout=PIPE, stderr=PIPE) as pserver:
 
-    # start a process to test the server
-    cmd = (
-        f"seldon-core-microservice-tester "
-        f"{contract} "
-        f"localhost "
-        f"{port} "
-        f"--endpoint "
-        f"predict "
-        f"-p"
-    )
-    pclient = Popen(
-        cmd,
-        shell=True,
-        stdout=PIPE,
-    )
+        # verify the process is up and running
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            method_whitelist=["HEAD", "GET", "OPTIONS"]
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+        sess = Session()
+        sess.mount("http://", adapter)
 
-    for line in pclient.stdout:
-        print(line.decode(), end="")
+        try:
+            sess.get(f"http://localhost:{port}/health/ping")
+        except ConnectionError:
+            # server did not start, print errors
+            print(pserver.stderr.read().decode(), file=stderr, flush=True)
+            return
 
-    pserver.stdout.close()
-    pclient.stdout.close()
-    pserver.terminate()
+        cmd = (
+            f"seldon-core-microservice-tester "
+            f"{contract} "
+            f"localhost "
+            f"{port} "
+            f"--endpoint "
+            f"predict "
+            f"-p"
+        )
+
+        # start a process to test the server
+        with Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE) as pclient:
+            print(pclient.stdout.read().decode(), flush=True)
+
+        # kill HTTP server
+        pserver.kill()
+        print(pserver.stderr.read().decode(), flush=True)
