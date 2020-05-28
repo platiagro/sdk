@@ -9,27 +9,6 @@ from platiagro import deployment
 class TestDeployment(TestCase):
 
     def setUp(self):
-        with open("Model.py", "w") as f:
-            f.write((
-                f"import logging\n"
-                f"from typing import List, Iterable, Dict, Union\n"
-                f"\n"
-                f"import numpy as np\n"
-                f"\n"
-                f"logger = logging.getLogger(__name__)\n"
-                f"\n"
-                f"\n"
-                f"class Model(object):\n"
-                f"    def __init__(self, dataset: str = None, target: str = None):\n"
-                f"        self.columns_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']\n"
-                f"\n"
-                f"    def class_names(self):\n"
-                f"        return self.columns_names\n"
-                f"\n"
-                f"    def predict(self, X: np.ndarray, feature_names: Iterable[str], meta: Dict = None) -> Union[np.ndarray, List, str, bytes]:\n"
-                f"        return X\n"
-            ))
-
         with open("contract.json", "w") as f:
             contract = {
                 "features": [
@@ -89,7 +68,78 @@ class TestDeployment(TestCase):
 
     def tearDown(self):
         remove("contract.json")
+
+    def test_test_deployment_success(self):
+        with open("Model.py", "w") as f:
+            f.write((
+                f"import logging\n"
+                f"from typing import List, Iterable, Dict, Union\n"
+                f"\n"
+                f"import numpy as np\n"
+                f"\n"
+                f"logger = logging.getLogger(__name__)\n"
+                f"\n"
+                f"\n"
+                f"class Model(object):\n"
+                f"    def __init__(self, dataset: str = None, target: str = None):\n"
+                f"        self.columns_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']\n"
+                f"\n"
+                f"    def class_names(self):\n"
+                f"        return self.columns_names\n"
+                f"\n"
+                f"    def predict(self, X: np.ndarray, feature_names: Iterable[str], meta: Dict = None) -> Union[np.ndarray, List, str, bytes]:\n"
+                f"        return X\n"
+            ))
+        deployment.test_deployment("contract.json")
         remove("Model.py")
 
-    def test_test_deployment(self):
+    def test_test_deployment_error_on_start(self):
+
+        with open("Model.py", "w") as f:
+            f.write((
+                f"import logging\n"
+                f"from typing import List, Iterable, Dict, Union\n"
+                f"\n"
+                f"import numpy as np\n"
+                f"\n"
+                f"logger = logging.getLogger(__name__)\n"
+                f"\n"
+                f"\n"
+                f"class Model(object):\n"
+                f"    def __init__(self, dataset: str = None, target: str = None):\n"
+                f"        print(unknown) # intentional syntax error for test purposes\n"
+                f"        self.columns_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']\n"
+                f"\n"
+                f"    def class_names(self):\n"
+                f"        return self.columns_names\n"
+                f"\n"
+                f"    def predict(self, X: np.ndarray, feature_names: Iterable[str], meta: Dict = None) -> Union[np.ndarray, List, str, bytes]:\n"
+                f"        return X\n"
+            ))
         deployment.test_deployment("contract.json")
+        remove("Model.py")
+
+    def test_test_deployment_error_on_predict(self):
+        with open("Model.py", "w") as f:
+            f.write((
+                f"import logging\n"
+                f"from typing import List, Iterable, Dict, Union\n"
+                f"\n"
+                f"import numpy as np\n"
+                f"\n"
+                f"logger = logging.getLogger(__name__)\n"
+                f"\n"
+                f"\n"
+                f"class Model(object):\n"
+                f"    def __init__(self, dataset: str = None, target: str = None):\n"
+                f"        self.columns_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']\n"
+                f"\n"
+                f"    def class_names(self):\n"
+                f"        return self.columns_names\n"
+                f"\n"
+                f"    def predict(self, X: np.ndarray, feature_names: Iterable[str], meta: Dict = None) -> Union[np.ndarray, List, str, bytes]:\n"
+                f"        print(unknown) # intentional syntax error for test purposes\n"
+                f"        return X\n"
+            ))
+        deployment.test_deployment("contract.json")
+        remove("Model.py")
