@@ -36,7 +36,9 @@ def list_datasets() -> List[str]:
     return datasets
 
 
-def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
+def load_dataset(name: str,
+                 run_id: Optional[str] = None,
+                 operator_id: Optional[str] = None) -> pd.DataFrame:
     """Retrieves a dataset as a pandas.DataFrame.
 
     If run_id exist try to load dataset from runs
@@ -44,6 +46,7 @@ def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
     Args:
         name (str): the dataset name.
         run_id (str, optional): the run id of trainning pipeline. Defaults to None.
+        operator_id (str, optional): the operator uuid.  Defaults to None.
 
     Returns:
         pandas.DataFrame: A `pandas.DataFrame`.
@@ -61,11 +64,24 @@ def load_dataset(name: str, run_id: Optional[str] = None) -> pd.DataFrame:
         try:
             # gets the filename from metadata
             metadata = stat_dataset(name, run_id)
-            filename = metadata["filename"]
+            filename = None
+            if operator_id:
+                for key in metadata:
+                    value = metadata[key]
+                    if type(value) is dict and "operatorId" in value:
+                        operatorId = value["operatorId"]
+                        if operator_id == operatorId:
+                            filename = value["filename"]
+            else:
+                filename = metadata["filename"]
+
             path = f'{BUCKET_NAME}/{PREFIX}/{name}/{RUNS_PREFIX}/{run_id}/{filename}'
             return pd.read_csv(S3FS.open(path), header=0, index_col=False)
         except FileNotFoundError:
-            pass
+            if operator_id:
+                raise FileNotFoundError("The specified dataset does not exist")
+            else:
+                pass
 
     try:
         # gets the filename from metadata
