@@ -45,7 +45,7 @@ def load_dataset(name: str,
 
     Args:
         name (str): the dataset name.
-        run_id (str, optional): the run id of trainning pipeline. Defaults to None.
+        run_id (str, optional): the run id of training pipeline. Defaults to None.
         operator_id (str, optional): the operator uuid.  Defaults to None.
 
     Returns:
@@ -69,8 +69,7 @@ def load_dataset(name: str,
                 for key in metadata:
                     value = metadata[key]
                     if type(value) is dict and "operatorId" in value:
-                        operatorId = value["operatorId"]
-                        if operator_id == operatorId:
+                        if operator_id == value["operatorId"]:
                             filename = value["filename"]
             else:
                 filename = metadata["filename"]
