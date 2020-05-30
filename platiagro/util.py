@@ -9,6 +9,7 @@ from minio.error import BucketAlreadyOwnedByYou
 from notebook.services.contents.filemanager import FileContentsManager
 from requests import get
 from s3fs.core import S3FileSystem
+from traitlets.config import MultipleInstanceError
 
 BUCKET_NAME = "anonymous"
 MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
@@ -122,7 +123,7 @@ def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
                 filename = sess["notebook"]["name"]
                 file = FileContentsManager().get(filename)
                 return file["content"]["metadata"].get("operator_id")
-    except (RuntimeError, ConnectionError):
+    except (RuntimeError, ConnectionError, MultipleInstanceError):
         pass
 
     if raise_for_none:
