@@ -38,6 +38,8 @@ def load_dataset(name: str,
     """Retrieves a dataset as a pandas.DataFrame.
 
     If run_id exists, then loads the dataset from the specified run.
+    If the dataset does not exist for given run_id/operator_id return the
+    'original' dataset
 
     Args:
         name (str): the dataset name.
@@ -62,6 +64,15 @@ def load_dataset(name: str,
         # gets operator_id from env variables
         # Attention: returns None if env is unset
         operator_id = get_operator_id(raise_for_none=False)
+
+    if run_id and operator_id:
+        # when the dataset does not exist for given run_id/operator_id
+        # must return the 'original' dataset
+        try:
+            metadata = stat_dataset(name, run_id, operator_id)
+        except FileNotFoundError:
+            # unset run_id so data_filepath points to the 'original' dataset
+            run_id = None
 
     # builds the path to the dataset file
     path = data_filepath(name, run_id, operator_id)
