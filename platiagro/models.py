@@ -57,6 +57,10 @@ def save_model(**kwargs):
 
     Raises:
         TypeError: when a figure is not a matplotlib figure.
+
+    Raises:
+        TypeError: when experiment_id is undefined in args and env.
+        TypeError: when operator_id is undefined in args and env.
     """
     experiment_id = kwargs.get("experiment_id")
     if experiment_id is None:

@@ -29,6 +29,10 @@ def list_metrics(experiment_id: Optional[str] = None,
 
     Returns:
         list: A list of metrics.
+
+    Raises:
+        TypeError: when experiment_id is undefined in args and env.
+        TypeError: when operator_id is undefined in args and env.
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
@@ -59,6 +63,10 @@ def save_metrics(reset: bool = False,
         experiment_id (str, optional): the experiment uuid. Defaults to None
         operator_id (str, optional): the operator uuid. Defaults to None
         **kwargs: the metrics dict.
+
+    Raises:
+        TypeError: when experiment_id is undefined in args and env.
+        TypeError: when operator_id is undefined in args and env.
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
