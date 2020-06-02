@@ -13,25 +13,35 @@ from .figures import save_figure
 from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket
 
-PREFIX = "experiments"
+PREFIX_1 = "experiments"
+PREFIX_2 = "operators"
 METRICS_FILE = "metrics.json"
 CONFUSION_MATRIX = "confusion_matrix"
 
 
-def list_metrics(experiment_id: Optional[str] = None) -> List[Dict[str, object]]:
-    """Lists all metrics of an experiment.
+def list_metrics(experiment_id: Optional[str] = None,
+                 operator_id: Optional[str] = None) -> List[Dict[str, object]]:
+    """Lists metrics from object storage.
 
     Args:
         experiment_id (str, optional): the experiment uuid. Defaults to None.
+        operator_id (str, optional): the operator uuid. Defaults to None.
 
     Returns:
         list: A list of metrics.
+
+    Raises:
+        TypeError: when experiment_id is undefined in args and env.
+        TypeError: when operator_id is undefined in args and env.
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
 
+    if operator_id is None:
+        operator_id = get_operator_id()
+
     try:
-        object_name = f'{PREFIX}/{experiment_id}/{METRICS_FILE}'
+        object_name = f"{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/{METRICS_FILE}"
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
             object_name=object_name,
@@ -53,11 +63,18 @@ def save_metrics(reset: bool = False,
         experiment_id (str, optional): the experiment uuid. Defaults to None
         operator_id (str, optional): the operator uuid. Defaults to None
         **kwargs: the metrics dict.
+
+    Raises:
+        TypeError: when experiment_id is undefined in args and env.
+        TypeError: when operator_id is undefined in args and env.
     """
     if experiment_id is None:
         experiment_id = get_experiment_id()
 
-    object_name = f'{PREFIX}/{experiment_id}/{METRICS_FILE}'
+    if operator_id is None:
+        operator_id = get_operator_id()
+
+    object_name = f"{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/{METRICS_FILE}"
 
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
