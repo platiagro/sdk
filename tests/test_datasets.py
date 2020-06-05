@@ -14,6 +14,7 @@ from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 RUN_ID = str(uuid4())
 OPERATOR_ID = str(uuid4())
 
+
 class TestDatasets(TestCase):
 
     def setUp(self):

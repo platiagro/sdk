@@ -2,6 +2,7 @@
 from io import BytesIO
 from os import environ
 from unittest import TestCase
+from uuid import uuid4
 
 import matplotlib.pyplot as plt
 from minio.error import BucketAlreadyOwnedByYou
@@ -9,6 +10,8 @@ import numpy as np
 
 from platiagro import list_figures, save_figure
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
+
+RUN_ID = str(uuid4())
 
 
 class TestFigures(TestCase):
@@ -80,3 +83,37 @@ class TestFigures(TestCase):
         del environ["OPERATOR_ID"]
 
         save_figure(experiment_id="test", operator_id="test", figure=fig)
+
+    def test_list_figures_run_id(self):
+        environ["EXPERIMENT_ID"] = "test"
+        environ["OPERATOR_ID"] = "test"
+        environ["RUN_ID"] = RUN_ID
+        result = list_figures()
+        self.assertTrue(isinstance(result, list))
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+        del environ["RUN_ID"]
+
+        result = list_figures(experiment_id="test", operator_id="test", run_id=RUN_ID)
+        self.assertTrue(isinstance(result, list))
+
+        result = list_figures(experiment_id="test", operator_id="test", run_id="latest")
+        self.assertTrue(isinstance(result, list))
+
+    def test_save_figure_run_id(self):
+        t = np.arange(0.0, 2.0, 0.01)
+        s = 1 + np.sin(2 * np.pi * t)
+        fig, ax = plt.subplots()
+        ax.plot(t, s)
+
+        environ["EXPERIMENT_ID"] = "test"
+        environ["OPERATOR_ID"] = "test"
+        environ["RUN_ID"] = RUN_ID
+        save_figure(fig)
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+        del environ["RUN_ID"]
+
+        save_figure(figure=fig, experiment_id="test", operator_id="test", run_id=RUN_ID)
