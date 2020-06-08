@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps, loads
+from minio.error import NoSuchBucket, NoSuchKey
 from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
-from minio.error import NoSuchBucket, NoSuchKey
+import os
+import tempfile
 
 from .featuretypes import infer_featuretypes
 from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_operator_id, get_run_id
@@ -186,7 +188,15 @@ def save_dataset(name: str,
 
     if isinstance(data, pd.DataFrame):
         # uploads dataframe to MinIO as a .csv file
-        data.to_csv(S3FS.open(path, "w"), header=True, index=False)
+        temp_file = tempfile.TemporaryFile(dir='.', delete=False)
+        data.to_csv(temp_file.name, header=True, index=False)
+        MINIO_CLIENT.fput_object(
+            bucket_name=BUCKET_NAME,
+            object_name=path.lstrip(f"{BUCKET_NAME}/"),
+            file_path=temp_file.name
+        )
+        temp_file.close()
+        os.unlink(temp_file.name)
     else:
         # uploads raw data to MinIO
         buffer = BytesIO(data.read())
