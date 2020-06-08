@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 from base64 import b64encode
 from io import BytesIO
-from json import dumps, loads
-from minio.error import NoSuchBucket, NoSuchKey
+from json import dumps
 from tempfile import _get_candidate_names
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import matplotlib.figure
 
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
-    get_experiment_id, get_operator_id, get_run_id
+    get_experiment_id, get_operator_id, get_run_id, stat_metadata
 
 PREFIX_1 = "experiments"
 PREFIX_2 = "operators"
@@ -128,36 +127,6 @@ def save_figure(figure: matplotlib.figure.Figure,
         data=buffer,
         length=length,
     )
-
-
-def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
-    """Retrieves the metadata.
-
-    Args:
-        experiment_id (str): the experiment uuid.
-        operator_id (str): the operator uuid.
-
-    Returns:
-        dict: The metadata.
-
-    Raises:
-        FileNotFoundError: If metadata does not exist in the object storage.
-    """
-    metadata = {}
-    object_name = f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/.metadata'
-    try:
-        # reads the .metadata file
-        data = MINIO_CLIENT.get_object(
-            bucket_name=BUCKET_NAME,
-            object_name=object_name,
-        )
-        # decodes the metadata (which is in JSON format)
-        metadata = loads(data.read())
-
-    except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("The specified metadata does not exist")
-
-    return metadata
 
 
 def figure_filepath(name: str,
