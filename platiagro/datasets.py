@@ -188,7 +188,7 @@ def save_dataset(name: str,
 
     if isinstance(data, pd.DataFrame):
         # uploads dataframe to MinIO as a .csv file
-        temp_file = tempfile.TemporaryFile(dir='.', delete=False)
+        temp_file = tempfile.NamedTemporaryFile(dir='.', delete=False)
         data.to_csv(temp_file.name, header=True, index=False)
         MINIO_CLIENT.fput_object(
             bucket_name=BUCKET_NAME,
