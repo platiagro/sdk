@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps, loads
-from typing import List, Dict, Optional
+from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
@@ -34,8 +34,8 @@ def list_datasets() -> List[str]:
 
 def load_dataset(name: str,
                  run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None) -> pd.DataFrame:
-    """Retrieves a dataset as a pandas.DataFrame.
+                 operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
+    """Retrieves the contents of a dataset.
 
     If run_id exists, then loads the dataset from the specified run.
     If the dataset does not exist for given run_id/operator_id return the
@@ -47,7 +47,7 @@ def load_dataset(name: str,
         operator_id (str, optional): the operator uuid. Defaults to None.
 
     Returns:
-        pandas.DataFrame: A `pandas.DataFrame`.
+        The contents of a dataset. Either a `pandas.DataFrame` or an `BinaryIO` buffer.
 
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
@@ -79,6 +79,13 @@ def load_dataset(name: str,
 
     try:
         dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False)
+    except UnicodeDecodeError:
+        # reads the raw file
+        data = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=path.lstrip(f"{BUCKET_NAME}/"),
+        )
+        return BytesIO(data.read())
     except FileNotFoundError:
         raise FileNotFoundError("The specified dataset does not exist")
 
@@ -86,7 +93,8 @@ def load_dataset(name: str,
 
 
 def save_dataset(name: str,
-                 df: pd.DataFrame,
+                 data: Union[pd.DataFrame, BinaryIO] = None,
+                 df: pd.DataFrame = None,
                  metadata: Optional[Dict[str, str]] = None,
                  read_only: bool = False,
                  run_id: Optional[str] = None,
@@ -95,7 +103,11 @@ def save_dataset(name: str,
 
     Args:
         name (str): the dataset name.
-        df (pandas.DataFrame): the dataset as a `pandas.DataFrame`.
+        data (pandas.DataFrame, BinaryIO, optional): the dataset contents as a
+            pandas.DataFrame or an `BinaryIO` buffer. Defaults to None.
+        df (pandas.DataFrame, optional): the dataset contents as an `pandas.DataFrame`.
+            df exists only for compatibility with existing components.
+            Use "data" for all types of datasets. Defaults to None.
         metadata (dict, optional): metadata about the dataset. Defaults to None.
         read_only (bool, optional): whether the dataset will be read only. Defaults to False.
         run_id (str, optional): the run id. Defaults to None.
@@ -128,16 +140,25 @@ def save_dataset(name: str,
         raise PermissionError("The specified dataset was marked as read only")
 
     # builds metadata dict:
-    # sets filename, read_only, columns, featuretypes, run_id
+    # sets filename, read_only, run_id
     if metadata is None:
         metadata = {}
 
     metadata["filename"] = name
     metadata["read_only"] = read_only
-    metadata["columns"] = df.columns.tolist()
 
-    if "featuretypes" not in metadata:
-        metadata["featuretypes"] = infer_featuretypes(df)
+    # df exists only for compatibility with existing components
+    # from now on one must use "data" for all types of datasets
+    if df is not None:
+        data = df
+
+    if isinstance(data, pd.DataFrame):
+        # sets metadata specific for pandas.DataFrame:
+        # columns, featuretypes
+        metadata["columns"] = data.columns.tolist()
+
+        if "featuretypes" not in metadata:
+            metadata["featuretypes"] = infer_featuretypes(data)
 
     if run_id:
         metadata["run_id"] = run_id
@@ -161,9 +182,20 @@ def save_dataset(name: str,
             length=buffer.getbuffer().nbytes,
         )
 
-    # uploads file to MinIO
     path = data_filepath(name, run_id, operator_id)
-    df.to_csv(S3FS.open(path, "w"), header=True, index=False)
+
+    if isinstance(data, pd.DataFrame):
+        # uploads dataframe to MinIO as a .csv file
+        data.to_csv(S3FS.open(path, "w"), header=True, index=False)
+    else:
+        # uploads raw data to MinIO
+        buffer = BytesIO(data.read())
+        MINIO_CLIENT.put_object(
+            bucket_name=BUCKET_NAME,
+            object_name=path.lstrip(f"{BUCKET_NAME}/"),
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
+        )
 
     object_name = metadata_filepath(name, run_id, operator_id)
     # encodes metadata to JSON format
