@@ -9,7 +9,7 @@ CATEGORICAL = "Categorical"
 NUMERICAL = "Numerical"
 
 
-def infer_featuretypes(df: pd.DataFrame, nrows: int = 5):
+def infer_featuretypes(df: pd.DataFrame, nrows: int = 100):
     """Infer featuretypes from DataFrame columns.
 
     Args:

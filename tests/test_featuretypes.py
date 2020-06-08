@@ -19,8 +19,9 @@ class TestFeaturetypes(TestCase):
             "col0": ["01-01-2019", "01-01-2020", "01-01-2021"],
             "col1": ["Iris-setosa", "Iris-setosa", "Iris-setosa"],
             "col2": [5.1, float('nan'), 4.7],
+            "col3": ["22.4", "10", "4.7"],
         })
-        expected = [DATETIME, CATEGORICAL, NUMERICAL]
+        expected = [DATETIME, CATEGORICAL, NUMERICAL, NUMERICAL]
         result = infer_featuretypes(df)
         self.assertListEqual(result, expected)
 
