@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
+import os
+import tempfile
 from io import BytesIO
 from json import dumps, loads
-from minio.error import NoSuchBucket, NoSuchKey
 from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
-import os
-import tempfile
+from minio.error import NoSuchBucket, NoSuchKey
 
 from .featuretypes import infer_featuretypes
 from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_operator_id, get_run_id
