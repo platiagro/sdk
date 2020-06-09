@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """A module for testing components before deployment."""
 from os import environ
+from json import loads
 from random import randint
 from sys import stderr
 from subprocess import PIPE, Popen
@@ -38,6 +39,11 @@ def test_deployment(contract: str,
 
     if port is None:
         port = randint(5000, 9000)
+
+    # check if contract is a valid json
+    f = open(contract, "r")
+    contract_data = f.read()
+    loads(contract_data)
 
     # exec cause cmd to inherit the shell process,
     # instead of having the shell launch a child process.

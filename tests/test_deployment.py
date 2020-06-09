@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from json import dump
+from json.decoder import JSONDecodeError
 from os import remove
 from unittest import TestCase
 
@@ -66,8 +67,13 @@ class TestDeployment(TestCase):
             }
             dump(contract, f)
 
+        with open("invalid_contract.json", "w") as f:
+            f.write("""{"features": [a]}""")
+            f.close()
+
     def tearDown(self):
         remove("contract.json")
+        remove("invalid_contract.json")
 
     def test_test_deployment_success(self):
         with open("Model.py", "w") as f:
@@ -143,3 +149,7 @@ class TestDeployment(TestCase):
             ))
         deployment.test_deployment("contract.json")
         remove("Model.py")
+
+    def test_test_deployment_invalid_json(self):
+        with self.assertRaises(JSONDecodeError):
+            deployment.test_deployment("invalid_contract.json")
