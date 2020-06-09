@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+import tempfile
 from io import BytesIO
 from json import dumps, loads
 from typing import List, Dict, BinaryIO, Optional, Union
@@ -186,7 +188,15 @@ def save_dataset(name: str,
 
     if isinstance(data, pd.DataFrame):
         # uploads dataframe to MinIO as a .csv file
-        data.to_csv(S3FS.open(path, "w"), header=True, index=False)
+        temp_file = tempfile.NamedTemporaryFile(dir='.', delete=False)
+        data.to_csv(temp_file.name, header=True, index=False)
+        MINIO_CLIENT.fput_object(
+            bucket_name=BUCKET_NAME,
+            object_name=path.lstrip(f"{BUCKET_NAME}/"),
+            file_path=temp_file.name
+        )
+        temp_file.close()
+        os.remove(temp_file.name)
     else:
         # uploads raw data to MinIO
         buffer = BytesIO(data.read())
