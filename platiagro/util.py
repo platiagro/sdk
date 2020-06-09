@@ -4,12 +4,14 @@ from os.path import basename
 from typing import Optional
 
 from IPython.lib import kernel
+from json import loads
 from minio import Minio
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import BucketAlreadyOwnedByYou, NoSuchBucket, NoSuchKey
 from notebook.services.contents.filemanager import FileContentsManager
 from requests import get
 from s3fs.core import S3FileSystem
 from traitlets.config import MultipleInstanceError
+from typing import Dict
 
 BUCKET_NAME = "anonymous"
 MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
@@ -154,3 +156,33 @@ def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
         raise TypeError("run_id is undefined")
 
     return default
+
+
+def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
+    """Retrieves the metadata.
+
+    Args:
+        experiment_id (str): the experiment uuid.
+        operator_id (str): the operator uuid.
+
+    Returns:
+        dict: The metadata.
+
+    Raises:
+        FileNotFoundError: If metadata does not exist in the object storage.
+    """
+    metadata = {}
+    object_name = f'experiments/{experiment_id}/operators/{operator_id}/.metadata'
+    try:
+        # reads the .metadata file
+        data = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+        # decodes the metadata (which is in JSON format)
+        metadata = loads(data.read())
+
+    except (NoSuchBucket, NoSuchKey):
+        raise FileNotFoundError("The specified metadata does not exist")
+
+    return metadata
