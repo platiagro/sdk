@@ -196,7 +196,7 @@ def save_dataset(name: str,
             file_path=temp_file.name
         )
         temp_file.close()
-        os.unlink(temp_file.name)
+        os.remove(temp_file.name)
     else:
         # uploads raw data to MinIO
         buffer = BytesIO(data.read())
