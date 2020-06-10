@@ -94,7 +94,7 @@ def test_deployment(contract: str,
                 "n_requests": 1,
                 "batch_size": 1,
                 "grpc": False,
-                "tensor": True,
+                "tensor": False,
                 "prnt": True
             }
             args = Bunch(args_dict)
