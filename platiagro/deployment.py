@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """A module for testing components before deployment."""
-from os import environ
-from json import loads
+from os import environ, kill
 from random import randint
 from sys import stderr
 from subprocess import PIPE, Popen
@@ -11,9 +10,13 @@ from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
+from seldon_core.microservice_tester import run_method, SeldonTesterException
 
 from .util import get_experiment_id, get_operator_id
 
+class Bunch(object):
+    def __init__(self, adict):
+        self.__dict__.update(adict)
 
 def test_deployment(contract: str,
                     module: str = "Model",
@@ -39,11 +42,6 @@ def test_deployment(contract: str,
 
     if port is None:
         port = randint(5000, 9000)
-
-    # check if contract is a valid json
-    f = open(contract, "r")
-    contract_data = f.read()
-    loads(contract_data)
 
     # exec cause cmd to inherit the shell process,
     # instead of having the shell launch a child process.
@@ -88,20 +86,20 @@ def test_deployment(contract: str,
             print(pserver.stderr.read().decode(), file=stderr, flush=True)
             return
 
-        cmd = (
-            f"seldon-core-microservice-tester "
-            f"{contract} "
-            f"localhost "
-            f"{port} "
-            f"--endpoint "
-            f"predict "
-            f"-p"
-        )
-
-        # start a process to test the server
-        with Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE) as pclient:
-            print(pclient.stdout.read().decode(), flush=True)
-
-        # kill HTTP server
-        pserver.kill()
-        print(pserver.stderr.read().decode(), flush=True)
+        try:
+            args_dict = {
+                "contract": contract,
+                "host": "localhost",
+                "port": port,
+                "n_requests": 1,
+                "batch_size": 1,
+                "grpc": False,
+                "tensor": True,
+                "prnt": True
+            }
+            args = Bunch(args_dict)
+            run_method(args, "predict")
+        finally:
+            # kill HTTP server
+            kill(pserver.pid, 9)
+            print(pserver.stderr.read().decode(), flush=True)
