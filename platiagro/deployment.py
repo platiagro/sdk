@@ -67,32 +67,20 @@ def test_deployment(contract: str,
 
     # start HTTP server
     with Popen(cmd, env=env, shell=True, stdout=PIPE, stderr=PIPE) as pserver:
-
-        print('seldon-core-microservice INIT')
-
-        # verify the process is up and running
-        retry_strategy = Retry(
-            total=5,
-            backoff_factor=0.5,
-            status_forcelist=[429, 500, 502, 503, 504],
-            method_whitelist=["HEAD", "GET", "OPTIONS"]
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        sess = Session()
-        sess.mount("http://", adapter)
-
         try:
+            # verify the process is up and running
+            retry_strategy = Retry(
+                total=5,
+                backoff_factor=0.5,
+                status_forcelist=[429, 500, 502, 503, 504],
+                method_whitelist=["HEAD", "GET", "OPTIONS"]
+            )
+            adapter = HTTPAdapter(max_retries=retry_strategy)
+            sess = Session()
+            sess.mount("http://", adapter)
+
             sess.get(f"http://localhost:{port}/health/ping")
-        except ConnectionError as error:
-            # server did not start, print errors
-            kill(pserver.pid, 9)
-            print(error)
-            print(pserver.stderr.read().decode(), file=stderr, flush=True)
-            return
 
-        print('seldon-core-microservice UP')
-
-        try:
             args_dict = {
                 "contract": contract,
                 "host": "localhost",
@@ -104,12 +92,8 @@ def test_deployment(contract: str,
                 "prnt": True
             }
             args = Bunch(args_dict)
-            print('seldon-core-microservice INIT TEST')
             run_method(args, "predict")
-            print('seldon-core-microservice TESTED')
         finally:
             # kill HTTP server
-            print('seldon-core-microservice KILL SERVER')
             kill(pserver.pid, 9)
-            print('seldon-core-microservice KILLED')
             print(pserver.stderr.read().decode(), flush=True)
