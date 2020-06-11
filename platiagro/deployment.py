@@ -8,7 +8,6 @@ from typing import Optional
 
 from requests import Session
 from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
 from seldon_core.microservice_tester import run_method
 
