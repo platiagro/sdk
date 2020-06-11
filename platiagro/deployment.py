@@ -85,6 +85,7 @@ def test_deployment(contract: str,
             sess.get(f"http://localhost:{port}/health/ping")
         except ConnectionError as error:
             # server did not start, print errors
+            kill(pserver.pid, 9)
             print(error)
             print(pserver.stderr.read().decode(), file=stderr, flush=True)
             return
