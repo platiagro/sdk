@@ -136,8 +136,7 @@ def save_dataset(name: str,
         stored_metadata = stat_dataset(name, run_id)
         # update stored metadata values
         if metadata:
-            for key, value in metadata.items():
-                stored_metadata[key] = value
+            stored_metadata.update(metadata)
         metadata = stored_metadata
         was_read_only = metadata.get("read_only", False)
     except FileNotFoundError:
