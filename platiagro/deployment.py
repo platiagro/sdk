@@ -8,7 +8,6 @@ from typing import Optional
 
 from requests import Session
 from requests.adapters import HTTPAdapter
-from requests.exceptions import ConnectionError
 from requests.packages.urllib3.util.retry import Retry
 from seldon_core.microservice_tester import run_method
 
@@ -67,26 +66,20 @@ def test_deployment(contract: str,
 
     # start HTTP server
     with Popen(cmd, env=env, shell=True, stdout=PIPE, stderr=PIPE) as pserver:
-
-        # verify the process is up and running
-        retry_strategy = Retry(
-            total=5,
-            backoff_factor=0.5,
-            status_forcelist=[429, 500, 502, 503, 504],
-            method_whitelist=["HEAD", "GET", "OPTIONS"]
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        sess = Session()
-        sess.mount("http://", adapter)
-
         try:
+            # verify the process is up and running
+            retry_strategy = Retry(
+                total=5,
+                backoff_factor=0.5,
+                status_forcelist=[429, 500, 502, 503, 504],
+                method_whitelist=["HEAD", "GET", "OPTIONS"]
+            )
+            adapter = HTTPAdapter(max_retries=retry_strategy)
+            sess = Session()
+            sess.mount("http://", adapter)
+
             sess.get(f"http://localhost:{port}/health/ping")
-        except ConnectionError:
-            # server did not start, print errors
-            print(pserver.stderr.read().decode(), file=stderr, flush=True)
-            return
 
-        try:
             args_dict = {
                 "contract": contract,
                 "host": "localhost",

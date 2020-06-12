@@ -4,6 +4,7 @@ from json.decoder import JSONDecodeError
 from os import remove
 from unittest import TestCase
 
+from requests.exceptions import ConnectionError
 from seldon_core.microservice_tester import SeldonTesterException
 
 from platiagro import deployment
@@ -164,7 +165,8 @@ class TestDeployment(TestCase):
                 f"    def predict(self, X: np.ndarray, feature_names: Iterable[str], meta: Dict = None) -> Union[np.ndarray, List, str, bytes]:\n"
                 f"        return X\n"
             ))
-        deployment.test_deployment("contract.json")
+        with self.assertRaises(ConnectionError):
+            deployment.test_deployment("contract.json")
         remove("Model.py")
 
     def test_test_deployment_error_on_predict(self):
