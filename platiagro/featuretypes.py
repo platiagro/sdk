@@ -45,7 +45,6 @@ def is_number(series: pd.Series):
     for _, value in series.iteritems():
         try:
             float(value)
-            break
         except ValueError:
             return False
     return True
