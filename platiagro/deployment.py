@@ -2,7 +2,6 @@
 """A module for testing components before deployment."""
 from os import environ, kill
 from random import randint
-from sys import stderr
 from subprocess import PIPE, Popen
 from typing import Optional
 
@@ -13,9 +12,11 @@ from seldon_core.microservice_tester import run_method
 
 from .util import get_experiment_id, get_operator_id
 
+
 class Bunch(object):
     def __init__(self, adict):
         self.__dict__.update(adict)
+
 
 def test_deployment(contract: str,
                     module: str = "Model",
