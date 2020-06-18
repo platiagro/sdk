@@ -8,7 +8,7 @@ from typing import List, Dict, BinaryIO, Optional, Union
 import pandas as pd
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .featuretypes import infer_featuretypes
+from .featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_operator_id, get_run_id
 
 PREFIX = "datasets"
@@ -80,7 +80,15 @@ def load_dataset(name: str,
     path = data_filepath(name, run_id, operator_id)
 
     try:
+        metadata = stat_dataset(name, run_id, operator_id)
         dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False)
+
+        dtypes = dict(
+            (column, "object")
+            for column, ftype in zip(metadata["columns"], metadata["featuretypes"])
+            if ftype in [CATEGORICAL, DATETIME]
+        )
+        dataset = dataset.astype(dtypes)
     except UnicodeDecodeError:
         # reads the raw file
         data = MINIO_CLIENT.get_object(
