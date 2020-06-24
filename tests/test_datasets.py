@@ -26,6 +26,7 @@ class TestDatasets(TestCase):
         self.empty_bucket()
         self.create_mock_dataset1()
         self.create_mock_dataset2()
+        self.create_mock_dataset3()
 
     def tearDown(self):
         self.empty_bucket()
@@ -107,6 +108,26 @@ class TestDatasets(TestCase):
             length=buffer.getbuffer().nbytes,
         )
 
+    def create_mock_dataset3(self):
+        with open("mock.jpg", 'wb') as imagef:
+            imagef.write(MOCK_IMAGE)
+
+        MINIO_CLIENT.fput_object(
+            bucket_name=BUCKET_NAME,
+            object_name="datasets/mock.jpg/mock.jpg",
+            file_path="mock.jpg",
+        )
+        metadata = {
+            "filename": "mock.jpg",
+        }
+        buffer = BytesIO(dumps(metadata).encode())
+        MINIO_CLIENT.put_object(
+            bucket_name=BUCKET_NAME,
+            object_name="datasets/mock.jpg/mock.jpg.metadata",
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
+        )        
+
     def test_list_datasets(self):
         result = list_datasets()
         self.assertTrue(isinstance(result, list))
@@ -115,7 +136,12 @@ class TestDatasets(TestCase):
         with self.assertRaises(FileNotFoundError):
             load_dataset("UNK")
 
+        # UnicodeDecodeError
         result = load_dataset("mock.zip")
+        self.assertIsInstance(result, BytesIO)
+
+        # EmptyDataError
+        result = load_dataset("mock.jpg")
         self.assertIsInstance(result, BytesIO)
 
         result = load_dataset("mock.csv")

@@ -89,7 +89,7 @@ def load_dataset(name: str,
             if ftype in [CATEGORICAL, DATETIME]
         )
         dataset = dataset.astype(dtypes)
-    except UnicodeDecodeError:
+    except (UnicodeDecodeError, pd.errors.EmptyDataError):
         # reads the raw file
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
