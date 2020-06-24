@@ -62,18 +62,19 @@ def load_dataset(name: str,
         metadata = stat_dataset(name)
         run_id = metadata.get("run_id")
 
-    if operator_id is None:
-        # gets operator_id from env variables
-        # Attention: returns None if env is unset
-        operator_id = get_operator_id(raise_for_none=False)
-
+    # when the dataset does not exist for given run_id/operator_id
+    # must return the 'original' dataset
+    # unset run_id so data_filepath points to the 'original' dataset
     if run_id and operator_id:
-        # when the dataset does not exist for given run_id/operator_id
-        # must return the 'original' dataset
         try:
             metadata = stat_dataset(name, run_id, operator_id)
         except FileNotFoundError:
-            # unset run_id so data_filepath points to the 'original' dataset
+            run_id = None
+    elif run_id:
+        try:
+            run_metadata = stat_dataset(name, run_id)
+            operator_id = run_metadata.get("operator_id")
+        except FileNotFoundError:
             run_id = None
 
     # builds the path to the dataset file
@@ -196,6 +197,19 @@ def save_dataset(name: str,
             length=buffer.getbuffer().nbytes,
         )
 
+        # create a run metadata to save the last operator id
+        # to dataset get loaded on next step of the pipeline flow
+        run_metadata = {}
+        run_metadata["operator_id"] = operator_id
+        object_name = metadata_filepath(name, run_id=run_id)
+        buffer = BytesIO(dumps(run_metadata).encode())
+        MINIO_CLIENT.put_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+            data=buffer,
+            length=buffer.getbuffer().nbytes,
+        )
+
     path = data_filepath(name, run_id, operator_id)
 
     if isinstance(data, pd.DataFrame):
@@ -284,6 +298,8 @@ def data_filepath(name: str,
     """
     if run_id and operator_id:
         path = f"{BUCKET_NAME}/{PREFIX}/{name}/runs/{run_id}/operators/{operator_id}/{name}/{name}"
+    elif run_id:
+        path = f"{BUCKET_NAME}/{PREFIX}/{name}/runs/{run_id}/{run_id}"
     else:
         # {name}/{name} is intentional!
         # Otherwise, any attempt to save a dataset inside a run would cause:
