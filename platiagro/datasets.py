@@ -272,7 +272,7 @@ def stat_dataset(name: str,
 
 def download_dataset(name: str, path: str):
     """Downloads the given dataset to the path.
-    
+
     Args:
         name (str): the dataset name.
         path (str): destination path.
