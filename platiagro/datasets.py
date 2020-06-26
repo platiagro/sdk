@@ -283,7 +283,7 @@ def download_dataset(name: str, path: str):
         dataset.to_csv(path)
     else:
         f = open(path, 'wb')
-        f.write(dataset.get_value())
+        f.write(dataset.getvalue())
         f.close()
 
 
