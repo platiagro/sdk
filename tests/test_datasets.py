@@ -29,7 +29,7 @@ class TestDatasets(TestCase):
         self.create_mock_dataset1()
         self.create_mock_dataset2()
         self.create_mock_dataset3()
-        self.delete_dowmloaded_files()
+        self.delete_downloaded_files()
 
     def tearDown(self):
         self.empty_bucket()
@@ -131,7 +131,7 @@ class TestDatasets(TestCase):
             length=buffer.getbuffer().nbytes,
         )
 
-    def delete_dowmloaded_files(self):
+    def delete_downloaded_files(self):
         if os.path.isfile("mock-result.csv"):
             os.remove("mock-result.csv")
         if os.path.isfile("mock-result.jpg"):
@@ -247,7 +247,8 @@ class TestDatasets(TestCase):
 
     def test_download_dataset(self):
         download_dataset("mock.csv", "./mock-result.csv")
-        assert os.path.exists("./mock-result.csv") == 1
+        self.assertTrue(os.path.exists("./mock-result.csv"))
 
         download_dataset("mock.jpg", "./mock-result.jpg")
-        assert os.path.exists("./mock-result.jpg") == 1
+        self.assertTrue(os.path.exists("./mock-result.jpg"))
+        
