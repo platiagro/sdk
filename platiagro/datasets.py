@@ -284,6 +284,23 @@ def stat_dataset(name: str,
     return metadata
 
 
+def download_dataset(name: str, path: str):
+    """Downloads the given dataset to the path.
+
+    Args:
+        name (str): the dataset name.
+        path (str): destination path.
+    """
+    dataset = load_dataset(name)
+
+    if isinstance(dataset, pd.DataFrame):
+        dataset.to_csv(path)
+    else:
+        f = open(path, 'wb')
+        f.write(dataset.getvalue())
+        f.close()
+
+
 def data_filepath(name: str,
                   run_id: Optional[str] = None,
                   operator_id: Optional[str] = None) -> str:

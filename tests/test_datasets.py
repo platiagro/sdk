@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 from base64 import b64decode
 from io import BytesIO
 from json import dumps
@@ -9,7 +11,7 @@ from zipfile import ZipFile
 from minio.error import BucketAlreadyOwnedByYou
 import pandas as pd
 
-from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
+from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, download_dataset, \
     DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
@@ -27,6 +29,7 @@ class TestDatasets(TestCase):
         self.create_mock_dataset1()
         self.create_mock_dataset2()
         self.create_mock_dataset3()
+        self.delete_downloaded_files()
 
     def tearDown(self):
         self.empty_bucket()
@@ -126,7 +129,13 @@ class TestDatasets(TestCase):
             object_name="datasets/mock.jpg/mock.jpg.metadata",
             data=buffer,
             length=buffer.getbuffer().nbytes,
-        )        
+        )
+
+    def delete_downloaded_files(self):
+        if os.path.isfile("mock-result.csv"):
+            os.remove("mock-result.csv")
+        if os.path.isfile("mock-result.jpg"):
+            os.remove("mock-result.jpg")
 
     def test_list_datasets(self):
         result = list_datasets()
@@ -235,3 +244,11 @@ class TestDatasets(TestCase):
             "run_id": RUN_ID,
         }
         self.assertDictEqual(result, expected)
+
+    def test_download_dataset(self):
+        download_dataset("mock.csv", "./mock-result.csv")
+        self.assertTrue(os.path.exists("./mock-result.csv"))
+
+        download_dataset("mock.jpg", "./mock-result.jpg")
+        self.assertTrue(os.path.exists("./mock-result.jpg"))
+        

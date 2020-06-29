@@ -54,6 +54,17 @@ List, load and save datasets
   stat_dataset(dataset)
   {'columns': ['col0', 'col1', 'col2'], 'featuretypes': ['DateTime', 'Numerical', 'Categorical']}
 
+.. autofunction:: download_dataset
+
+.. code-block:: python
+
+  from platiagro import download_dataset
+
+  dataset = "test"
+  path = "./test"
+
+  download_dataset(dataset, path)
+
 Load and save models
 --------------------
 
