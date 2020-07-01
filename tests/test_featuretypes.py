@@ -17,7 +17,7 @@ class TestFeaturetypes(TestCase):
 
         df = pd.DataFrame({
             "col0": ["01-01-2019", "01-01-2020", "01-01-2021"],
-            "col1": ["Iris-setosa", "Iris-setosa", "Iris-setosa"],
+            "col1": ["Iris-setosa", "Iris-setosa", "Jun 999999999999999"],
             "col2": [5.1, float('nan'), 4.7],
             "col3": ["22.4", "10", "4.7"],
         })

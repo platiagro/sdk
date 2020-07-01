@@ -63,7 +63,7 @@ def is_datetime(series: pd.Series):
         try:
             parse(str(value))
             break
-        except ValueError:
+        except (ValueError, OverflowError) as e:
             return False
     return True
 
