@@ -294,7 +294,7 @@ def download_dataset(name: str, path: str):
     dataset = load_dataset(name)
 
     if isinstance(dataset, pd.DataFrame):
-        dataset.to_csv(path)
+        dataset.to_csv(path, index=False)
     else:
         f = open(path, 'wb')
         f.write(dataset.getvalue())
