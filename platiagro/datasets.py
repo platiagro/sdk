@@ -171,9 +171,7 @@ def save_dataset(name: str,
         # sets metadata specific for pandas.DataFrame:
         # columns, featuretypes
         metadata["columns"] = data.columns.tolist()
-
-        if "featuretypes" not in metadata:
-            metadata["featuretypes"] = infer_featuretypes(data)
+        metadata["featuretypes"] = infer_featuretypes(data)
 
     if run_id:
         metadata["run_id"] = run_id
