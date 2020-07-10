@@ -6,6 +6,7 @@ from json import dumps, loads
 from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
+from numpy import delete
 from minio.error import NoSuchBucket, NoSuchKey
 
 from .featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
@@ -171,7 +172,9 @@ def save_dataset(name: str,
         # sets metadata specific for pandas.DataFrame:
         # columns, featuretypes
         metadata["columns"] = data.columns.tolist()
-        metadata["featuretypes"] = infer_featuretypes(data)
+
+        if "featuretypes" not in metadata:
+            metadata["featuretypes"] = infer_featuretypes(data)
 
     if run_id:
         metadata["run_id"] = run_id
@@ -181,6 +184,23 @@ def save_dataset(name: str,
         # This enables load_dataset by run="latest"
         try:
             root_metadata = stat_dataset(name)
+
+            if isinstance(data, pd.DataFrame):
+                stored_metadata = stat_dataset(name, run_id)
+                removed_columns = list(set(stored_metadata["columns"]) - set(metadata["columns"]))
+                added_columns = list(set(metadata["columns"]) - set(stored_metadata["columns"]))
+
+                if removed_columns:
+                    # remove, by index, featuretypes of columns that was removed from the dataset
+                    indexes = [stored_metadata["columns"].index(column) for column in removed_columns]
+                    metadata["featuretypes"] = delete(metadata["featuretypes"], indexes).tolist()
+
+                if added_columns:
+                    # adds, by index, featuretypes of columns that have been added to the dataset
+                    for column in added_columns:
+                        column_type = infer_featuretypes(pd.DataFrame(data[column]))[0]
+                        column_index = metadata["columns"].index(column)
+                        metadata["featuretypes"].insert(column_index, column_type)
         except FileNotFoundError:
             root_metadata = {}
 
