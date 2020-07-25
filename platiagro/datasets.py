@@ -147,12 +147,14 @@ def save_dataset(name: str,
         # update stored metadata values
         if metadata:
             stored_metadata.update(metadata)
-            was_metadata_changed_manually = True
-        was_metadata_changed_manually = False
+            metadata_should_be_updated = False
+        else:
+            metadata_should_be_updated = True
         metadata = stored_metadata
 
         was_read_only = metadata.get("read_only", False)
     except FileNotFoundError:
+        metadata_should_be_updated = False
         was_read_only = False
 
     if was_read_only:
@@ -178,23 +180,23 @@ def save_dataset(name: str,
 
         if "featuretypes" not in metadata:
             metadata["featuretypes"] = infer_featuretypes(data)
-        else:
-            # if the metadata was changed manually, ignore updates, otherwise
-            # search for changes and then update current featuretypes
-            if not was_metadata_changed_manually:
-                previous_columns = stat_dataset(name)["columns"]
-                added_columns = set(metadata["columns"]).difference(previous_columns)
-                removed_columns = set(previous_columns["columns"]).difference(metadata["columns"])
 
-                if added_columns:
-                    for column in added_columns:
-                        column_type = infer_featuretypes(pd.DataFrame(data[column]))[0]
-                        column_index = metadata["columns"].index(column)
-                        metadata["featuretypes"].insert(column_index, column_type)
+    # if the metadata was given (set manually), ignore updates, otherwise
+    # search for changes and then update current featuretypes to be even with columns
+    if metadata_should_be_updated:
+        previous_columns = stat_dataset(name, run_id)["columns"]
+        added_columns = set(metadata["columns"]).difference(previous_columns)
+        removed_columns = set(previous_columns).difference(metadata["columns"])
 
-                if removed_columns:
-                    indexes = [previous_columns.index(column) for column in removed_columns]
-                    metadata["featuretypes"] = delete(metadata["featuretypes"], indexes).tolist()
+        if removed_columns:
+            indexes = [previous_columns.index(column) for column in removed_columns]
+            metadata["featuretypes"] = delete(metadata["featuretypes"], indexes).tolist()
+
+        if added_columns:
+            for column in added_columns:
+                column_type = infer_featuretypes(pd.DataFrame(data[column]))[0]
+                column_index = metadata["columns"].index(column)
+                metadata["featuretypes"].insert(column_index, column_type)
 
     if run_id:
         metadata["run_id"] = run_id
