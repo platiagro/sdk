@@ -14,7 +14,7 @@ from traitlets.config import MultipleInstanceError
 from typing import Dict
 
 BUCKET_NAME = "anonymous"
-MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
+MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "localhost:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
 JUPYTER_ENDPOINT = getenv("JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server")
@@ -186,3 +186,31 @@ def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
         raise FileNotFoundError("The specified metadata does not exist")
 
     return metadata
+
+
+def metadata_exists(name: str, run_id: str, operator_id: str = None) -> bool:
+    """Test whether a metadata file path of a given run_id, or an operator of a run,
+    exists in the object storage.
+
+    Args:
+        name (str): the dataset name.
+        run_id (str): the run_id uuid.
+        operator_id (str, optional): the operator uuid. Defaults to None.
+
+    Returns:
+        bool: True if metadata path exists in the obeject storage, otherwise, False.
+    """
+    if run_id and operator_id:
+        object_name = f'datasets/{name}/runs/{run_id}/operators/{operator_id}/{name}/{name}.metadata'
+    else:
+        object_name = f'datasets/{name}/runs/{run_id}/{run_id}.metadata'
+
+    try:
+        # reads the .metadata file
+        MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=object_name,
+        )
+        return True
+    except (NoSuchBucket, NoSuchKey):
+        return False
