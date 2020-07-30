@@ -14,7 +14,7 @@ from traitlets.config import MultipleInstanceError
 from typing import Dict
 
 BUCKET_NAME = "anonymous"
-MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "localhost:9000")
+MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
 JUPYTER_ENDPOINT = getenv("JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server")
