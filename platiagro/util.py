@@ -188,7 +188,7 @@ def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
     return metadata
 
 
-def metadata_exists(name: str, run_id: str, operator_id: str = None) -> bool:
+def metadata_exists(name: str, run_id: str = None, operator_id: str = None) -> bool:
     """Test whether a metadata file path of a given run_id, or an operator of a run,
     exists in the object storage.
 
@@ -202,8 +202,10 @@ def metadata_exists(name: str, run_id: str, operator_id: str = None) -> bool:
     """
     if run_id and operator_id:
         object_name = f'datasets/{name}/runs/{run_id}/operators/{operator_id}/{name}/{name}.metadata'
-    else:
+    elif run_id:
         object_name = f'datasets/{name}/runs/{run_id}/{run_id}.metadata'
+    else:
+        object_name = f'datasets/{name}/{name}.metadata'
 
     try:
         # reads the .metadata file

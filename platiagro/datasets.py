@@ -205,7 +205,7 @@ def save_dataset(name: str,
         # set the run_id in datasets/<name>.metadata
         # This enables load_dataset by run="latest"
         try:
-            root_metadata = stat_dataset(name)
+            root_metadata = stat_dataset(name, run_id="root")
         except FileNotFoundError:
             root_metadata = {}
 
@@ -285,11 +285,24 @@ def stat_dataset(name: str,
     metadata = {}
 
     if run_id == "latest":
-        metadata = stat_dataset(name)
+        metadata = stat_dataset(name, "root")
         run_id = metadata.get("run_id")
 
+    if run_id is None:
+        # gets run_id from env variables
+        # Attention: returns None if env is unset
+        run_id = get_run_id()
+
+    if operator_id is None:
+        # gets operator_id from env variables
+        # Attention: returns None if env is unset
+        operator_id = get_operator_id(raise_for_none=False)
+
     if run_id and operator_id:
-        if metadata_exists(name, run_id, operator_id):
+        if run_id == "root":
+            # get root metadata at pipeline run time
+            object_name = metadata_filepath(name)
+        elif metadata_exists(name, run_id, operator_id):
             # get metadata for a specific operator of a run, if exists
             object_name = metadata_filepath(name, run_id, operator_id)
         else:
