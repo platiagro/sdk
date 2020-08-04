@@ -245,15 +245,6 @@ class TestDatasets(TestCase):
         }
         self.assertDictEqual(result, expected)
 
-        result = stat_dataset("mock.csv", run_id="root")
-        expected = {
-            "columns": self.mock_columns(),
-            "featuretypes": self.mock_featuretypes(),
-            "filename": "mock.csv",
-            "run_id": RUN_ID,
-        }
-        self.assertDictEqual(result, expected)
-
     def test_download_dataset(self):
         download_dataset("mock.csv", "./mock-result.csv")
         self.assertTrue(os.path.exists("./mock-result.csv"))
