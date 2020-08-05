@@ -24,6 +24,8 @@ def test_deployment(contract: str,
                     service_type: str = "MODEL",
                     parameters: str = "[]",
                     log_level: str = "DEBUG",
+                    total: int = 5,
+                    backoff_factor: float = 0.5,
                     port: Optional[int] = None):
     """Starts a service wrapping a Model, then sends a request to the service.
 
@@ -70,8 +72,8 @@ def test_deployment(contract: str,
         try:
             # verify the process is up and running
             retry_strategy = Retry(
-                total=5,
-                backoff_factor=0.5,
+                total=total,
+                backoff_factor=backoff_factor,
                 status_forcelist=[429, 500, 502, 503, 504],
                 method_whitelist=["HEAD", "GET", "OPTIONS"]
             )
