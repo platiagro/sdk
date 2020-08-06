@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from base64 import b64encode
 from io import BytesIO
 from json import dumps
 from tempfile import _get_candidate_names
@@ -56,9 +55,7 @@ def list_figures(experiment_id: Optional[str] = None,
             bucket_name=BUCKET_NAME,
             object_name=obj.object_name,
         )
-        encoded_figure = b64encode(data.read()).decode()
-        figure = f"data:image/svg+xml;base64,{encoded_figure}"
-        figures.append(figure)
+        figures.append(data.read().decode())
     return figures
 
 
