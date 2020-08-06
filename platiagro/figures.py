@@ -57,7 +57,7 @@ def list_figures(experiment_id: Optional[str] = None,
             object_name=obj.object_name,
         )
         encoded_figure = b64encode(data.read()).decode()
-        figure = f"data:image/png;base64,{encoded_figure}"
+        figure = f"data:image/svg+xml;base64,{encoded_figure}"
         figures.append(figure)
     return figures
 
@@ -113,13 +113,13 @@ def save_figure(figure: matplotlib.figure.Figure,
         )
 
     buffer = BytesIO()
-    figure.savefig(buffer, format="png")
+    figure.savefig(buffer, format="svg")
     buffer.seek(0)
     length = buffer.getbuffer().nbytes
 
     # uploads figure to MinIO
     random_str = next(_get_candidate_names())
-    figure_name = f"figure-{random_str}.png"
+    figure_name = f"figure-{random_str}.svg"
     object_name = figure_filepath(figure_name, experiment_id, operator_id, run_id)
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
