@@ -1,5 +1,5 @@
 # Access object storage server
-minio>=5.0.6
+minio>=5.0.6,<6.0.0
 # Helps with structured data operations
 pandas>=0.25.3
 # Replacement for pickle to work efficiently
