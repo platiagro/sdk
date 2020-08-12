@@ -245,6 +245,29 @@ class TestDatasets(TestCase):
         }
         self.assertDictEqual(result, expected)
 
+        os.environ["RUN_ID"] = RUN_ID
+
+        result = stat_dataset("mock.csv")
+        expected = {
+            "columns": self.mock_columns(),
+            "featuretypes": self.mock_featuretypes(),
+            "filename": "mock.csv",
+            "run_id": RUN_ID,
+        }
+
+        result = stat_dataset("mock.csv", operator_id=OPERATOR_ID)
+        expected = {
+            "columns": self.mock_columns(),
+            "featuretypes": self.mock_featuretypes(),
+            "filename": "mock.csv",
+            "run_id": RUN_ID,
+        }
+        self.assertDictEqual(result, expected)
+
+        run_id = "THIS_RUN_ID_DOES_NOT_EXIST"
+        with self.assertRaises(FileNotFoundError):
+            stat_dataset("mock.csv", run_id=run_id)
+
     def test_download_dataset(self):
         download_dataset("mock.csv", "./mock-result.csv")
         self.assertTrue(os.path.exists("./mock-result.csv"))
