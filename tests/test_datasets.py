@@ -254,6 +254,7 @@ class TestDatasets(TestCase):
             "filename": "mock.csv",
             "run_id": RUN_ID,
         }
+        self.assertDictEqual(result, expected)
 
         result = stat_dataset("mock.csv", operator_id=OPERATOR_ID)
         expected = {
