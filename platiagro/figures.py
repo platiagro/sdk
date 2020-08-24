@@ -68,7 +68,9 @@ def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
     """Saves a matplotlib figure to the object storage.
 
     Args:
-        figure (matplotlib.figure.Figure): a matplotlib figure.
+        figure (bytes, matplotlib.figure.Figure, str):
+            a base64 bytes or a matplotlib figure or a bae64 string.
+        extension (str, optional): the file extension when base64 is send. Defaults to None.
         experiment_id (str, optional): the experiment uuid. Defaults to None.
         operator_id (str, optional): the operator uuid. Defaults to None.
         run_id (str, optional): the run id. Defaults to None.

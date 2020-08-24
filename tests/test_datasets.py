@@ -218,6 +218,12 @@ class TestDatasets(TestCase):
         }
         self.assertDictEqual(result, expected)
 
+        result = stat_dataset("/tmp/data/mock.zip")
+        expected = {
+            "filename": "mock.zip",
+        }
+        self.assertDictEqual(result, expected)
+
         result = stat_dataset("mock.csv")
         expected = {
             "columns": self.mock_columns(),
