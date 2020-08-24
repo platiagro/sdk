@@ -4,6 +4,7 @@ from json import dumps
 from tempfile import _get_candidate_names
 from typing import List, Optional
 
+import base64
 import matplotlib.figure
 
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
@@ -59,7 +60,8 @@ def list_figures(experiment_id: Optional[str] = None,
     return figures
 
 
-def save_figure(figure: matplotlib.figure.Figure,
+def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
+                extension: Optional[str] = None,
                 experiment_id: Optional[str] = None,
                 operator_id: Optional[str] = None,
                 run_id: Optional[str] = None):
@@ -87,9 +89,6 @@ def save_figure(figure: matplotlib.figure.Figure,
         # Attention: returns None if env is unset
         run_id = get_run_id()
 
-    if not isinstance(figure, matplotlib.figure.Figure):
-        raise TypeError("figure must be a matplotlib figure")
-
     if run_id:
         metadata = {}
         try:
@@ -109,14 +108,20 @@ def save_figure(figure: matplotlib.figure.Figure,
             length=buffer.getbuffer().nbytes,
         )
 
-    buffer = BytesIO()
-    figure.savefig(buffer, format="svg")
-    buffer.seek(0)
+    random_str = next(_get_candidate_names())
+
+    if isinstance(figure, matplotlib.figure.Figure):
+        buffer = BytesIO()
+        figure.savefig(buffer, format="svg")
+        buffer.seek(0)
+        figure_name = f"figure-{random_str}.svg"
+    else:
+        buffer = BytesIO(base64.b64decode(figure))
+        figure_name = f"figure-{random_str}.{extension}"
+
     length = buffer.getbuffer().nbytes
 
     # uploads figure to MinIO
-    random_str = next(_get_candidate_names())
-    figure_name = f"figure-{random_str}.svg"
     object_name = figure_filepath(figure_name, experiment_id, operator_id, run_id)
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
