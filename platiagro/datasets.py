@@ -284,6 +284,10 @@ def stat_dataset(name: str,
     """
     metadata = {}
 
+    # remove /tmp/data/ from dataset name
+    # because in jupyter we use dataset with full path
+    name = name.replace("/tmp/data/", "")
+
     if run_id == "latest":
         metadata = stat_dataset(name)
         run_id = metadata.get("run_id")
