@@ -95,7 +95,7 @@ class TestFigures(TestCase):
         save_figure(figure=fig, experiment_id="test", operator_id="test", run_id=RUN_ID)
 
     def test_save_figure_base64(self):
-        with open("/tests/figure.png", "rb") as image_file:
+        with open("./tests/figure.png", "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
             environ["EXPERIMENT_ID"] = "testFigureBase644"
             environ["OPERATOR_ID"] = "testFigureBase644"
