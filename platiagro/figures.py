@@ -56,7 +56,13 @@ def list_figures(experiment_id: Optional[str] = None,
             bucket_name=BUCKET_NAME,
             object_name=obj.object_name,
         )
-        figures.append(data.read().decode())
+        encoded_figure = base64.b64encode(data.read()).decode()
+        file_extension = obj.object_name.split('.')[1]
+        if file_extension == 'svg':
+            figure = f"data:image/svg+xml;base64,{encoded_figure}"
+        else:
+            figure = f"data:image/{file_extension};base64,{encoded_figure}"
+        figures.append(figure)
     return figures
 
 
