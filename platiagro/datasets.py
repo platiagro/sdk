@@ -348,6 +348,30 @@ def download_dataset(name: str, path: str):
         f.close()
 
 
+def update_dataset_metadata(name: str,
+                            metadata: Dict[str, str],
+                            run_id: Optional[str] = None,
+                            operator_id: Optional[str] = None):
+    """Update the metadata of a dataset.
+    Args:
+        name (str): the dataset name.
+        metadata (dict): metadata about the dataset.
+        run_id (str, optional): the run id of trainning pipeline. Defaults to None.
+        operator_id (str, optional): the operator uuid. Defaults to None.
+    """
+    object_name = metadata_filepath(name, run_id, operator_id)
+
+    # encodes metadata to JSON format
+    buffer = BytesIO(dumps(metadata).encode())
+
+    MINIO_CLIENT.put_object(
+        bucket_name=BUCKET_NAME,
+        object_name=object_name,
+        data=buffer,
+        length=buffer.getbuffer().nbytes,
+    )
+
+
 def data_filepath(name: str,
                   run_id: Optional[str] = None,
                   operator_id: Optional[str] = None) -> str:
