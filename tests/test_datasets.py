@@ -11,7 +11,8 @@ from zipfile import ZipFile
 from minio.error import BucketAlreadyOwnedByYou
 import pandas as pd
 
-from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, download_dataset, \
+from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
+    download_dataset, update_dataset_metadata, \
     DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
@@ -281,4 +282,17 @@ class TestDatasets(TestCase):
 
         download_dataset("mock.jpg", "./mock-result.jpg")
         self.assertTrue(os.path.exists("./mock-result.jpg"))
-        
+
+    def test_update_dataset_metadata(self):
+        featuretypes = ['Categorical', 'Categorical', 'Categorical', 'Categorical', 'Categorical']
+        metadata = stat_dataset("mock.csv")
+        metadata["featuretypes"] = featuretypes
+        update_dataset_metadata("mock.csv", metadata)
+        result = stat_dataset("mock.csv")
+        expected = {
+            "columns": self.mock_columns(),
+            "featuretypes": featuretypes,
+            "filename": "mock.csv",
+            "run_id": RUN_ID,
+        }
+        self.assertDictEqual(result, expected)
