@@ -101,6 +101,12 @@ class TestFigures(TestCase):
             environ["OPERATOR_ID"] = "testFigureBase64"
             environ["RUN_ID"] = RUN_ID
             save_figure(figure=encoded_string.decode('utf-8'), extension='png')
+            save_figure(figure=encoded_string.decode('utf-8'), extension='svg', run_id="latest")
+
+        result = list_figures()
+        self.assertTrue(len(result) == 2)
+        result = list_figures(run_id="latest")
+        self.assertTrue(len(result) == 2)
 
     def test_save_html_figure(self):
         environ["EXPERIMENT_ID"] = "testHtmlFigure"
