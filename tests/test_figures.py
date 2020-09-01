@@ -101,3 +101,13 @@ class TestFigures(TestCase):
             environ["OPERATOR_ID"] = "testFigureBase644"
             environ["RUN_ID"] = RUN_ID
             save_figure(figure=encoded_string.decode('utf-8'), extension='png')
+
+    def test_save_html_figure(self):
+        environ["EXPERIMENT_ID"] = "testFigureBase644"
+        environ["OPERATOR_ID"] = "testFigureBase644"
+        environ["RUN_ID"] = RUN_ID
+        html_figure = '<html><body></body></html>'
+        save_figure(figure=html_figure, extension='html')
+
+        expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
+        self.assertEqual(expected, list_figures())
