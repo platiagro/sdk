@@ -97,14 +97,14 @@ class TestFigures(TestCase):
     def test_save_figure_base64(self):
         with open("./tests/figure.png", "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
-            environ["EXPERIMENT_ID"] = "testFigureBase644"
-            environ["OPERATOR_ID"] = "testFigureBase644"
+            environ["EXPERIMENT_ID"] = "testFigureBase64"
+            environ["OPERATOR_ID"] = "testFigureBase64"
             environ["RUN_ID"] = RUN_ID
             save_figure(figure=encoded_string.decode('utf-8'), extension='png')
 
     def test_save_html_figure(self):
-        environ["EXPERIMENT_ID"] = "testFigureBase644"
-        environ["OPERATOR_ID"] = "testFigureBase644"
+        environ["EXPERIMENT_ID"] = "testHtmlFigure"
+        environ["OPERATOR_ID"] = "testHtmlFigure"
         environ["RUN_ID"] = RUN_ID
         html_figure = '<html><body></body></html>'
         save_figure(figure=html_figure, extension='html')
