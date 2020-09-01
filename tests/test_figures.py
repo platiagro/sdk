@@ -111,3 +111,7 @@ class TestFigures(TestCase):
 
         expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
         self.assertEqual(expected, list_figures())
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+        del environ["RUN_ID"]
