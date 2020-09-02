@@ -58,7 +58,9 @@ def list_figures(experiment_id: Optional[str] = None,
         )
         encoded_figure = base64.b64encode(data.read()).decode()
         file_extension = obj.object_name.split('.')[1]
-        if file_extension == 'svg':
+        if file_extension == 'html':
+            figure = f"data:text/html;base64,{encoded_figure}"
+        elif file_extension == 'svg':
             figure = f"data:image/svg+xml;base64,{encoded_figure}"
         else:
             figure = f"data:image/{file_extension};base64,{encoded_figure}"
@@ -124,7 +126,10 @@ def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
         buffer.seek(0)
         figure_name = f"figure-{random_str}.svg"
     else:
-        buffer = BytesIO(base64.b64decode(figure))
+        if extension == 'html':
+            buffer = BytesIO(figure.encode())
+        else:
+            buffer = BytesIO(base64.b64decode(figure))
         figure_name = f"figure-{random_str}.{extension}"
 
     length = buffer.getbuffer().nbytes

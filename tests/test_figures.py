@@ -97,7 +97,27 @@ class TestFigures(TestCase):
     def test_save_figure_base64(self):
         with open("./tests/figure.png", "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
-            environ["EXPERIMENT_ID"] = "testFigureBase644"
-            environ["OPERATOR_ID"] = "testFigureBase644"
+            environ["EXPERIMENT_ID"] = "testFigureBase64"
+            environ["OPERATOR_ID"] = "testFigureBase64"
             environ["RUN_ID"] = RUN_ID
             save_figure(figure=encoded_string.decode('utf-8'), extension='png')
+            save_figure(figure=encoded_string.decode('utf-8'), extension='svg', run_id="latest")
+
+        result = list_figures()
+        self.assertTrue(len(result) == 2)
+        result = list_figures(run_id="latest")
+        self.assertTrue(len(result) == 2)
+
+    def test_save_html_figure(self):
+        environ["EXPERIMENT_ID"] = "testHtmlFigure"
+        environ["OPERATOR_ID"] = "testHtmlFigure"
+        environ["RUN_ID"] = RUN_ID
+        html_figure = '<html><body></body></html>'
+        save_figure(figure=html_figure, extension='html')
+
+        expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
+        self.assertEqual(expected, list_figures())
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+        del environ["RUN_ID"]
