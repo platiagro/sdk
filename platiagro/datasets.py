@@ -205,7 +205,7 @@ def save_dataset(name: str,
         # set the run_id in datasets/<name>.metadata
         # This enables load_dataset by run="latest"
         try:
-            root_metadata = stat_dataset(name)
+            root_metadata = stat_dataset(name, "root")
         except FileNotFoundError:
             root_metadata = {}
 
@@ -314,6 +314,7 @@ def stat_dataset(name: str,
             object_name = metadata_filepath(name)
     else:
         # get path according to received parameters
+        run_id = None if run_id is "root" else run_id
         object_name = metadata_filepath(name, run_id, operator_id)
 
     try:
