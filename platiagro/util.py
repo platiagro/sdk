@@ -216,3 +216,23 @@ def metadata_exists(name: str, run_id: str = None, operator_id: str = None) -> b
         return True
     except (NoSuchBucket, NoSuchKey):
         return False
+
+
+def operator_filepath(name: str,
+                      experiment_id: Optional[str] = None,
+                      operator_id: Optional[str] = None,
+                      run_id: Optional[str] = None) -> str:
+    """Builds the filepath of a given operator.
+    Args:
+        name (str): the file name.
+        experiment_id (str, optional): the experiment uuid. Defaults to None.
+        operator_id (str, optional): the operator uuid. Defaults to None.
+        run_id (str, optional): the run id. Defaults to None.
+    Returns:
+        str: The object name.
+    """
+    if run_id:
+        path = f'experiments/{experiment_id}/operators/{operator_id}/{run_id}/{name}'
+    else:
+        path = f'experiments/{experiment_id}/operators/{operator_id}/{name}'
+    return path

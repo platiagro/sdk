@@ -8,10 +8,7 @@ import base64
 import matplotlib.figure
 
 from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
-    get_experiment_id, get_operator_id, get_run_id, stat_metadata
-
-PREFIX_1 = "experiments"
-PREFIX_2 = "operators"
+    get_experiment_id, get_operator_id, get_run_id, stat_metadata, operator_filepath
 
 
 def list_figures(experiment_id: Optional[str] = None,
@@ -49,7 +46,7 @@ def list_figures(experiment_id: Optional[str] = None,
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    prefix = figure_filepath('figure-', experiment_id, operator_id, run_id)
+    prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
     for obj in objects:
         data = MINIO_CLIENT.get_object(
@@ -113,7 +110,7 @@ def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
         buffer = BytesIO(dumps(metadata).encode())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
-            object_name=f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/.metadata',
+            object_name=f'experiments/{experiment_id}/operators/{operator_id}/.metadata',
             data=buffer,
             length=buffer.getbuffer().nbytes,
         )
@@ -135,32 +132,10 @@ def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
     length = buffer.getbuffer().nbytes
 
     # uploads figure to MinIO
-    object_name = figure_filepath(figure_name, experiment_id, operator_id, run_id)
+    object_name = operator_filepath(figure_name, experiment_id, operator_id, run_id)
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,
         data=buffer,
         length=length,
     )
-
-
-def figure_filepath(name: str,
-                    experiment_id: Optional[str] = None,
-                    operator_id: Optional[str] = None,
-                    run_id: Optional[str] = None) -> str:
-    """Builds the filepath of a given figure.
-
-    Args:
-        name (str): the figure name.
-        experiment_id (str, optional): the experiment uuid. Defaults to None.
-        operator_id (str, optional): the operator uuid. Defaults to None.
-        run_id (str, optional): the run id. Defaults to None.
-    Returns:
-        str: The object name.
-    """
-    if run_id:
-        path = f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/{run_id}/{name}'
-    else:
-        path = f'{PREFIX_1}/{experiment_id}/{PREFIX_2}/{operator_id}/{name}'
-
-    return path
