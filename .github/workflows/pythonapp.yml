@@ -15,6 +15,51 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Code review tips
+      uses: unsplash/comment-on-pr@master
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        msg: |
+          ## Dicas para revisão de código
+
+          ### Commits
+          - Título (1a linha do commit): apresentar resumo do que foi alterado/adicionado/removido.
+            ex: adiciona action que salva parametros no backend; exibe rótulo no componente de selecao de dataset;
+          - Descrição (outras linhas): dar mais detalhes de cada alteração:
+            - motivos das alterações
+              ex: havia um bug que causava...; nova funcionalidade que faz isso...; código foi movido para...;
+            - bibliotecas adicionadas e versões (requirements.txt)
+              ex: atualiza para minio 6.0.0;
+            - testes unitários criados/alterados
+              ex: adiciona testes para o método stat_dataset;
+            - alterações do `docs/source/platiagro.rst`
+              ex: adiciona documentação para save_metrics
+          - Mensagens auto-explicativas! Quem revisa o código deve entender o que foi feito (e porque foi feito) **sem perguntar para quem fez o commit**.
+          - Não devem ter conflitos. Solicitar que sejam resolvidas as ocorrências de "This branch has conflicts that must be resolved".
+
+          ### SonarCloud Quality Gate
+          - Coverage > 80.0%, e sempre que possível = 100%
+          - 0 Bugs, 0 Code Smells, 0 Vulnerabilities
+          - São permitidos os seguintes Security Hotspots:
+            - Make sure this permissive CORS policy is safe here.
+            - Make sure publicly writable directories are used safely here.
+            - Using http protocol is insecure. Use https instead.
+            - Make sure disabling CSRF protection is safe here.
+
+          ### Build Github actions COM SUCESSO
+
+          ### Python
+          - Usar Python 3.6
+          - Remover `print`.
+          - Não deixar código-fonte comentado.
+          - f-string `f'text-{variable}'` é melhor que `'text-{}'.format(variable)` e `'text-' + variable`
+          - async/await NÃO EXISTEM no Python3.6
+          - Métodos que são chamados de outros arquivos `.py` **DEVEM TER Docstring**.
+          - Usar Google Style Python Docstring: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+          - Verificar se código-fonte e `docs/source/platiagro.rst` estão "compatíveis".
+          - TODOS OS MÉTODOS EM `platiagro/__init__.py` **DEVEM ESTAR ATUALIZADOS NOS DOCS**.
     - uses: actions/checkout@v2
     - name: Set up Python 3.6
       uses: actions/setup-python@v1
