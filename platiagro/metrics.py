@@ -9,8 +9,8 @@ import pandas as pd
 import seaborn as sns
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .figures import save_figure
-from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
+from platiagro.figures import save_figure
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket, get_run_id, stat_metadata, operator_filepath
 
 METRICS_FILE = "metrics.json"

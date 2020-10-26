@@ -1,10 +1,10 @@
-from .datasets import list_datasets, load_dataset, save_dataset, \
+from platiagro.datasets import list_datasets, load_dataset, save_dataset, \
     stat_dataset, download_dataset, update_dataset_metadata
-from .featuretypes import infer_featuretypes, validate_featuretypes, \
+from platiagro.featuretypes import infer_featuretypes, validate_featuretypes, \
     DATETIME, CATEGORICAL, NUMERICAL
-from .figures import list_figures, save_figure
-from .metrics import list_metrics, save_metrics
-from .models import load_model, save_model
+from platiagro.figures import list_figures, save_figure
+from platiagro.metrics import list_metrics, save_metrics
+from platiagro.models import load_model, save_model
 
 __all__ = ["list_datasets", "load_dataset", "save_dataset", "stat_dataset",
            "download_dataset", "update_dataset_metadata",

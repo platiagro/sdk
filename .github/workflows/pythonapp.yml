@@ -60,6 +60,8 @@ jobs:
           - Usar Google Style Python Docstring: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
           - Verificar se código-fonte e `docs/source/platiagro.rst` estão "compatíveis".
           - TODOS OS MÉTODOS EM `platiagro/__init__.py` **DEVEM ESTAR ATUALIZADOS NOS DOCS**.
+          - Usar sempre import absoluto.
+            ex: `from platiagro.featuretypes import CATEGORICAL` (BOM), `from .featuretypes import CATEGORICAL` (RUIM)
     - uses: actions/checkout@v2
     - name: Set up Python 3.6
       uses: actions/setup-python@v1

@@ -106,7 +106,7 @@ class TestMetrics(TestCase):
                                operator_id=OPERATOR_ID,
                                run_id="latest")
         self.assertTrue(isinstance(metrics, list))
-        self.assertEquals(metrics, [])
+        self.assertEqual(metrics, [])
 
         environ["EXPERIMENT_ID"] = EXPERIMENT_ID
         environ["OPERATOR_ID"] = OPERATOR_ID

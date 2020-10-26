@@ -6,7 +6,7 @@ from typing import Dict, Optional
 from joblib import dump, load
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket
 
 PREFIX_1 = "experiments"
