@@ -7,7 +7,7 @@ from typing import List, Optional
 import base64
 import matplotlib.figure
 
-from .util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
     get_experiment_id, get_operator_id, get_run_id, stat_metadata, operator_filepath
 
 

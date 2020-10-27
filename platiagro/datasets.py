@@ -9,8 +9,9 @@ import pandas as pd
 from numpy import delete
 from minio.error import NoSuchBucket, NoSuchKey
 
-from .featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
-from .util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, get_operator_id, get_run_id, metadata_exists
+from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
+    get_operator_id, get_run_id, metadata_exists
 
 PREFIX = "datasets"
 

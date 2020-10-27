@@ -10,7 +10,7 @@ from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 from seldon_core.microservice_tester import run_method
 
-from .util import get_experiment_id, get_operator_id
+from platiagro.util import get_experiment_id, get_operator_id
 
 
 class Bunch(object):
