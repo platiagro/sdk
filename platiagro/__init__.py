@@ -14,4 +14,4 @@ __all__ = ["list_datasets", "load_dataset", "save_dataset", "stat_dataset",
            "list_metrics", "save_metrics",
            "load_model", "save_model", ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
