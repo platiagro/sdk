@@ -408,13 +408,13 @@ def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_si
     ax.axis("off")
 
     # Format cells
-    cellText = [
+    cell_text = [
         [_format_str_cell(j) if type(j) != int or type(j) != float else "%.2f" % j for j in i]
         for i in data_plot.values
     ]
 
     mpl_table = ax.table(
-        cellText=cellText,
+        cellText=cell_text,
         bbox=bbox,
         colLabels=data_plot.columns,
         rowLabels=[_format_str_cell(x) for x in data_plot.index],
