@@ -16,11 +16,11 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 
 
-from platiagro import plot_roc_curve
-from platiagro import plot_regression_error
-from platiagro import plot_regression_data
-from platiagro import plot_clustering_data
-from platiagro import plot_data_table
+from platiagro.plotting import plot_roc_curve
+from platiagro.plotting import plot_regression_error
+from platiagro.plotting import plot_regression_data
+from platiagro.plotting import plot_clustering_data
+from platiagro.plotting import plot_data_table
 
  
 RUN_ID = str(uuid4())
