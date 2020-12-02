@@ -18,3 +18,7 @@ notebook>=6.0.2
 requests>=2.23.0
 # Converts ML models into production REST/GRPC microservice
 seldon-core>=1.0.2,<1.1.0
+# Lib that contains OrdinalEncoder and OneHotEncoder
+category-encoders==2.2.2
+
+
