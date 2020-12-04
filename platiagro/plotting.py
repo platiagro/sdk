@@ -106,7 +106,7 @@ def plot_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray):
     ax.set_ylabel("Taxa de Verdadeiro Positivo")
     ax.set_title("Curva ROC", fontweight='bold')
 
-    if len(y_test) == 2:
+    if len(set(y_test)) == 2:
         ax = _calculate_two_class_roc_curve(y_test, y_prob, labels, ax)
     else:
         ax = _calculate_full_roc_curve(y_test, y_prob, labels, ax)
