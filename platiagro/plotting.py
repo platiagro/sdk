@@ -279,7 +279,7 @@ def _select_columns(x_train_trans, y_train, columns):
     rfe = RFE(estimator, n_features_to_select=2, step=1)
     selector = rfe.fit(x_train_trans, y_train)
 
-    return columns[selector.support_]
+    return selector.support_
 
 
 def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
@@ -299,9 +299,10 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     sel_columns = _select_columns(x_train_trans, y_train, columns)
 
     # Create columns in the dataframe
-    data_test = pd.DataFrame(x_test_trans, columns=columns)[sel_columns]
+    data_test = pd.DataFrame(x_test_trans)
+    data_test = data_test.loc[:, sel_columns]
 
-    data_test['xy'] = data_test[sel_columns[0]] * data_test[sel_columns[1]]
+    data_test['xy'] = data_test[data_test.columns[0]] * data_test[data_test.columns[1]]
     data_test['target'] = y_test
 
     data_test['err'] = y_pred - y_test
@@ -316,7 +317,11 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
     ax.set_xlabel('Target', fontweight='bold')
-    ax.set_ylabel(f'{sel_columns[0]}*{sel_columns[1]}', fontweight='bold')
+    
+    if len(x_train_trans[0]) == len(columns):
+        ax.set_ylabel(f'{columns[sel_columns][0]}*{columns[sel_columns][1]}', fontweight='bold')
+    else:
+        ax.set_ylabel(f'a*b', fontweight='bold')
 
     return ax
 
