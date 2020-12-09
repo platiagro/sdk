@@ -3,6 +3,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
+from typing import List,Tuple
+import math
 
 import sklearn
 from sklearn import preprocessing
@@ -106,7 +108,7 @@ def plot_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray):
     ax.set_ylabel("Taxa de Verdadeiro Positivo")
     ax.set_title("Curva ROC", fontweight='bold')
 
-    if len(set(y_test)) == 2:
+    if len(y_test) == 2:
         ax = _calculate_two_class_roc_curve(y_test, y_prob, labels, ax)
     else:
         ax = _calculate_full_roc_curve(y_test, y_prob, labels, ax)
@@ -433,3 +435,239 @@ def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_si
             cell.set_facecolor(row_colors[k[0] % len(row_colors)])
 
     return ax
+
+
+
+
+def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
+                                  y_list:List[np.ndarray],
+                                  x_axe_names:List[str], 
+                                  y_axe_names:List[str],
+                                  col_wrap:int,
+                                  suptitle:str,
+                                  line_styles:List[str]=None,
+                                  marker_styles:List[str]=None,
+                                  colors:List[str] = None,
+                                  subtitles:List[str] = None,
+                                  subplot_size:Tuple[int] = (5,5),
+                                  subtitles_fontize:int = 15,
+                                  suptitle_fontize:int = 20,
+                                  axes_fontisze:int = 10):
+  
+    """Plot multiple graphs individually .
+
+    Args:
+        x_list (List[np.ndarray]): input data x axis list.
+        y_list (List[np.ndarray]): input data y axis list.
+        x_axe_names (List[str]): x axe name.
+        y_axe_names (List[str]): y axe name.
+        col_wrap (int): number of desired columns.
+        suptitle (str): graph ensemble suptitle.
+        line_styles (List[str]): graphs line styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        marker_styles (List[str]): graphs marker styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        colors (List[str]): colors list. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        subtitles (List[str]): subtitles list.
+        subplot_size (Tuple[int]): tuple with figsize dimentions.
+        subtitles_fontize (int): subtitles fontsize.        
+        suptitle_fontize (int): suptitle fontsize.
+        axes_fontisze (int): axes fontsize.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+    if len(x_list) == 1:
+      raise Exception("You are passing only one graph, please use a simple plot")
+
+    if not (len(x_list) == len(y_list)):
+        raise Exception("The elemets x_list,y_list and must all have the same lenght")
+    
+    if not subtitles:
+      subtitles = len(x_list)*[""]
+
+    if  len(x_list) != len(subtitles):
+      raise Exception(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
+
+    if not colors:
+      colors = len(x_list)*["b"]
+
+    if not line_styles:
+      line_styles = len(x_list)*["-"]
+    
+    if not marker_styles:
+      marker_styles = len(x_list)*[""]
+
+    if len(x_axe_names) == 1:
+      x_axe_names= len(x_list)*x_axe_names
+    
+    if len(y_axe_names) == 1:
+      y_axe_names= len(x_list)*y_axe_names
+
+    
+    cols = col_wrap
+    rows = math.ceil(len(x_list)/col_wrap)
+    
+    
+    fig, axs = plt.subplots(rows,cols)
+    axs = axs.ravel()
+    axs_to_remove = []
+
+    for i in range(len(axs)):
+      if i > len(x_list)-1:
+        axs_to_remove.append(i)
+    
+
+    if axs_to_remove:
+      for k in axs_to_remove:
+        fig.delaxes(axs[k])
+
+    axs = axs[:len(x_list)]
+    
+    for ax,subtitle,x_data,y_data,line_style,marker_style,color,x_axe_name,y_axe_name in zip(axs,subtitles,x_list,y_list,line_styles,marker_styles,colors,x_axe_names,y_axe_names):
+
+      ax.plot(x_data, y_data, linestyle=line_style,marker=marker_style, color=color)
+      ax.set_xlabel(x_axe_name,fontsize=axes_fontisze)
+      ax.set_ylabel(y_axe_name,fontsize=axes_fontisze)
+      ax.set_title(subtitle,fontsize=subtitles_fontize)
+      ax.figure.set_size_inches(subplot_size[0], subplot_size[1])
+
+    plt.suptitle(suptitle,fontsize=suptitle_fontize)
+    fig.tight_layout()
+    plt.subplots_adjust(top=0.8)
+    plt.show()
+    
+    return axs
+
+def plot_line_graphs_overlayed(x_list:List[np.ndarray],
+                                  y_list:List[np.ndarray],
+                                  x_axe_name:str, 
+                                  y_axe_name:str,
+                                  legends:List[str],
+                                  title:str,
+                                  legend_position:str='upper right',
+                                  line_styles:List[str]=None,
+                                  marker_styles:List[str]=None,
+                                  figsize:Tuple[int] = (10,10),
+                                  colors:List[str] = None,
+                                  title_fontize:int = 15,
+                                  axes_fontisze:int = 10):
+    
+    """Plot multiple graphs together .
+
+    Args:
+        x_list (List[np.ndarray]): input data x axis list.
+        y_list (List[np.ndarray]): input data y axis list.
+        x_axe_name (str): x axe name.
+        y_axe_name (str): y axe name.
+        legends (List[str]): legends list.
+        title (str): graph title.
+        legend_position (str): legend position on graph.
+        line_styles (List[str]): graphs line styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        marker_styles (List[str]): graphs marker styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        figsize (Tuple[int]): tuple with figsize dimentions.
+        colors (List[str]): colors list. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        title_fontize (int): title fontsize.
+        axes_fontisze (int): axes fontsize.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+
+
+    if (len(x_list) == len(y_list)==1):
+        legends = ["None_Marker"]
+
+    if not (len(x_list) == len(y_list) == len(legends)):
+        raise Exception("The elemets x_list,y_list and legens must all have the same lenght")
+
+
+    if not colors:
+      color_options = ["b","r","g","m","c","m","y","k"]
+      n_repetitions = math.ceil(len(color_options)/len(x_list))
+      color_options = n_repetitions*color_options
+      colors = color_options[:len(x_list)]
+
+    if not line_styles:
+      line_styles = len(x_list)*["-"]
+    
+    if not marker_styles:
+      marker_styles = len(x_list)*[""]
+    
+
+    fig, ax = plt.subplots()
+    plot_list = []
+
+    for x,y,line_style,marker_style,color,legend in zip(x_list,y_list,line_styles,marker_styles,colors,legends):
+      if legend ==  "None_Marker":
+        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style))
+      else:
+        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style,label=legend))
+      
+
+    if legends !=  ["None_Marker"]:
+      ax.legend(loc=legend_position)
+    ax.set_xlabel(x_axe_name,fontsize = axes_fontisze)
+    ax.set_ylabel(y_axe_name,fontsize = axes_fontisze)
+    ax.set_title(title)
+    ax.figure.set_size_inches(figsize[0], figsize[1])
+
+    fig.tight_layout()
+    plt.show()
+
+    return ax
+
+
+def plot_simple_line_graph(x:np.ndarray,
+                        y:np.ndarray,
+                        x_axe_name:str, 
+                        y_axe_name:str,
+                        title:str,
+                        line_style:str = None,
+                        marker_style:str = None,
+                        figsize:Tuple[int] = (10,10),
+                        color:str = None,
+                        title_fontize:int = 15,
+                        axes_fontisze:int = 10):
+    
+    """Plot simple line grapj .
+
+    Args:
+        x_list (List[np.ndarray]): input data x axis.
+        y_list (List[np.ndarray]): input data y axis.
+        x_axe_name (str): x axe name.
+        y_axe_name (str): y axe name.
+        title (str): graph title.
+        line_style (str): graphs line style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        marker_style (str): graphs marker style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        figsize (Tuple[int]): tuple with figsize dimentions.
+        color (str): graph color. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        title_fontize (int): title fontsize.
+        axes_fontisze (int): axes fontsize.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    x = [x]
+    y = [y]
+    if line_style:
+        line_style = [line_style]
+    
+    if marker_style:
+        marker_style = [marker_style]
+
+    if color:
+        color = [color]
+
+    plot_line_graphs_overlayed(x_list=x,
+                                y_list=y,
+                                x_axe_name = x_axe_name, 
+                                y_axe_name = y_axe_name, 
+                                legends=None,
+                                title= title,
+                                line_styles = line_style,
+                                marker_styles=marker_style,
+                                figsize=figsize,
+                                colors=color,
+                                title_fontize=title_fontize,
+                                axes_fontisze=axes_fontisze)

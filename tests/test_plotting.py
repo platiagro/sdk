@@ -21,6 +21,11 @@ from platiagro.plotting import plot_regression_error
 from platiagro.plotting import plot_regression_data
 from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
+from platiagro.plotting import plot_line_graphs_overlayed
+from platiagro.plotting import plot_line_subgraphs_alongisde
+from platiagro.plotting import plot_simple_line_graph
+
+
 
  
 RUN_ID = str(uuid4())
@@ -402,3 +407,54 @@ class TestPlotting(TestCase):
         plot_data_table( df , col_width=3.0, row_height=0.625, font_size=8, 
                 header_color="#40466e", row_colors=["#f1f1f2", "w"], edge_color="w", bbox=[0, 0, 1, 1],
                 header_columns=0, column_quantity=40)
+
+
+    def test_line_subgraphs_alongisde(self):
+            x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+            y1 = np.sin(x1) + 1.0 + 1
+            x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
+            y2 = np.sin(x2) + 1.0 + 2
+            x_list = [np.array(x1),np.array(x2)]
+            y_list = [np.array(y1),np.array(y2)]
+            axs = plot_line_subgraphs_alongisde(x_list,
+                                        y_list,
+                                        x_axe_names= ["x"],
+                                        y_axe_names = ["y"],
+                                        col_wrap=1,
+                                        suptitle="Train Performance",
+                                        subtitles = ['Loss','Acurácia'],
+                                        subplot_size = (10,10))
+
+    def test_line_graphs_overlayed(self):
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+        x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
+        y2 = np.sin(x2) + 1.0 + 2
+        x_list = [np.array(x1),np.array(x2)]
+        y_list = [np.array(y1),np.array(y2)]
+        legends = ["legend1","legend2"]
+
+
+
+        ax = plot_line_graphs_overlayed(x_list = x_list,
+                                        y_list=y_list,
+                                        x_axe_name="x_axe", 
+                                        y_axe_name="y_axe",
+                                        legends=legends,
+                                        title="Title",
+                                        legend_position='upper right')
+
+
+
+    def test_simple_line_graph(self):
+
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+        x_list = [np.array(x1)]
+        y_list = [np.array(y1)]
+
+        ax = plot_simple_line_graph(x = x_list,
+                                    y=y_list,
+                                    x_axe_name="x_axe", 
+                                    y_axe_name="y_axe",
+                                    title="Title" )
