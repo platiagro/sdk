@@ -443,8 +443,9 @@ class TestPlotting(TestCase):
 
 
 
-        x_list = [np.array(x1),np.array(x2)]
-        y_list = [np.array(y1),np.array(y2)]
+        x_list = [np.array(x1),np.array(x2),np.array(x2)]
+        y_list = [np.array(y1),np.array(y2),np.array(y2)]
+        
 
 
         axs = plot_line_subgraphs_alongisde(x_list,
@@ -453,7 +454,7 @@ class TestPlotting(TestCase):
                                     y_axe_names = ["y"],
                                     col_wrap=1,
                                     suptitle="Train Performance",
-                                    subtitles = ['Loss','Acurácia'],
+                                    subtitles = ['Loss','Acurácia','Outro'],
                                     subplot_size = (10,10))
 
     def test_line_graphs_overlayed(self):
@@ -525,4 +526,7 @@ class TestPlotting(TestCase):
                                     y=y1,
                                     x_axe_name="x_axe", 
                                     y_axe_name="y_axe",
-                                    title="Title" )
+                                    title="Title",
+                                    color = "b",
+                                    line_style="-",
+                                    marker_style=".")
