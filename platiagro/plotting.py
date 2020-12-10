@@ -445,14 +445,11 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
                                   y_axe_names:List[str],
                                   col_wrap:int,
                                   suptitle:str,
+                                  subtitles:List[str],
                                   line_styles:List[str]=None,
                                   marker_styles:List[str]=None,
                                   colors:List[str] = None,
-                                  subtitles:List[str] = None,
-                                  subplot_size:Tuple[int] = (5,5),
-                                  subtitles_fontize:int = 15,
-                                  suptitle_fontize:int = 20,
-                                  axes_fontisze:int = 10):
+                                  subplot_size:Tuple[int] = (5,5)):
   
     """Plot multiple graphs individually .
 
@@ -468,25 +465,16 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
         colors (List[str]): colors list. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
         subtitles (List[str]): subtitles list.
         subplot_size (Tuple[int]): tuple with figsize dimentions.
-        subtitles_fontize (int): subtitles fontsize.        
-        suptitle_fontize (int): suptitle fontsize.
-        axes_fontisze (int): axes fontsize.
 
     Returns:
         (matplotlib.Axes): the axes object.
     """
     if len(x_list) == 1:
-      raise Exception("You are passing only one graph, please use a simple plot")
+      raise ValueError("You are passing only one graph, please use a simple plot")
 
-    if not (len(x_list) == len(y_list)):
-        raise Exception("The elemets x_list,y_list and must all have the same lenght")
+    if not (len(x_list) == len(y_list) ==len(subtitles)):
+        raise ValueError(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
     
-    if not subtitles:
-      subtitles = len(x_list)*[""]
-
-    if  len(x_list) != len(subtitles):
-      raise Exception(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
-
     if not colors:
       colors = len(x_list)*["b"]
 
@@ -525,12 +513,12 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
     for ax,subtitle,x_data,y_data,line_style,marker_style,color,x_axe_name,y_axe_name in zip(axs,subtitles,x_list,y_list,line_styles,marker_styles,colors,x_axe_names,y_axe_names):
 
       ax.plot(x_data, y_data, linestyle=line_style,marker=marker_style, color=color)
-      ax.set_xlabel(x_axe_name,fontsize=axes_fontisze)
-      ax.set_ylabel(y_axe_name,fontsize=axes_fontisze)
-      ax.set_title(subtitle,fontsize=subtitles_fontize)
+      ax.set_xlabel(x_axe_name,fontsize=10)
+      ax.set_ylabel(y_axe_name,fontsize=10)
+      ax.set_title(subtitle,fontsize=15)
       ax.figure.set_size_inches(subplot_size[0], subplot_size[1])
 
-    plt.suptitle(suptitle,fontsize=suptitle_fontize)
+    plt.suptitle(suptitle,fontsize=20)
     fig.tight_layout()
     plt.subplots_adjust(top=0.8)
     plt.show()
@@ -547,9 +535,7 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
                                   line_styles:List[str]=None,
                                   marker_styles:List[str]=None,
                                   figsize:Tuple[int] = (10,10),
-                                  colors:List[str] = None,
-                                  title_fontize:int = 15,
-                                  axes_fontisze:int = 10):
+                                  colors:List[str] = None):
     
     """Plot multiple graphs together .
 
@@ -574,11 +560,12 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
 
 
 
-    if (len(x_list) == len(y_list)==1):
-        legends = ["None_Marker"]
-
     if not (len(x_list) == len(y_list) == len(legends)):
-        raise Exception("The elemets x_list,y_list and legens must all have the same lenght")
+        raise ValueError(f"Legends (with length {len(legends)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
+
+    if (len(legends) == 1 and legends != ["None_Marker"]):
+        raise ValueError("You are passing only one graph, please use a simple plot")
+        
 
 
     if not colors:
@@ -606,9 +593,9 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
 
     if legends !=  ["None_Marker"]:
       ax.legend(loc=legend_position)
-    ax.set_xlabel(x_axe_name,fontsize = axes_fontisze)
-    ax.set_ylabel(y_axe_name,fontsize = axes_fontisze)
-    ax.set_title(title)
+    ax.set_xlabel(x_axe_name,fontsize = 10)
+    ax.set_ylabel(y_axe_name,fontsize = 10)
+    ax.set_title(title,fontsize = 20)
     ax.figure.set_size_inches(figsize[0], figsize[1])
 
     fig.tight_layout()
@@ -625,9 +612,7 @@ def plot_simple_line_graph(x:np.ndarray,
                         line_style:str = None,
                         marker_style:str = None,
                         figsize:Tuple[int] = (10,10),
-                        color:str = None,
-                        title_fontize:int = 15,
-                        axes_fontisze:int = 10):
+                        color:str = None):
     
     """Plot simple line grapj .
 
@@ -648,6 +633,9 @@ def plot_simple_line_graph(x:np.ndarray,
         (matplotlib.Axes): the axes object.
     """
 
+    if not (type(x) == type(y) == np.ndarray):
+        raise TypeError("x and y must be numpy arrays")
+
     x = [x]
     y = [y]
     if line_style:
@@ -659,15 +647,21 @@ def plot_simple_line_graph(x:np.ndarray,
     if color:
         color = [color]
 
+    legends = ["None_Marker"]
+
     plot_line_graphs_overlayed(x_list=x,
                                 y_list=y,
                                 x_axe_name = x_axe_name, 
                                 y_axe_name = y_axe_name, 
-                                legends=None,
+                                legends=legends,
                                 title= title,
                                 line_styles = line_style,
                                 marker_styles=marker_style,
                                 figsize=figsize,
-                                colors=color,
-                                title_fontize=title_fontize,
-                                axes_fontisze=axes_fontisze)
+                                colors=color)
+
+
+
+
+
+

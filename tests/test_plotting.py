@@ -410,32 +410,89 @@ class TestPlotting(TestCase):
 
 
     def test_line_subgraphs_alongisde(self):
-            x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
-            y1 = np.sin(x1) + 1.0 + 1
-            x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
-            y2 = np.sin(x2) + 1.0 + 2
-            x_list = [np.array(x1),np.array(x2)]
-            y_list = [np.array(y1),np.array(y2)]
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+        x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
+        y2 = np.sin(x2) + 1.0 + 2
+        
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1)]
+            y_list = [np.array(y2)]
             axs = plot_line_subgraphs_alongisde(x_list,
                                         y_list,
                                         x_axe_names= ["x"],
                                         y_axe_names = ["y"],
                                         col_wrap=1,
                                         suptitle="Train Performance",
-                                        subtitles = ['Loss','Acurácia'],
+                                        subtitles = ['Loss'],
                                         subplot_size = (10,10))
+
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1),np.array(x2)]
+            y_list = [np.array(y2)]
+            axs = plot_line_subgraphs_alongisde(x_list,
+                                        y_list,
+                                        x_axe_names= ["x"],
+                                        y_axe_names = ["y"],
+                                        col_wrap=1,
+                                        suptitle="",
+                                        subtitles = ['Loss'],
+                                        subplot_size = (10,10))
+
+        
+
+
+
+        x_list = [np.array(x1),np.array(x2)]
+        y_list = [np.array(y1),np.array(y2)]
+
+
+        axs = plot_line_subgraphs_alongisde(x_list,
+                                    y_list,
+                                    x_axe_names= ["x"],
+                                    y_axe_names = ["y"],
+                                    col_wrap=1,
+                                    suptitle="Train Performance",
+                                    subtitles = ['Loss','Acurácia'],
+                                    subplot_size = (10,10))
 
     def test_line_graphs_overlayed(self):
         x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
         y1 = np.sin(x1) + 1.0 + 1
         x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
         y2 = np.sin(x2) + 1.0 + 2
+        
+
+
+
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1)]
+            y_list = [np.array(y1)]
+            legends = ["legend1"]
+            ax = plot_line_graphs_overlayed(x_list = x_list,
+                                                y_list=y_list,
+                                                x_axe_name="x_axe", 
+                                                y_axe_name="y_axe",
+                                                legends=legends,
+                                                title="Title",
+                                                legend_position='upper right')
+        with self.assertRaises(ValueError):
+
+            x_list = [np.array(x1),np.array(x2)]
+            y_list = [np.array(y1), np.array(y2)]
+            legends = ["legend1"]
+            ax = plot_line_graphs_overlayed(x_list = x_list,
+                                                y_list=y_list,
+                                                x_axe_name="x_axe", 
+                                                y_axe_name="y_axe",
+                                                legends=legends,
+                                                title="Title",
+                                                legend_position='upper right')
+                            
+        
         x_list = [np.array(x1),np.array(x2)]
         y_list = [np.array(y1),np.array(y2)]
         legends = ["legend1","legend2"]
-
-
-
         ax = plot_line_graphs_overlayed(x_list = x_list,
                                         y_list=y_list,
                                         x_axe_name="x_axe", 
@@ -448,13 +505,24 @@ class TestPlotting(TestCase):
 
     def test_simple_line_graph(self):
 
+
+        with self.assertRaises(TypeError):
+
+            x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+            y1 = [1]*len(x1)
+
+            x = plot_simple_line_graph(x =x1 ,
+                                        y=y1,
+                                        x_axe_name="x_axe", 
+                                        y_axe_name="y_axe",
+                                        title="Title" )
+
         x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
         y1 = np.sin(x1) + 1.0 + 1
-        x_list = [np.array(x1)]
-        y_list = [np.array(y1)]
 
-        ax = plot_simple_line_graph(x = x_list,
-                                    y=y_list,
+
+        ax = plot_simple_line_graph(x =x1 ,
+                                    y=y1,
                                     x_axe_name="x_axe", 
                                     y_axe_name="y_axe",
                                     title="Title" )
