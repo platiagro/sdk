@@ -648,10 +648,11 @@ def plot_shap_classification_summary(sklearn_model,
     shap_values = explainer.shap_values(X)
     for i in range(len(explainer.expected_value)):
         shap.initjs()
+        plt.figure()
         if label_encoder:
-            labels['VALUE'] = label_encoder.inverse_transform([i])[0]
+            plt.title(label_encoder.inverse_transform([i])[0]) 
         else:
-            labels['VALUE'] = f"class_{i}"
+            plt.title(f"class_{i}")
         shap.summary_plot(shap_values[i], X,feature_names=feature_names)
 
 
