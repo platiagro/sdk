@@ -6,7 +6,7 @@
 
 ## Requirements
 
-- [Python 3.6](https://www.python.org/downloads/)
+- [Python 3.7](https://www.python.org/downloads/)
 
 ## Quick Start
 
