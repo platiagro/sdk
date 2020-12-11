@@ -15,6 +15,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import gaussian_kde
+import shap
+from shap.plots._labels import labels
 
 
 def _calculate_two_class_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray, ax: plt.Axes):
@@ -446,9 +448,6 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
                                   col_wrap:int,
                                   suptitle:str,
                                   subtitles:List[str],
-                                  line_styles:List[str]=None,
-                                  marker_styles:List[str]=None,
-                                  colors:List[str] = None,
                                   subplot_size:Tuple[int] = (5,5)):
   
     """Plot multiple graphs individually .
@@ -460,9 +459,6 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
         y_axe_names (List[str]): y axe name.
         col_wrap (int): number of desired columns.
         suptitle (str): graph ensemble suptitle.
-        line_styles (List[str]): graphs line styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        marker_styles (List[str]): graphs marker styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        colors (List[str]): colors list. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
         subtitles (List[str]): subtitles list.
         subplot_size (Tuple[int]): tuple with figsize dimentions.
 
@@ -474,15 +470,6 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
 
     if not (len(x_list) == len(y_list) ==len(subtitles)):
         raise ValueError(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
-    
-    if not colors:
-      colors = len(x_list)*["b"]
-
-    if not line_styles:
-      line_styles = len(x_list)*["-"]
-    
-    if not marker_styles:
-      marker_styles = len(x_list)*[""]
 
     if len(x_axe_names) == 1:
       x_axe_names= len(x_list)*x_axe_names
@@ -490,10 +477,14 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
     if len(y_axe_names) == 1:
       y_axe_names= len(x_list)*y_axe_names
 
-    
+    cmap = sns.color_palette("Spectral_r", 256)
+    color_map = list(cmap)
+    colors = [color_map[20]]*len(x_list)
+    line_styles = ['-']*len(x_list)
+    marker_styles = ['']*len(x_list)
+
     cols = col_wrap
     rows = math.ceil(len(x_list)/col_wrap)
-    
     
     fig, axs = plt.subplots(rows,cols)
     axs = axs.ravel()
@@ -532,10 +523,7 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
                                   legends:List[str],
                                   title:str,
                                   legend_position:str='upper right',
-                                  line_styles:List[str]=None,
-                                  marker_styles:List[str]=None,
-                                  figsize:Tuple[int] = (10,10),
-                                  colors:List[str] = None):
+                                  figsize:Tuple[int] = (10,10)):
     
     """Plot multiple graphs together .
 
@@ -547,39 +535,28 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
         legends (List[str]): legends list.
         title (str): graph title.
         legend_position (str): legend position on graph.
-        line_styles (List[str]): graphs line styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        marker_styles (List[str]): graphs marker styles. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
         figsize (Tuple[int]): tuple with figsize dimentions.
-        colors (List[str]): colors list. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        title_fontize (int): title fontsize.
-        axes_fontisze (int): axes fontsize.
 
     Returns:
         (matplotlib.Axes): the axes object.
     """
-
-
-
     if not (len(x_list) == len(y_list) == len(legends)):
         raise ValueError(f"Legends (with length {len(legends)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
 
     if (len(legends) == 1 and legends != ["None_Marker"]):
         raise ValueError("You are passing only one graph, please use a simple plot")
         
+    cmap = sns.color_palette("Spectral_r", 256)
+    color_map = list(cmap)
+    color_options = [color_map[20],color_map[-20], color_map[40],color_map[-40],color_map[255],color_map[-90]]
+    n_repetitions = math.ceil(len(color_options)/len(x_list))
+    color_repetitions = n_repetitions*color_options
+    colors = color_repetitions[:len(x_list)]
 
+    line_styles_options = ['-', '--', '-.', ':']
+    line_styles = sum([[line_style]*len(color_options) for line_style in line_styles_options],[])[:len(x_list)]
 
-    if not colors:
-      color_options = ["b","r","g","m","c","m","y","k"]
-      n_repetitions = math.ceil(len(color_options)/len(x_list))
-      color_options = n_repetitions*color_options
-      colors = color_options[:len(x_list)]
-
-    if not line_styles:
-      line_styles = len(x_list)*["-"]
-    
-    if not marker_styles:
-      marker_styles = len(x_list)*[""]
-    
+    marker_styles = ['']*len(line_styles)
 
     fig, ax = plt.subplots()
     plot_list = []
@@ -597,7 +574,6 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
     ax.set_ylabel(y_axe_name,fontsize = 10)
     ax.set_title(title,fontsize = 20)
     ax.figure.set_size_inches(figsize[0], figsize[1])
-
     fig.tight_layout()
     plt.show()
 
@@ -609,10 +585,7 @@ def plot_simple_line_graph(x:np.ndarray,
                         x_axe_name:str, 
                         y_axe_name:str,
                         title:str,
-                        line_style:str = None,
-                        marker_style:str = None,
-                        figsize:Tuple[int] = (10,10),
-                        color:str = None):
+                        figsize:Tuple[int] = (10,10)):
     
     """Plot simple line grapj .
 
@@ -638,27 +611,48 @@ def plot_simple_line_graph(x:np.ndarray,
 
     x = [x]
     y = [y]
-    if line_style:
-        line_style = [line_style]
-    
-    if marker_style:
-        marker_style = [marker_style]
-
-    if color:
-        color = [color]
 
     legends = ["None_Marker"]
 
-    plot_line_graphs_overlayed(x_list=x,
+    ax = plot_line_graphs_overlayed(x_list=x,
                                 y_list=y,
                                 x_axe_name = x_axe_name, 
                                 y_axe_name = y_axe_name, 
                                 legends=legends,
                                 title= title,
-                                line_styles = line_style,
-                                marker_styles=marker_style,
-                                figsize=figsize,
-                                colors=color)
+                                figsize=figsize)
+    return ax
+
+def plot_shap_classification_summary(sklearn_model,
+                                    X:np.ndarray,
+                                    Y:np.ndarray,
+                                    feature_names:List,
+                                    max_display:int,
+                                    label_encoder=None):
+    
+    """Plots summary of features contribution for each class
+
+    Args:
+        model: clasification scikit learning model or pipeline
+        X (np.ndarray): input data .
+        Y (str): output data.
+        feature_names (List): List with evey input feature.
+        max_display (int): number of features that will be orderem by importance
+        label_encoder : label encoder required for retrieving output class names.
+
+    Returns:
+        
+    """
+
+    explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
+    shap_values = explainer.shap_values(X)
+    for i in range(len(explainer.expected_value)):
+        shap.initjs()
+        if label_encoder:
+            labels['VALUE'] = label_encoder.inverse_transform([i])[0]
+        else:
+            labels['VALUE'] = f"class_{i}"
+        shap.summary_plot(shap_values[i], X,feature_names=feature_names)
 
 
 
