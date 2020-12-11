@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -8,11 +10,14 @@ import sklearn
 from sklearn import preprocessing
 from sklearn.metrics import auc, roc_curve
 from sklearn.feature_selection import RFE
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import gaussian_kde
+from scipy.stats import probplot
+
+warnings.filterwarnings("ignore")
 
 
 def _calculate_two_class_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray, ax: plt.Axes):
@@ -211,26 +216,29 @@ def plot_regression_error(y_test: np.ndarray, y_pred: np.ndarray):
     # Calculate KDE and plot
     ax = plt.subplot()
 
+    cmap = sns.color_palette("Spectral_r", 256)
+    colors = list(cmap)
+
     kde = gaussian_kde(err)
     x_err = np.linspace(err.min(), err.max(), 1000)
     p_err = kde(x_err)
-    ax.plot(x_err, p_err, "b-")
+    ax.plot(x_err, p_err, "-", c=colors[20])
 
     # Manage limits
     y_lim = ax.get_ylim()
     ax.set_ylim((0, y_lim[1]))
     y_lim = ax.get_ylim()
     ax.set_xlim(x_lim)
-    ax.plot([seven_aux.min(), seven_aux.min()], y_lim, "r--")
-    ax.plot([seven_aux.max(), seven_aux.max()], y_lim, "r--")
+    ax.plot([seven_aux.min(), seven_aux.min()], y_lim, "--", c=colors[-20])
+    ax.plot([seven_aux.max(), seven_aux.max()], y_lim, "--", c=colors[-20])
 
     # Shade the area between e.min() and e.max()
     ax.fill_betweenx(
         y_lim,
         seven_aux.min(),
         seven_aux.max(),
-        facecolor="red",  # The fill color
-        color="red",  # The outline color
+        facecolor=colors[-25],  # The fill color
+        color=colors[-25],  # The outline color
         alpha=0.2,
     )  # Transparency of the fill
 
@@ -242,6 +250,187 @@ def plot_regression_error(y_test: np.ndarray, y_pred: np.ndarray):
     ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
     ax.set_title("Distribuição do Erro", fontweight='bold')
     ax.grid(True)
+
+    return ax
+
+
+def plot_prediction_diff(y_test: np.ndarray, y_pred: np.ndarray):
+    """Plot difference between real and predicted target.
+
+    Args:
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): target predicted by the model.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    ax = plt.subplot()
+
+    cmap = sns.color_palette("Spectral_r", 256)
+    colors = list(cmap)
+    
+    ax.plot(y_test, 'b-', label='Real', c=colors[20])
+    ax.plot(y_pred, 'r--', label='Predito', c=colors[-20])
+
+    ax.set_xlabel('Índice dos dados', fontweight='bold')
+    ax.set_ylabel('Rótulo', fontweight='bold')
+    ax.set_title("Distribuição do Rótulo", fontweight='bold')
+    ax.grid(True)
+
+    ax.legend(loc="lower right")
+
+    return ax
+
+
+def plot_sorted_prediction_diff(y_test: np.ndarray, y_pred: np.ndarray):
+    """Plot sorted difference between real and predicted target.
+
+    Args:
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): target predicted by the model.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    ax = plt.subplot()
+
+    cmap = sns.color_palette("Spectral_r", 256)
+    colors = list(cmap)
+
+    sorted_idx = np.argsort(np.abs(y_test))
+    ax.plot(y_test[sorted_idx], '-', c=colors[20], label='Real', linewidth=2)
+    ax.plot(y_pred[sorted_idx], '--', c=colors[-20], label='Predito', linewidth=1.5)
+
+    ax.set_xlabel('Índice dos dados ordenados', fontweight='bold')
+    ax.set_ylabel('Rótulo', fontweight='bold')
+    ax.set_title("Distribuição do Rótulo Ordenado", fontweight='bold')
+    ax.grid(True)
+
+    ax.legend(loc="lower right")
+
+    return ax
+
+
+def plot_absolute_error(y_test: np.ndarray, y_pred: np.ndarray):
+    """Plot absolute error between real and predicted for each record.
+
+    Args:
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): target predicted by the model.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    fig, ax = plt.subplots()
+
+    cmap = sns.color_palette("Spectral_r", as_cmap=True)
+
+    y_not_abs = y_pred - y_test
+    y_abs = np.abs(y_not_abs)
+
+    limit = np.amax(y_abs)
+    limit += limit*0.04
+
+    points = ax.scatter(np.arange(len(y_pred)), y=y_not_abs, s=50, c=y_abs, cmap=cmap, edgecolors='#424242', alpha=0.8)
+    cb = fig.colorbar(points)
+    cb.ax.set_ylabel('Erro obtido', rotation=270, labelpad=10, fontweight='bold')
+
+    ax.set_ylim(-limit, limit)
+
+    ax.set_xlabel('Índice dos dados', fontweight='bold')
+    ax.set_ylabel('Erro', fontweight='bold')
+    ax.set_title("Distribuição do Erro Absoluto", fontweight='bold')
+    ax.grid(True)
+
+    return ax
+
+
+def plot_probability_error(y_test: np.ndarray, y_pred: np.ndarray):
+    """Plot probability error to compare error distribution to normal distribution.
+
+    Args:
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): target predicted by the model.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    ax = plt.subplot()
+
+    cmap = sns.color_palette("Spectral_r", 256)
+    colors = list(cmap)
+
+    probplot(y_pred - y_test,
+                    dist="norm",
+                    fit=True,
+                    rvalue=True,
+                    plot=ax)
+
+    ax.get_lines()[0].set_markerfacecolor(colors[20])
+    ax.get_lines()[0].set_markersize(7)
+    ax.get_lines()[0].set_markeredgecolor('#424242')
+    ax.get_lines()[0].set_alpha(0.8)
+
+    ax.get_lines()[1].set_color(colors[-20])
+    ax.get_lines()[1].set_linewidth(3)
+
+    ax.set_xlabel("Quantis teóricos", fontweight='bold')
+    ax.set_ylabel('Erro x Normal', fontweight='bold')
+    ax.set_title("Comparação da distribuição do erro e da normal", fontweight='bold')
+    ax.grid(True)
+
+    return ax
+
+
+def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
+
+    ax = plt.subplot()
+
+    # Get n% of the test targets that are closest to set's mean (to avoid outliers influence)
+    n = 0.99
+    centralized_y = y_test - np.mean(y_test)
+    sorted_idx = np.argsort(np.abs(centralized_y))
+    n = int(n*len(y_test))
+    idx = sorted_idx[:n]
+    sorted_samples = y_test[idx]
+
+    # split targets in n intervals
+    n = 5
+    r = sorted_samples.max() - sorted_samples.min() # range of targets 
+
+    d = r/n # size of interval
+    limits = np.array(list(range(n+1)))*d + sorted_samples.min()
+    limits[0] = y_test.min()
+    limits[-1] = y_test.max()
+
+    cmap = sns.color_palette("Spectral_r", 256)
+    colors = list(cmap)
+
+    # plot error per interval
+    err = y_pred - y_test
+    for i, upper in enumerate(limits[1:]):
+        lower = limits[i]        
+        boolean_array = ((lower < y_test) & (y_test < upper))
+        idx = np.where(boolean_array)[0]
+
+        kde = gaussian_kde(err[idx])
+        x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
+        p_err = kde(x_err)
+        label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
+        ax.plot(x_err, p_err, c='#424242', linewidth=4)
+        ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
+    
+    ax.set_xlabel("Erro", fontweight='bold')
+    ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
+    ax.set_title("Distribuição do erro por segmento", fontweight='bold')
+
+    ax.grid(True)
+
+    ax.legend(loc="lower right")
 
     return ax
 
@@ -259,7 +448,7 @@ def _transform_data(pipeline: sklearn.pipeline, x: pd.DataFrame):
     return Pipeline(steps=pipeline.steps[:-1]).transform(x)
 
 
-def _select_columns(x_train_trans, y_train, columns):
+def _select_columns(x_train_trans, y_train, columns, classification=False):
     """Select columns with RFE.
 
     Args:
@@ -274,7 +463,12 @@ def _select_columns(x_train_trans, y_train, columns):
     if len(columns) <= 2:
         return columns
 
-    estimator = DecisionTreeRegressor()
+    estimator = None
+
+    if classification:
+        estimator = DecisionTreeClassifier()
+    else:
+        estimator = DecisionTreeRegressor()
 
     rfe = RFE(estimator, n_features_to_select=2, step=1)
     selector = rfe.fit(x_train_trans, y_train)
@@ -310,18 +504,97 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
 
     # Plot data
     fig, ax = plt.subplots()
-    cmap = sns.cubehelix_palette(as_cmap=True)
-    points = ax.scatter(x=data_test['target'], y=data_test['xy'], s=50, c=data_test['err'], cmap=cmap, edgecolors='#100E0E', alpha=0.8)
+    
+    cmap = sns.color_palette("Spectral_r", as_cmap=True)
+    
+    points = ax.scatter(x=data_test['target'], y=data_test['xy'], s=50, c=data_test['err'], cmap=cmap, edgecolors='#424242', alpha=0.8)
+    
     cb = fig.colorbar(points)
     cb.ax.set_ylabel('Erro obtido', rotation=270, labelpad=10, fontweight='bold')
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
     ax.set_xlabel('Target', fontweight='bold')
+    ax.grid(True)
     
     if len(x_train_trans[0]) == len(columns):
         ax.set_ylabel(f'{columns[sel_columns][0]}*{columns[sel_columns][1]}', fontweight='bold')
     else:
-        ax.set_ylabel(f'a*b', fontweight='bold')
+        ax.set_ylabel('a*b', fontweight='bold')
+
+    return ax
+
+
+def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
+    """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
+
+    Args:
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): probability of each y_test class according to the model.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    x_train_trans = _transform_data(pipeline, x_train)
+    x_test_trans = _transform_data(pipeline, x_test)
+
+    sel_columns = _select_columns(x_train_trans, y_train, columns, classification=True)
+
+    # Create columns in the dataframe
+    data_test = pd.DataFrame(x_test_trans)
+    data_test = data_test.loc[:, sel_columns]
+
+    # Train pipeline with 2D data
+    data_train = pd.DataFrame(x_train_trans)
+    data_train = data_train.loc[:, sel_columns]
+
+    estimator = pipeline.steps[-1][1]
+    estimator.fit(data_train, y_train)
+
+    data_test['target'] = estimator.predict(data_test)
+
+    # Create decision space
+    # Credit: https://machinelearningmastery.com/plot-a-decision-surface-for-machine-learning/
+
+    # Get mins and maxs
+    min1, max1 = data_test.iloc[:, 0].min()-1, data_test.iloc[:, 0].max()+1
+    min2, max2 = data_test.iloc[:, 1].min()-1, data_test.iloc[:, 1].max()+1
+
+    # Create a grid
+    x1grid = np.arange(min1, max1, 0.1)
+    x2grid = np.arange(min2, max2, 0.1)
+
+    # Create a meshgrid
+    xx, yy = np.meshgrid(x1grid, x2grid)
+
+    # Flatten matrixes
+    r1, r2 = xx.flatten(), yy.flatten()
+    r1, r2 = r1.reshape((len(r1), 1)), r2.reshape((len(r2), 1))
+
+    # Stack arrays
+    grid = np.hstack((r1,r2))
+
+    # Predict with grid
+    yhat = estimator.predict(grid)
+    zz = yhat.reshape(xx.shape)
+
+    # Plot data
+    fig, ax = plt.subplots()
+
+    cmap = sns.color_palette("Spectral_r", as_cmap=True)
+
+    ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
+    points = ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
+
+    ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
+    ax.grid(True)
+    
+    if len(x_train_trans[0]) == len(columns):
+        ax.set_xlabel(f'{columns[sel_columns][0]}', fontweight='bold')
+        ax.set_ylabel(f'{columns[sel_columns][1]}', fontweight='bold')
+    else:
+        ax.set_ylabel('a', fontweight='bold')
+        ax.set_ylabel('b', fontweight='bold')
 
     return ax
 
@@ -351,7 +624,9 @@ def plot_clustering_data(pipeline: sklearn.pipeline, x_test: np.ndarray, y_pred:
 
     # Plot figure
     fig, ax = plt.subplots()
-    cmap = sns.cubehelix_palette(as_cmap=True)
+
+    cmap = sns.color_palette("Spectral_r", as_cmap=True)
+
     ax = sns.scatterplot(data=x_pca, x="PCA X", y="PCA Y", hue="Predito", cmap=cmap)
 
     ax.set_title("Distribuição dos Dados de Teste", {"fontweight": "bold"})
