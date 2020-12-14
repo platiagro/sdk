@@ -409,9 +409,12 @@ class TestPlotting(TestCase):
                 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
                 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica']
         
+        label_encoder = LabelEncoder()
+        y = label_encoder.fit_transform(target_test)
+
         columns = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
 
-        X_train, X_test, y_train, y_test = train_test_split(data, target_test, train_size=0.7)
+        X_train, X_test, y_train, y_test = train_test_split(data, y, train_size=0.7)
 
         numerical_indexes  = np.array([0, 1, 2, 3])
         non_numerical_indexes = np.array([], int)
