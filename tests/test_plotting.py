@@ -385,7 +385,7 @@ class TestPlotting(TestCase):
                             [6.2, 3.4, 5.4, 2.3],
                             [5.9, 3.0, 5.1, 1.8]])
         
-        columns = ['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']
+        columns = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
         df = pd.DataFrame(x_test, columns=columns)
 
         numerical_indexes  = np.array([0, 1, 2, 3])
