@@ -14,6 +14,9 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_selection import RFECV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
 
 
 from platiagro.plotting import plot_roc_curve
@@ -24,6 +27,7 @@ from platiagro.plotting import plot_absolute_error
 from platiagro.plotting import plot_probability_error
 from platiagro.plotting import plot_segment_error
 from platiagro.plotting import plot_regression_data
+from platiagro.plotting import plot_classification_data
 from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
 
@@ -232,9 +236,15 @@ class TestPlotting(TestCase):
         plot_regression_data(pipeline, columns, x_train, y_train, x_test, y_test, y_pred)
 
 
+    def test_classification_data(self):
+
+        pass
+
+
+
     def test_clustering_data(self):
 
-        x_test  = np.array([[5.1, 3.5, 1.4, 0.2],
+        data  = np.array([[5.1, 3.5, 1.4, 0.2],
                             [4.9, 3.0, 1.4, 0.2],
                             [4.7, 3.2, 1.3, 0.2],
                             [4.6, 3.1, 1.5, 0.2],
@@ -384,17 +394,43 @@ class TestPlotting(TestCase):
                             [6.5, 3.0, 5.2, 2.0],
                             [6.2, 3.4, 5.4, 2.3],
                             [5.9, 3.0, 5.1, 1.8]])
+
+        target_test = ['Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica']
         
         columns = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
-        df = pd.DataFrame(x_test, columns=columns)
+
+        X_train, X_test, y_train, y_test = train_test_split(data, target_test, train_size=0.7)
 
         numerical_indexes  = np.array([0, 1, 2, 3])
         non_numerical_indexes = np.array([], int)
-        non_numerical_indexes_after_handle_missing_values = np.array([], int)
+        ordinal_indexes_after_handle_missing_values = np.array([], int)
+        one_hot_indexes_after_handle_missing_values = np.array([], int)
 
-        n_clusters = 3
-        n_init = 10
-        max_iter = 300
+        penalty = "l2" 
+        C = 1.0
+        fit_intercept = True
+        class_weight = None
+        solver = "liblinear"
+        max_iter = 100
+        multi_class = "auto"
 
 
         pipeline = Pipeline(
@@ -418,30 +454,39 @@ class TestPlotting(TestCase):
                     ColumnTransformer(
                         [
                             (
-                                "feature_encoder",
+                                "feature_encoder_ordinal",
                                 OrdinalEncoder(),
-                                non_numerical_indexes_after_handle_missing_values,
-                            )
+                                ordinal_indexes_after_handle_missing_values,
+                            ),
+                            (
+                                "feature_encoder_onehot",
+                                OneHotEncoder(),
+                                one_hot_indexes_after_handle_missing_values,
+                            ),
                         ],
                         remainder="passthrough",
                     ),
                 ),
                 (
                     "estimator",
-                    KMeans(
-                        n_clusters=n_clusters,
-                        n_init=n_init,
-                        max_iter=max_iter
+                    LogisticRegression(
+                        solver=solver,
+                        penalty=penalty,
+                        C=C,
+                        fit_intercept=fit_intercept,
+                        class_weight=class_weight,
+                        max_iter=max_iter,
+                        multi_class=multi_class,
                     ),
                 ),
             ]
         )
 
-        _ = pipeline.fit_transform(df)
+        _ = pipeline.fit(X_train, y_train)
 
-        labels = pipeline.named_steps.estimator.labels_
+        y_pred = pipeline.predict(X_test)
 
-        plot_clustering_data(pipeline, columns, df, labels)
+        plot_classification_data(pipeline, columns, X_train, y_train, X_test, y_test, y_pred)
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
