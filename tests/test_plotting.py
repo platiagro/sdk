@@ -184,7 +184,7 @@ class TestPlotting(TestCase):
                             'tax', 'ptratio', 'black', 'lstat'],dtype=object)
 
 
-        numerical_indexes =  np.array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12])
+        numerical_indexes =  np.array([0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12])
         non_numerical_indexes = np.array([],int)
         one_hot_indexes_after_handle_missing_values = np.array([],int)
         ordinal_indexes_after_handle_missing_values = np.array([],int)
@@ -388,10 +388,9 @@ class TestPlotting(TestCase):
         columns = ['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']
         df = pd.DataFrame(x_test, columns=columns)
 
-        # numerical_indexes  = np.array([0, 1, 2, 3])
-        numerical_indexes = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
-        non_numerical_indexes = np.array([])
-        non_numerical_indexes_after_handle_missing_values = np.array([])
+        numerical_indexes  = np.array([0, 1, 2, 3])
+        non_numerical_indexes = np.array([], int)
+        non_numerical_indexes_after_handle_missing_values = np.array([], int)
 
         n_clusters = 3
         n_init = 10
