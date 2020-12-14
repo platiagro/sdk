@@ -388,7 +388,8 @@ class TestPlotting(TestCase):
         columns = ['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']
         df = pd.DataFrame(x_test, columns=columns)
 
-        numerical_indexes  = np.array([0, 1, 2, 3])
+        # numerical_indexes  = np.array([0, 1, 2, 3])
+        numerical_indexes = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
         non_numerical_indexes = np.array([])
         non_numerical_indexes_after_handle_missing_values = np.array([])
 
@@ -437,11 +438,11 @@ class TestPlotting(TestCase):
             ]
         )
 
-        _ = pipeline.fit_transform(x_test)
+        _ = pipeline.fit_transform(df)
 
         labels = pipeline.named_steps.estimator.labels_
 
-        plot_clustering_data(pipeline, columns, x_test, labels)
+        plot_clustering_data(pipeline, columns, df, labels)
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
