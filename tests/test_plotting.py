@@ -386,12 +386,12 @@ class TestPlotting(TestCase):
                             [5.9, 3.0, 5.1, 1.8]])
         
         columns = ['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']
-
         df = pd.DataFrame(x_test, columns=columns)
 
         numerical_indexes  = np.array([0, 1, 2, 3])
         non_numerical_indexes = np.array([])
         non_numerical_indexes_after_handle_missing_values = np.array([])
+
         n_clusters = 3
         n_init = 10
         max_iter = 300
@@ -437,11 +437,11 @@ class TestPlotting(TestCase):
             ]
         )
 
-        _ = pipeline.fit_transform(df)
+        _ = pipeline.fit_transform(x_test)
 
         labels = pipeline.named_steps.estimator.labels_
 
-        plot_clustering_data(pipeline, columns, df, labels)
+        plot_clustering_data(pipeline, columns, x_test, labels)
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
