@@ -18,6 +18,11 @@ from sklearn.linear_model import LinearRegression
 
 from platiagro.plotting import plot_roc_curve
 from platiagro.plotting import plot_regression_error
+from platiagro.plotting import plot_prediction_diff
+from platiagro.plotting import plot_sorted_prediction_diff
+from platiagro.plotting import plot_absolute_error
+from platiagro.plotting import plot_probability_error
+from platiagro.plotting import plot_segment_error
 from platiagro.plotting import plot_regression_data
 from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
@@ -70,6 +75,46 @@ class TestPlotting(TestCase):
                                     34.21510225, 28.02056414, 25.20386628, 24.60979273, 22.94149176,
                                     22.09669817, 20.42320032, 18.03655088,  9.10655377, 17.20607751])
         plot_regression_error(y_reg ,y_reg_pred)
+
+
+    def test_prediction_diff(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_prediction_diff(y_test, y_pred)
+
+    
+    def test_sorted_prediction_diff(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_sorted_prediction_diff(y_test, y_pred)
+
+
+    def test_absolute_error(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_absolute_error(y_test, y_pred)
+
+
+    def test_probability_error(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_probability_error(y_test, y_pred)
+
+
+    def test_segment_error(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_segment_error(y_test, y_pred)
         
     
     def test_regression_data(self):
@@ -334,6 +379,8 @@ class TestPlotting(TestCase):
         
         df = pd.DataFrame(x_test,columns = ['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm','Species'])
 
+        columns = ['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm','Species']
+
         y_pred = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
@@ -394,7 +441,7 @@ class TestPlotting(TestCase):
         _ = pipeline.fit_transform(df)
        
 
-        plot_clustering_data(pipeline, df, y_pred)
+        plot_clustering_data(pipeline, columns, df, y_pred)
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}

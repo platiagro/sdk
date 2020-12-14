@@ -20,6 +20,9 @@ from scipy.stats import probplot
 warnings.filterwarnings("ignore")
 
 
+loc_locale = "lower right"
+
+
 def _calculate_two_class_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray, ax: plt.Axes):
     """Plot a roc curve for a two class dataset.
 
@@ -116,7 +119,7 @@ def plot_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray):
     else:
         ax = _calculate_full_roc_curve(y_test, y_prob, labels, ax)
 
-    ax.legend(loc="lower right")
+    ax.legend(loc=loc_locale)
 
     return ax
 
@@ -278,7 +281,7 @@ def plot_prediction_diff(y_test: np.ndarray, y_pred: np.ndarray):
     ax.set_title("Distribuição do Rótulo", fontweight='bold')
     ax.grid(True)
 
-    ax.legend(loc="lower right")
+    ax.legend(loc=loc_locale)
 
     return ax
 
@@ -308,7 +311,7 @@ def plot_sorted_prediction_diff(y_test: np.ndarray, y_pred: np.ndarray):
     ax.set_title("Distribuição do Rótulo Ordenado", fontweight='bold')
     ax.grid(True)
 
-    ax.legend(loc="lower right")
+    ax.legend(loc=loc_locale)
 
     return ax
 
@@ -430,7 +433,7 @@ def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
 
     ax.grid(True)
 
-    ax.legend(loc="lower right")
+    ax.legend(loc=loc_locale)
 
     return ax
 
@@ -508,7 +511,6 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
     
     points = ax.scatter(x=data_test['target'], y=data_test['xy'], s=50, c=data_test['err'], cmap=cmap, edgecolors='#424242', alpha=0.8)
-    
     cb = fig.colorbar(points)
     cb.ax.set_ylabel('Erro obtido', rotation=270, labelpad=10, fontweight='bold')
 
@@ -584,7 +586,7 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
     ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
-    points = ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
+    ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
     ax.grid(True)
@@ -599,7 +601,7 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     return ax
 
 
-def plot_clustering_data(pipeline: sklearn.pipeline, x_test: np.ndarray, y_pred: np.ndarray):
+def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test: np.ndarray, y_pred: np.ndarray):
     """Plot clustering data according to Principal Componente Analysis.
 
     Args:
@@ -611,27 +613,37 @@ def plot_clustering_data(pipeline: sklearn.pipeline, x_test: np.ndarray, y_pred:
     """
 
     x_trans = _transform_data(pipeline, x_test)
+    
+    y_pred = np.array(y_pred)
+    select_type = True if y_pred.dtype in [np.int32, np.int64] else False
+    sel_columns = _select_columns(x_trans, y_pred, columns, classification=select_type)
 
-    # Normalization
-    x_sts = StandardScaler().fit_transform(x_trans)
+    # Create columns in the dataframe
+    data_test = pd.DataFrame(x_trans)
+    data_test = data_test.loc[:, sel_columns]
 
-    # Dimension reduction
-    pca = PCA(n_components=2)
-    reduced = pca.fit_transform(x_sts)
-
-    x_pca = pd.DataFrame(reduced, columns=["PCA X", "PCA Y"])
-    x_pca["Predito"] = y_pred
+    data_test["predicted"] = y_pred
 
     # Plot figure
     fig, ax = plt.subplots()
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
-    ax = sns.scatterplot(data=x_pca, x="PCA X", y="PCA Y", hue="Predito", cmap=cmap)
+    points = ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test["predicted"], cmap=cmap, edgecolors='#424242', alpha=0.8)
+    
+    mini = np.amin(y_pred)
+    maxi = np.amax(y_pred)
+    
+    cb = fig.colorbar(points, ticks=[x for x in range(mini, maxi+1)])
+    cb.ax.set_ylabel('Clusters', rotation=270, labelpad=10, fontweight='bold')
 
     ax.set_title("Distribuição dos Dados de Teste", {"fontweight": "bold"})
-    ax.set_xlabel('PCA X', fontweight='bold')
-    ax.set_ylabel('PCA Y', fontweight='bold')
+    if len(x_trans[0]) == len(columns):
+        ax.set_xlabel(f'{columns[sel_columns][0]}', fontweight='bold')
+        ax.set_ylabel(f'{columns[sel_columns][1]}', fontweight='bold')
+    else:
+        ax.set_ylabel('a', fontweight='bold')
+        ax.set_ylabel('b', fontweight='bold')
     ax.grid(True)
 
     return ax
