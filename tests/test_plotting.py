@@ -385,18 +385,9 @@ class TestPlotting(TestCase):
                             [6.2, 3.4, 5.4, 2.3],
                             [5.9, 3.0, 5.1, 1.8]])
         
-        columns = ['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm']
+        columns = ['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm']
 
         df = pd.DataFrame(x_test, columns=columns)
-
-        y_pred = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                            1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-                            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
-                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
 
         numerical_indexes  = np.array([0, 1, 2, 3])
         non_numerical_indexes = np.array([])
@@ -446,9 +437,11 @@ class TestPlotting(TestCase):
             ]
         )
 
-        pipeline.fit_transform(df)
+        _ = pipeline.fit_transform(df)
 
-        plot_clustering_data(pipeline, columns, df, y_pred)
+        labels = pipeline.named_steps.estimator.labels_
+
+        plot_clustering_data(pipeline, columns, df, labels)
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
