@@ -14,11 +14,20 @@ from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_selection import RFECV
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+
 
 
 from platiagro.plotting import plot_roc_curve
 from platiagro.plotting import plot_regression_error
+from platiagro.plotting import plot_prediction_diff
+from platiagro.plotting import plot_sorted_prediction_diff
+from platiagro.plotting import plot_absolute_error
+from platiagro.plotting import plot_probability_error
+from platiagro.plotting import plot_segment_error
 from platiagro.plotting import plot_regression_data
+from platiagro.plotting import plot_classification_data
 from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
 
@@ -70,6 +79,54 @@ class TestPlotting(TestCase):
                                     34.21510225, 28.02056414, 25.20386628, 24.60979273, 22.94149176,
                                     22.09669817, 20.42320032, 18.03655088,  9.10655377, 17.20607751])
         plot_regression_error(y_reg ,y_reg_pred)
+
+
+    def test_prediction_diff(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_prediction_diff(y_test, y_pred)
+
+    
+    def test_sorted_prediction_diff(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_sorted_prediction_diff(y_test, y_pred)
+
+
+    def test_absolute_error(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_absolute_error(y_test, y_pred)
+
+
+    def test_probability_error(self):
+
+        y_test  = np.array([18.2, 18.5, 23.3, 13.9, 22.8])
+        y_pred = np.array([30.00384338, 25.02556238, 30.56759672, 28.60703649, 27.94352423])
+
+        plot_probability_error(y_test, y_pred)
+
+
+    def test_segment_error(self):
+
+        y_test  = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 
+                            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 
+                            31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 
+                            46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59])
+
+        y_pred = np.array([0.0, 1.0, 1.6, 2.4, 1.6, 2.5, 2.4, 5.6, 1.6, 2.7, 2.0, 6.6, 2.4, 2.6, 
+                            8.4, 10.5, 9.6, 8.5, 16.2, 5.7, 2.0, 14.7, 6.6, 2.3, 19.2, 25.0, 13.0, 
+                            18.9, 5.6, 17.4, 6.0, 6.2, 3.2, 29.7, 6.8, 21.0, 14.4, 7.4, 15.2, 11.7, 
+                            8.0, 4.1, 37.8, 25.8, 22.0, 18.0, 9.2, 14.1, 19.2, 4.9, 15.0, 10.2, 5.2, 
+                            5.3, 16.2, 49.5, 39.2, 28.5, 52.2, 41.3])
+
+        plot_segment_error(y_test, y_pred)
         
     
     def test_regression_data(self):
@@ -131,7 +188,7 @@ class TestPlotting(TestCase):
                             'tax', 'ptratio', 'black', 'lstat'],dtype=object)
 
 
-        numerical_indexes =  np.array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12])
+        numerical_indexes =  np.array([0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12])
         non_numerical_indexes = np.array([],int)
         one_hot_indexes_after_handle_missing_values = np.array([],int)
         ordinal_indexes_after_handle_missing_values = np.array([],int)
@@ -176,180 +233,422 @@ class TestPlotting(TestCase):
         )
 
         pipeline.fit(x_train, y_train)
-        plot_regression_data(pipeline,columns, x_train, y_train, x_test, y_test, y_pred)
+        plot_regression_data(pipeline, columns, x_train, y_train, x_test, y_test, y_pred)
+
+
+    def test_classification_data(self):
+
+        data = np.array([[5.1, 3.5, 1.4, 0.2],
+                            [4.9, 3.0, 1.4, 0.2],
+                            [4.7, 3.2, 1.3, 0.2],
+                            [4.6, 3.1, 1.5, 0.2],
+                            [5.0, 3.6, 1.4, 0.2],
+                            [5.4, 3.9, 1.7, 0.4],
+                            [4.6, 3.4, 1.4, 0.3],
+                            [5.0, 3.4, 1.5, 0.2],
+                            [4.4, 2.9, 1.4, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [5.4, 3.7, 1.5, 0.2],
+                            [4.8, 3.4, 1.6, 0.2],
+                            [4.8, 3.0, 1.4, 0.1],
+                            [4.3, 3.0, 1.1, 0.1],
+                            [5.8, 4.0, 1.2, 0.2],
+                            [5.7, 4.4, 1.5, 0.4],
+                            [5.4, 3.9, 1.3, 0.4],
+                            [5.1, 3.5, 1.4, 0.3],
+                            [5.7, 3.8, 1.7, 0.3],
+                            [5.1, 3.8, 1.5, 0.3],
+                            [5.4, 3.4, 1.7, 0.2],
+                            [5.1, 3.7, 1.5, 0.4],
+                            [4.6, 3.6, 1.0, 0.2],
+                            [5.1, 3.3, 1.7, 0.5],
+                            [4.8, 3.4, 1.9, 0.2],
+                            [5.0, 3.0, 1.6, 0.2],
+                            [5.0, 3.4, 1.6, 0.4],
+                            [5.2, 3.5, 1.5, 0.2],
+                            [5.2, 3.4, 1.4, 0.2],
+                            [4.7, 3.2, 1.6, 0.2],
+                            [4.8, 3.1, 1.6, 0.2],
+                            [5.4, 3.4, 1.5, 0.4],
+                            [5.2, 4.1, 1.5, 0.1],
+                            [5.5, 4.2, 1.4, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [5.0, 3.2, 1.2, 0.2],
+                            [5.5, 3.5, 1.3, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [4.4, 3.0, 1.3, 0.2],
+                            [5.1, 3.4, 1.5, 0.2],
+                            [5.0, 3.5, 1.3, 0.3],
+                            [4.5, 2.3, 1.3, 0.3],
+                            [4.4, 3.2, 1.3, 0.2],
+                            [5.0, 3.5, 1.6, 0.6],
+                            [5.1, 3.8, 1.9, 0.4],
+                            [4.8, 3.0, 1.4, 0.3],
+                            [5.1, 3.8, 1.6, 0.2],
+                            [4.6, 3.2, 1.4, 0.2],
+                            [5.3, 3.7, 1.5, 0.2],
+                            [5.0, 3.3, 1.4, 0.2],
+                            [7.0, 3.2, 4.7, 1.4],
+                            [6.4, 3.2, 4.5, 1.5],
+                            [6.9, 3.1, 4.9, 1.5],
+                            [5.5, 2.3, 4.0, 1.3],
+                            [6.5, 2.8, 4.6, 1.5],
+                            [5.7, 2.8, 4.5, 1.3],
+                            [6.3, 3.3, 4.7, 1.6],
+                            [4.9, 2.4, 3.3, 1.0],
+                            [6.6, 2.9, 4.6, 1.3],
+                            [5.2, 2.7, 3.9, 1.4],
+                            [5.0, 2.0, 3.5, 1.0],
+                            [5.9, 3.0, 4.2, 1.5],
+                            [6.0, 2.2, 4.0, 1.0],
+                            [6.1, 2.9, 4.7, 1.4],
+                            [5.6, 2.9, 3.6, 1.3],
+                            [6.7, 3.1, 4.4, 1.4],
+                            [5.6, 3.0, 4.5, 1.5],
+                            [5.8, 2.7, 4.1, 1.0],
+                            [6.2, 2.2, 4.5, 1.5],
+                            [5.6, 2.5, 3.9, 1.1],
+                            [5.9, 3.2, 4.8, 1.8],
+                            [6.1, 2.8, 4.0, 1.3],
+                            [6.3, 2.5, 4.9, 1.5],
+                            [6.1, 2.8, 4.7, 1.2],
+                            [6.4, 2.9, 4.3, 1.3],
+                            [6.6, 3.0, 4.4, 1.4],
+                            [6.8, 2.8, 4.8, 1.4],
+                            [6.7, 3.0, 5.0, 1.7],
+                            [6.0, 2.9, 4.5, 1.5],
+                            [5.7, 2.6, 3.5, 1.0],
+                            [5.5, 2.4, 3.8, 1.1],
+                            [5.5, 2.4, 3.7, 1.0],
+                            [5.8, 2.7, 3.9, 1.2],
+                            [6.0, 2.7, 5.1, 1.6],
+                            [5.4, 3.0, 4.5, 1.5],
+                            [6.0, 3.4, 4.5, 1.6],
+                            [6.7, 3.1, 4.7, 1.5],
+                            [6.3, 2.3, 4.4, 1.3],
+                            [5.6, 3.0, 4.1, 1.3],
+                            [5.5, 2.5, 4.0, 1.3],
+                            [5.5, 2.6, 4.4, 1.2],
+                            [6.1, 3.0, 4.6, 1.4],
+                            [5.8, 2.6, 4.0, 1.2],
+                            [5.0, 2.3, 3.3, 1.0],
+                            [5.6, 2.7, 4.2, 1.3],
+                            [5.7, 3.0, 4.2, 1.2],
+                            [5.7, 2.9, 4.2, 1.3],
+                            [6.2, 2.9, 4.3, 1.3],
+                            [5.1, 2.5, 3.0, 1.1],
+                            [5.7, 2.8, 4.1, 1.3],
+                            [6.3, 3.3, 6.0, 2.5],
+                            [5.8, 2.7, 5.1, 1.9],
+                            [7.1, 3.0, 5.9, 2.1],
+                            [6.3, 2.9, 5.6, 1.8],
+                            [6.5, 3.0, 5.8, 2.2],
+                            [7.6, 3.0, 6.6, 2.1],
+                            [4.9, 2.5, 4.5, 1.7],
+                            [7.3, 2.9, 6.3, 1.8],
+                            [6.7, 2.5, 5.8, 1.8],
+                            [7.2, 3.6, 6.1, 2.5],
+                            [6.5, 3.2, 5.1, 2.0],
+                            [6.4, 2.7, 5.3, 1.9],
+                            [6.8, 3.0, 5.5, 2.1],
+                            [5.7, 2.5, 5.0, 2.0],
+                            [5.8, 2.8, 5.1, 2.4],
+                            [6.4, 3.2, 5.3, 2.3],
+                            [6.5, 3.0, 5.5, 1.8],
+                            [7.7, 3.8, 6.7, 2.2],
+                            [7.7, 2.6, 6.9, 2.3],
+                            [6.0, 2.2, 5.0, 1.5],
+                            [6.9, 3.2, 5.7, 2.3],
+                            [5.6, 2.8, 4.9, 2.0],
+                            [7.7, 2.8, 6.7, 2.0],
+                            [6.3, 2.7, 4.9, 1.8],
+                            [6.7, 3.3, 5.7, 2.1],
+                            [7.2, 3.2, 6.0, 1.8],
+                            [6.2, 2.8, 4.8, 1.8],
+                            [6.1, 3.0, 4.9, 1.8],
+                            [6.4, 2.8, 5.6, 2.1],
+                            [7.2, 3.0, 5.8, 1.6],
+                            [7.4, 2.8, 6.1, 1.9],
+                            [7.9, 3.8, 6.4, 2.0],
+                            [6.4, 2.8, 5.6, 2.2],
+                            [6.3, 2.8, 5.1, 1.5],
+                            [6.1, 2.6, 5.6, 1.4],
+                            [7.7, 3.0, 6.1, 2.3],
+                            [6.3, 3.4, 5.6, 2.4],
+                            [6.4, 3.1, 5.5, 1.8],
+                            [6.0, 3.0, 4.8, 1.8],
+                            [6.9, 3.1, 5.4, 2.1],
+                            [6.7, 3.1, 5.6, 2.4],
+                            [6.9, 3.1, 5.1, 2.3],
+                            [5.8, 2.7, 5.1, 1.9],
+                            [6.8, 3.2, 5.9, 2.3],
+                            [6.7, 3.3, 5.7, 2.5],
+                            [6.7, 3.0, 5.2, 2.3],
+                            [6.3, 2.5, 5.0, 1.9],
+                            [6.5, 3.0, 5.2, 2.0],
+                            [6.2, 3.4, 5.4, 2.3],
+                            [5.9, 3.0, 5.1, 1.8]])
+
+        target_test = ['Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa', 'Setosa',
+                'Setosa', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor', 'Versicolor',
+                'Versicolor', 'Versicolor', 'Versicolor', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica',
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica', 
+                'Virginica', 'Virginica', 'Virginica', 'Virginica', 'Virginica']
+        
+        label_encoder = LabelEncoder()
+        y = label_encoder.fit_transform(target_test)
+
+        columns = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
+
+        X_train, X_test, y_train, y_test = train_test_split(data, y, train_size=0.7)
+
+        numerical_indexes  = np.array([0, 1, 2, 3])
+        non_numerical_indexes = np.array([], int)
+        ordinal_indexes_after_handle_missing_values = np.array([], int)
+        one_hot_indexes_after_handle_missing_values = np.array([], int)
+
+        penalty = "l2" 
+        C = 1.0
+        fit_intercept = True
+        class_weight = None
+        solver = "liblinear"
+        max_iter = 100
+        multi_class = "auto"
+
+
+        pipeline = Pipeline(
+            steps=[
+                (
+                    "handle_missing_values",
+                    ColumnTransformer(
+                        [
+                            ("imputer_mean", SimpleImputer(strategy="mean"), numerical_indexes),
+                            (
+                                "imputer_mode",
+                                SimpleImputer(strategy="most_frequent"),
+                                non_numerical_indexes,
+                            ),
+                        ],
+                        remainder="drop",
+                    ),
+                ),
+                (
+                    "handle_categorical_features",
+                    ColumnTransformer(
+                        [
+                            (
+                                "feature_encoder_ordinal",
+                                OrdinalEncoder(),
+                                ordinal_indexes_after_handle_missing_values,
+                            ),
+                            (
+                                "feature_encoder_onehot",
+                                OneHotEncoder(),
+                                one_hot_indexes_after_handle_missing_values,
+                            ),
+                        ],
+                        remainder="passthrough",
+                    ),
+                ),
+                (
+                    "estimator",
+                    LogisticRegression(
+                        solver=solver,
+                        penalty=penalty,
+                        C=C,
+                        fit_intercept=fit_intercept,
+                        class_weight=class_weight,
+                        max_iter=max_iter,
+                        multi_class=multi_class,
+                    ),
+                ),
+            ]
+        )
+
+        _ = pipeline.fit(X_train, y_train)
+
+        y_pred = pipeline.predict(X_test)
+
+        plot_classification_data(pipeline, columns, X_train, y_train, X_test, y_test, y_pred)
+
 
     def test_clustering_data(self):
 
+        x_test = np.array([[5.1, 3.5, 1.4, 0.2],
+                            [4.9, 3.0, 1.4, 0.2],
+                            [4.7, 3.2, 1.3, 0.2],
+                            [4.6, 3.1, 1.5, 0.2],
+                            [5.0, 3.6, 1.4, 0.2],
+                            [5.4, 3.9, 1.7, 0.4],
+                            [4.6, 3.4, 1.4, 0.3],
+                            [5.0, 3.4, 1.5, 0.2],
+                            [4.4, 2.9, 1.4, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [5.4, 3.7, 1.5, 0.2],
+                            [4.8, 3.4, 1.6, 0.2],
+                            [4.8, 3.0, 1.4, 0.1],
+                            [4.3, 3.0, 1.1, 0.1],
+                            [5.8, 4.0, 1.2, 0.2],
+                            [5.7, 4.4, 1.5, 0.4],
+                            [5.4, 3.9, 1.3, 0.4],
+                            [5.1, 3.5, 1.4, 0.3],
+                            [5.7, 3.8, 1.7, 0.3],
+                            [5.1, 3.8, 1.5, 0.3],
+                            [5.4, 3.4, 1.7, 0.2],
+                            [5.1, 3.7, 1.5, 0.4],
+                            [4.6, 3.6, 1.0, 0.2],
+                            [5.1, 3.3, 1.7, 0.5],
+                            [4.8, 3.4, 1.9, 0.2],
+                            [5.0, 3.0, 1.6, 0.2],
+                            [5.0, 3.4, 1.6, 0.4],
+                            [5.2, 3.5, 1.5, 0.2],
+                            [5.2, 3.4, 1.4, 0.2],
+                            [4.7, 3.2, 1.6, 0.2],
+                            [4.8, 3.1, 1.6, 0.2],
+                            [5.4, 3.4, 1.5, 0.4],
+                            [5.2, 4.1, 1.5, 0.1],
+                            [5.5, 4.2, 1.4, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [5.0, 3.2, 1.2, 0.2],
+                            [5.5, 3.5, 1.3, 0.2],
+                            [4.9, 3.1, 1.5, 0.1],
+                            [4.4, 3.0, 1.3, 0.2],
+                            [5.1, 3.4, 1.5, 0.2],
+                            [5.0, 3.5, 1.3, 0.3],
+                            [4.5, 2.3, 1.3, 0.3],
+                            [4.4, 3.2, 1.3, 0.2],
+                            [5.0, 3.5, 1.6, 0.6],
+                            [5.1, 3.8, 1.9, 0.4],
+                            [4.8, 3.0, 1.4, 0.3],
+                            [5.1, 3.8, 1.6, 0.2],
+                            [4.6, 3.2, 1.4, 0.2],
+                            [5.3, 3.7, 1.5, 0.2],
+                            [5.0, 3.3, 1.4, 0.2],
+                            [7.0, 3.2, 4.7, 1.4],
+                            [6.4, 3.2, 4.5, 1.5],
+                            [6.9, 3.1, 4.9, 1.5],
+                            [5.5, 2.3, 4.0, 1.3],
+                            [6.5, 2.8, 4.6, 1.5],
+                            [5.7, 2.8, 4.5, 1.3],
+                            [6.3, 3.3, 4.7, 1.6],
+                            [4.9, 2.4, 3.3, 1.0],
+                            [6.6, 2.9, 4.6, 1.3],
+                            [5.2, 2.7, 3.9, 1.4],
+                            [5.0, 2.0, 3.5, 1.0],
+                            [5.9, 3.0, 4.2, 1.5],
+                            [6.0, 2.2, 4.0, 1.0],
+                            [6.1, 2.9, 4.7, 1.4],
+                            [5.6, 2.9, 3.6, 1.3],
+                            [6.7, 3.1, 4.4, 1.4],
+                            [5.6, 3.0, 4.5, 1.5],
+                            [5.8, 2.7, 4.1, 1.0],
+                            [6.2, 2.2, 4.5, 1.5],
+                            [5.6, 2.5, 3.9, 1.1],
+                            [5.9, 3.2, 4.8, 1.8],
+                            [6.1, 2.8, 4.0, 1.3],
+                            [6.3, 2.5, 4.9, 1.5],
+                            [6.1, 2.8, 4.7, 1.2],
+                            [6.4, 2.9, 4.3, 1.3],
+                            [6.6, 3.0, 4.4, 1.4],
+                            [6.8, 2.8, 4.8, 1.4],
+                            [6.7, 3.0, 5.0, 1.7],
+                            [6.0, 2.9, 4.5, 1.5],
+                            [5.7, 2.6, 3.5, 1.0],
+                            [5.5, 2.4, 3.8, 1.1],
+                            [5.5, 2.4, 3.7, 1.0],
+                            [5.8, 2.7, 3.9, 1.2],
+                            [6.0, 2.7, 5.1, 1.6],
+                            [5.4, 3.0, 4.5, 1.5],
+                            [6.0, 3.4, 4.5, 1.6],
+                            [6.7, 3.1, 4.7, 1.5],
+                            [6.3, 2.3, 4.4, 1.3],
+                            [5.6, 3.0, 4.1, 1.3],
+                            [5.5, 2.5, 4.0, 1.3],
+                            [5.5, 2.6, 4.4, 1.2],
+                            [6.1, 3.0, 4.6, 1.4],
+                            [5.8, 2.6, 4.0, 1.2],
+                            [5.0, 2.3, 3.3, 1.0],
+                            [5.6, 2.7, 4.2, 1.3],
+                            [5.7, 3.0, 4.2, 1.2],
+                            [5.7, 2.9, 4.2, 1.3],
+                            [6.2, 2.9, 4.3, 1.3],
+                            [5.1, 2.5, 3.0, 1.1],
+                            [5.7, 2.8, 4.1, 1.3],
+                            [6.3, 3.3, 6.0, 2.5],
+                            [5.8, 2.7, 5.1, 1.9],
+                            [7.1, 3.0, 5.9, 2.1],
+                            [6.3, 2.9, 5.6, 1.8],
+                            [6.5, 3.0, 5.8, 2.2],
+                            [7.6, 3.0, 6.6, 2.1],
+                            [4.9, 2.5, 4.5, 1.7],
+                            [7.3, 2.9, 6.3, 1.8],
+                            [6.7, 2.5, 5.8, 1.8],
+                            [7.2, 3.6, 6.1, 2.5],
+                            [6.5, 3.2, 5.1, 2.0],
+                            [6.4, 2.7, 5.3, 1.9],
+                            [6.8, 3.0, 5.5, 2.1],
+                            [5.7, 2.5, 5.0, 2.0],
+                            [5.8, 2.8, 5.1, 2.4],
+                            [6.4, 3.2, 5.3, 2.3],
+                            [6.5, 3.0, 5.5, 1.8],
+                            [7.7, 3.8, 6.7, 2.2],
+                            [7.7, 2.6, 6.9, 2.3],
+                            [6.0, 2.2, 5.0, 1.5],
+                            [6.9, 3.2, 5.7, 2.3],
+                            [5.6, 2.8, 4.9, 2.0],
+                            [7.7, 2.8, 6.7, 2.0],
+                            [6.3, 2.7, 4.9, 1.8],
+                            [6.7, 3.3, 5.7, 2.1],
+                            [7.2, 3.2, 6.0, 1.8],
+                            [6.2, 2.8, 4.8, 1.8],
+                            [6.1, 3.0, 4.9, 1.8],
+                            [6.4, 2.8, 5.6, 2.1],
+                            [7.2, 3.0, 5.8, 1.6],
+                            [7.4, 2.8, 6.1, 1.9],
+                            [7.9, 3.8, 6.4, 2.0],
+                            [6.4, 2.8, 5.6, 2.2],
+                            [6.3, 2.8, 5.1, 1.5],
+                            [6.1, 2.6, 5.6, 1.4],
+                            [7.7, 3.0, 6.1, 2.3],
+                            [6.3, 3.4, 5.6, 2.4],
+                            [6.4, 3.1, 5.5, 1.8],
+                            [6.0, 3.0, 4.8, 1.8],
+                            [6.9, 3.1, 5.4, 2.1],
+                            [6.7, 3.1, 5.6, 2.4],
+                            [6.9, 3.1, 5.1, 2.3],
+                            [5.8, 2.7, 5.1, 1.9],
+                            [6.8, 3.2, 5.9, 2.3],
+                            [6.7, 3.3, 5.7, 2.5],
+                            [6.7, 3.0, 5.2, 2.3],
+                            [6.3, 2.5, 5.0, 1.9],
+                            [6.5, 3.0, 5.2, 2.0],
+                            [6.2, 3.4, 5.4, 2.3],
+                            [5.9, 3.0, 5.1, 1.8]])
 
-        x_test  = np.array([[5.1, 3.5, 1.4, 0.2, 'Iris-setosa'],
-                            [4.9, 3.0, 1.4, 0.2, 'Iris-setosa'],
-                            [4.7, 3.2, 1.3, 0.2, 'Iris-setosa'],
-                            [4.6, 3.1, 1.5, 0.2, 'Iris-setosa'],
-                            [5.0, 3.6, 1.4, 0.2, 'Iris-setosa'],
-                            [5.4, 3.9, 1.7, 0.4, 'Iris-setosa'],
-                            [4.6, 3.4, 1.4, 0.3, 'Iris-setosa'],
-                            [5.0, 3.4, 1.5, 0.2, 'Iris-setosa'],
-                            [4.4, 2.9, 1.4, 0.2, 'Iris-setosa'],
-                            [4.9, 3.1, 1.5, 0.1, 'Iris-setosa'],
-                            [5.4, 3.7, 1.5, 0.2, 'Iris-setosa'],
-                            [4.8, 3.4, 1.6, 0.2, 'Iris-setosa'],
-                            [4.8, 3.0, 1.4, 0.1, 'Iris-setosa'],
-                            [4.3, 3.0, 1.1, 0.1, 'Iris-setosa'],
-                            [5.8, 4.0, 1.2, 0.2, 'Iris-setosa'],
-                            [5.7, 4.4, 1.5, 0.4, 'Iris-setosa'],
-                            [5.4, 3.9, 1.3, 0.4, 'Iris-setosa'],
-                            [5.1, 3.5, 1.4, 0.3, 'Iris-setosa'],
-                            [5.7, 3.8, 1.7, 0.3, 'Iris-setosa'],
-                            [5.1, 3.8, 1.5, 0.3, 'Iris-setosa'],
-                            [5.4, 3.4, 1.7, 0.2, 'Iris-setosa'],
-                            [5.1, 3.7, 1.5, 0.4, 'Iris-setosa'],
-                            [4.6, 3.6, 1.0, 0.2, 'Iris-setosa'],
-                            [5.1, 3.3, 1.7, 0.5, 'Iris-setosa'],
-                            [4.8, 3.4, 1.9, 0.2, 'Iris-setosa'],
-                            [5.0, 3.0, 1.6, 0.2, 'Iris-setosa'],
-                            [5.0, 3.4, 1.6, 0.4, 'Iris-setosa'],
-                            [5.2, 3.5, 1.5, 0.2, 'Iris-setosa'],
-                            [5.2, 3.4, 1.4, 0.2, 'Iris-setosa'],
-                            [4.7, 3.2, 1.6, 0.2, 'Iris-setosa'],
-                            [4.8, 3.1, 1.6, 0.2, 'Iris-setosa'],
-                            [5.4, 3.4, 1.5, 0.4, 'Iris-setosa'],
-                            [5.2, 4.1, 1.5, 0.1, 'Iris-setosa'],
-                            [5.5, 4.2, 1.4, 0.2, 'Iris-setosa'],
-                            [4.9, 3.1, 1.5, 0.1, 'Iris-setosa'],
-                            [5.0, 3.2, 1.2, 0.2, 'Iris-setosa'],
-                            [5.5, 3.5, 1.3, 0.2, 'Iris-setosa'],
-                            [4.9, 3.1, 1.5, 0.1, 'Iris-setosa'],
-                            [4.4, 3.0, 1.3, 0.2, 'Iris-setosa'],
-                            [5.1, 3.4, 1.5, 0.2, 'Iris-setosa'],
-                            [5.0, 3.5, 1.3, 0.3, 'Iris-setosa'],
-                            [4.5, 2.3, 1.3, 0.3, 'Iris-setosa'],
-                            [4.4, 3.2, 1.3, 0.2, 'Iris-setosa'],
-                            [5.0, 3.5, 1.6, 0.6, 'Iris-setosa'],
-                            [5.1, 3.8, 1.9, 0.4, 'Iris-setosa'],
-                            [4.8, 3.0, 1.4, 0.3, 'Iris-setosa'],
-                            [5.1, 3.8, 1.6, 0.2, 'Iris-setosa'],
-                            [4.6, 3.2, 1.4, 0.2, 'Iris-setosa'],
-                            [5.3, 3.7, 1.5, 0.2, 'Iris-setosa'],
-                            [5.0, 3.3, 1.4, 0.2, 'Iris-setosa'],
-                            [7.0, 3.2, 4.7, 1.4, 'Iris-versicolor'],
-                            [6.4, 3.2, 4.5, 1.5, 'Iris-versicolor'],
-                            [6.9, 3.1, 4.9, 1.5, 'Iris-versicolor'],
-                            [5.5, 2.3, 4.0, 1.3, 'Iris-versicolor'],
-                            [6.5, 2.8, 4.6, 1.5, 'Iris-versicolor'],
-                            [5.7, 2.8, 4.5, 1.3, 'Iris-versicolor'],
-                            [6.3, 3.3, 4.7, 1.6, 'Iris-versicolor'],
-                            [4.9, 2.4, 3.3, 1.0, 'Iris-versicolor'],
-                            [6.6, 2.9, 4.6, 1.3, 'Iris-versicolor'],
-                            [5.2, 2.7, 3.9, 1.4, 'Iris-versicolor'],
-                            [5.0, 2.0, 3.5, 1.0, 'Iris-versicolor'],
-                            [5.9, 3.0, 4.2, 1.5, 'Iris-versicolor'],
-                            [6.0, 2.2, 4.0, 1.0, 'Iris-versicolor'],
-                            [6.1, 2.9, 4.7, 1.4, 'Iris-versicolor'],
-                            [5.6, 2.9, 3.6, 1.3, 'Iris-versicolor'],
-                            [6.7, 3.1, 4.4, 1.4, 'Iris-versicolor'],
-                            [5.6, 3.0, 4.5, 1.5, 'Iris-versicolor'],
-                            [5.8, 2.7, 4.1, 1.0, 'Iris-versicolor'],
-                            [6.2, 2.2, 4.5, 1.5, 'Iris-versicolor'],
-                            [5.6, 2.5, 3.9, 1.1, 'Iris-versicolor'],
-                            [5.9, 3.2, 4.8, 1.8, 'Iris-versicolor'],
-                            [6.1, 2.8, 4.0, 1.3, 'Iris-versicolor'],
-                            [6.3, 2.5, 4.9, 1.5, 'Iris-versicolor'],
-                            [6.1, 2.8, 4.7, 1.2, 'Iris-versicolor'],
-                            [6.4, 2.9, 4.3, 1.3, 'Iris-versicolor'],
-                            [6.6, 3.0, 4.4, 1.4, 'Iris-versicolor'],
-                            [6.8, 2.8, 4.8, 1.4, 'Iris-versicolor'],
-                            [6.7, 3.0, 5.0, 1.7, 'Iris-versicolor'],
-                            [6.0, 2.9, 4.5, 1.5, 'Iris-versicolor'],
-                            [5.7, 2.6, 3.5, 1.0, 'Iris-versicolor'],
-                            [5.5, 2.4, 3.8, 1.1, 'Iris-versicolor'],
-                            [5.5, 2.4, 3.7, 1.0, 'Iris-versicolor'],
-                            [5.8, 2.7, 3.9, 1.2, 'Iris-versicolor'],
-                            [6.0, 2.7, 5.1, 1.6, 'Iris-versicolor'],
-                            [5.4, 3.0, 4.5, 1.5, 'Iris-versicolor'],
-                            [6.0, 3.4, 4.5, 1.6, 'Iris-versicolor'],
-                            [6.7, 3.1, 4.7, 1.5, 'Iris-versicolor'],
-                            [6.3, 2.3, 4.4, 1.3, 'Iris-versicolor'],
-                            [5.6, 3.0, 4.1, 1.3, 'Iris-versicolor'],
-                            [5.5, 2.5, 4.0, 1.3, 'Iris-versicolor'],
-                            [5.5, 2.6, 4.4, 1.2, 'Iris-versicolor'],
-                            [6.1, 3.0, 4.6, 1.4, 'Iris-versicolor'],
-                            [5.8, 2.6, 4.0, 1.2, 'Iris-versicolor'],
-                            [5.0, 2.3, 3.3, 1.0, 'Iris-versicolor'],
-                            [5.6, 2.7, 4.2, 1.3, 'Iris-versicolor'],
-                            [5.7, 3.0, 4.2, 1.2, 'Iris-versicolor'],
-                            [5.7, 2.9, 4.2, 1.3, 'Iris-versicolor'],
-                            [6.2, 2.9, 4.3, 1.3, 'Iris-versicolor'],
-                            [5.1, 2.5, 3.0, 1.1, 'Iris-versicolor'],
-                            [5.7, 2.8, 4.1, 1.3, 'Iris-versicolor'],
-                            [6.3, 3.3, 6.0, 2.5, 'Iris-virginica'],
-                            [5.8, 2.7, 5.1, 1.9, 'Iris-virginica'],
-                            [7.1, 3.0, 5.9, 2.1, 'Iris-virginica'],
-                            [6.3, 2.9, 5.6, 1.8, 'Iris-virginica'],
-                            [6.5, 3.0, 5.8, 2.2, 'Iris-virginica'],
-                            [7.6, 3.0, 6.6, 2.1, 'Iris-virginica'],
-                            [4.9, 2.5, 4.5, 1.7, 'Iris-virginica'],
-                            [7.3, 2.9, 6.3, 1.8, 'Iris-virginica'],
-                            [6.7, 2.5, 5.8, 1.8, 'Iris-virginica'],
-                            [7.2, 3.6, 6.1, 2.5, 'Iris-virginica'],
-                            [6.5, 3.2, 5.1, 2.0, 'Iris-virginica'],
-                            [6.4, 2.7, 5.3, 1.9, 'Iris-virginica'],
-                            [6.8, 3.0, 5.5, 2.1, 'Iris-virginica'],
-                            [5.7, 2.5, 5.0, 2.0, 'Iris-virginica'],
-                            [5.8, 2.8, 5.1, 2.4, 'Iris-virginica'],
-                            [6.4, 3.2, 5.3, 2.3, 'Iris-virginica'],
-                            [6.5, 3.0, 5.5, 1.8, 'Iris-virginica'],
-                            [7.7, 3.8, 6.7, 2.2, 'Iris-virginica'],
-                            [7.7, 2.6, 6.9, 2.3, 'Iris-virginica'],
-                            [6.0, 2.2, 5.0, 1.5, 'Iris-virginica'],
-                            [6.9, 3.2, 5.7, 2.3, 'Iris-virginica'],
-                            [5.6, 2.8, 4.9, 2.0, 'Iris-virginica'],
-                            [7.7, 2.8, 6.7, 2.0, 'Iris-virginica'],
-                            [6.3, 2.7, 4.9, 1.8, 'Iris-virginica'],
-                            [6.7, 3.3, 5.7, 2.1, 'Iris-virginica'],
-                            [7.2, 3.2, 6.0, 1.8, 'Iris-virginica'],
-                            [6.2, 2.8, 4.8, 1.8, 'Iris-virginica'],
-                            [6.1, 3.0, 4.9, 1.8, 'Iris-virginica'],
-                            [6.4, 2.8, 5.6, 2.1, 'Iris-virginica'],
-                            [7.2, 3.0, 5.8, 1.6, 'Iris-virginica'],
-                            [7.4, 2.8, 6.1, 1.9, 'Iris-virginica'],
-                            [7.9, 3.8, 6.4, 2.0, 'Iris-virginica'],
-                            [6.4, 2.8, 5.6, 2.2, 'Iris-virginica'],
-                            [6.3, 2.8, 5.1, 1.5, 'Iris-virginica'],
-                            [6.1, 2.6, 5.6, 1.4, 'Iris-virginica'],
-                            [7.7, 3.0, 6.1, 2.3, 'Iris-virginica'],
-                            [6.3, 3.4, 5.6, 2.4, 'Iris-virginica'],
-                            [6.4, 3.1, 5.5, 1.8, 'Iris-virginica'],
-                            [6.0, 3.0, 4.8, 1.8, 'Iris-virginica'],
-                            [6.9, 3.1, 5.4, 2.1, 'Iris-virginica'],
-                            [6.7, 3.1, 5.6, 2.4, 'Iris-virginica'],
-                            [6.9, 3.1, 5.1, 2.3, 'Iris-virginica'],
-                            [5.8, 2.7, 5.1, 1.9, 'Iris-virginica'],
-                            [6.8, 3.2, 5.9, 2.3, 'Iris-virginica'],
-                            [6.7, 3.3, 5.7, 2.5, 'Iris-virginica'],
-                            [6.7, 3.0, 5.2, 2.3, 'Iris-virginica'],
-                            [6.3, 2.5, 5.0, 1.9, 'Iris-virginica'],
-                            [6.5, 3.0, 5.2, 2.0, 'Iris-virginica'],
-                            [6.2, 3.4, 5.4, 2.3, 'Iris-virginica'],
-                            [5.9, 3.0, 5.1, 1.8, 'Iris-virginica']])
-        
-        df = pd.DataFrame(x_test,columns = ['SepalLengthCm','SepalWidthCm','PetalLengthCm','PetalWidthCm','Species'])
-
-        y_pred = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
+        columns = np.array(['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm'])
+        df = pd.DataFrame(x_test, columns=columns)
 
         numerical_indexes  = np.array([0, 1, 2, 3])
-        non_numerical_indexes = np.array([4])
-        non_numerical_indexes_after_handle_missing_values = np.array([4])
+        non_numerical_indexes = np.array([], int)
+        non_numerical_indexes_after_handle_missing_values = np.array([], int)
+
         n_clusters = 3
         n_init = 10
         max_iter = 300
-
 
         pipeline = Pipeline(
             steps=[
@@ -392,9 +691,11 @@ class TestPlotting(TestCase):
         )
 
         _ = pipeline.fit_transform(df)
-       
 
-        plot_clustering_data(pipeline, df, y_pred)
+        labels = pipeline.named_steps.estimator.labels_
+
+        plot_clustering_data(pipeline, columns, df, labels)
+
 
     def test_data_table(self):
         data = {'col_1': [3, 2, 1, 0], 'col_2': ['a', 'b', 'c', 'd']}
