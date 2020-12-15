@@ -8,7 +8,7 @@ import matplotlib.cm as cm
 
 import sklearn
 from sklearn import preprocessing
-from sklearn.metrics import auc, roc_curve
+from sklearn.metrics import auc, roc_curve, plot_confusion_matrix, accuracy_score, precision_recall_fscore_support
 from sklearn.feature_selection import RFE
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
@@ -599,6 +599,88 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
         ax.set_ylabel('b', fontweight='bold')
 
     return ax
+
+
+def plot_matrix(estimator, x_test: np.ndarray, y_test: np.ndarray):
+    """Plots a confusion matrix.
+
+    Args:
+        estimator: scikit-learn classification estimator.
+        x_test (np.ndarray): test data.
+        y_test (np.ndarray): target split used for tests.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+    
+    cmap = sns.color_palette("Blues", as_cmap=True)
+
+    ax = plot_confusion_matrix(estimator, x_test, y_test, cmap=cmap)
+
+    return ax
+
+
+def plot_common_metrics(y_test: np.ndarray, y_pred: np.ndarray, labels_enc: np.ndarray, labels_dec: np.ndarray):
+    """Plots common metrics. Precision, recall, and f1-score.
+
+    Args:
+        estimator: scikit-learn classification estimator.
+        y_test (np.ndarray): target split used for tests.
+        y_pred (np.ndarray): predicted test targets.
+        labels_enc (np.ndarray): encoded labels.
+        labels_dec (np.ndarray): decoded labels.
+
+    Returns:
+        (matplotlib.Axes): the axes object.
+    """
+
+    # computes precision, recall, f1-score, support (for multiclass classification problem) and accuracy
+    if len(labels_enc) > 2:
+        # multiclass classification
+        p, r, f1, s = precision_recall_fscore_support(
+            y_test, y_pred, labels=labels_enc, average=None
+        )
+
+        commom_metrics = pd.DataFrame(
+            data=zip(p, r, f1, s), columns=["Precision", "Recall", "F1-Score", "Support"]
+        )
+
+        average_options = ("micro", "macro", "weighted")
+        for average in average_options:
+            if average.startswith("micro"):
+                line_heading = "accuracy"
+            else:
+                line_heading = average + " avg"
+
+            # compute averages with specified averaging method
+            avg_p, avg_r, avg_f1, _ = precision_recall_fscore_support(
+                y_test, y_pred, labels=labels_enc, average=average
+            )
+            avg = pd.Series(
+                {
+                    "Precision": avg_p,
+                    "Recall": avg_r,
+                    "F1-Score": avg_f1,
+                    "Support": np.sum(s),
+                },
+                name=line_heading,
+            )
+            commom_metrics = commom_metrics.append(avg)
+    else:
+        # binary classification
+        p, r, f1, _ = precision_recall_fscore_support(y_test, y_pred, average="binary")
+        accuracy = accuracy_score(y_test, y_pred)
+        commom_metrics = pd.DataFrame(
+            data={"Precision": p, "Recall": r, "F1-Score": f1, "Accuracy": accuracy},
+            index=[1],
+        )
+
+    if len(labels_dec) > 2:
+        as_list = commom_metrics.index.tolist()
+        as_list[0 : len(labels_dec)] = labels_dec
+        commom_metrics.index = as_list
+
+    return plot_data_table(commom_metrics)
 
 
 def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test: np.ndarray, y_pred: np.ndarray):

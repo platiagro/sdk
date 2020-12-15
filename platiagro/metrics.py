@@ -14,7 +14,6 @@ from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket, get_run_id, stat_metadata, operator_filepath
 
 METRICS_FILE = "metrics.json"
-CONFUSION_MATRIX = "confusion_matrix"
 
 
 def list_metrics(experiment_id: Optional[str] = None,
@@ -138,16 +137,6 @@ def save_metrics(experiment_id: Optional[str] = None,
         length=buffer.getbuffer().nbytes,
     )
 
-    # makes plots for some metrics
-    if CONFUSION_MATRIX in kwargs:
-        confusion_matrix = kwargs[CONFUSION_MATRIX]
-        plt.clf()
-        plot = plot_confusion_matrix(confusion_matrix)
-        save_figure(experiment_id=experiment_id,
-                    operator_id=operator_id,
-                    figure=plot.figure)
-        plt.clf()
-
 
 def encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
     """Prepares metric values for JSON encoding.
@@ -173,32 +162,3 @@ def encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
         else:
             raise TypeError(f"{k} is not any of these types: int, float, str, numpy.ndarray, pandas.DataFrame, pandas.Series")
     return encoded_metrics
-
-
-def plot_confusion_matrix(df: pd.DataFrame):
-    """Plots a confusion matrix.
-
-    Args:
-        df (pandas.DataFrame): the confusion matrix.
-
-    Returns:
-        (matplotlib.Axes): the axes object.
-    """
-    if not isinstance(df, pd.DataFrame):
-        raise TypeError("{} must be a pandas.DataFrame", CONFUSION_MATRIX)
-
-    df.index.name = "Classes Verdadeiras"
-    df.columns.name = "Classes Previstas"
-    ax = sns.heatmap(df,
-                     annot=True,
-                     annot_kws={"fontsize": 14},
-                     cbar=False,
-                     cmap="Greens")
-    ax.set_xlabel(df.columns.name, fontsize=16, rotation=0, labelpad=20)
-    ax.set_ylabel(df.index.name, fontsize=16, labelpad=20)
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
-    ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
-    ax.xaxis.set_label_position("top")
-    ax.xaxis.tick_top()
-    plt.tight_layout()
-    return ax
