@@ -3,6 +3,9 @@ from uuid import uuid4
 
 import numpy as np
 import pandas as pd
+import shap
+from shap.plots._labels import labels
+        
 
 from category_encoders.ordinal import OrdinalEncoder
 from category_encoders.one_hot import OneHotEncoder
@@ -12,10 +15,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.feature_selection import RFECV
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 
 from platiagro.plotting import plot_roc_curve
 from platiagro.plotting import plot_regression_error
@@ -30,6 +33,13 @@ from platiagro.plotting import plot_matrix
 from platiagro.plotting import plot_common_metrics
 from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
+from platiagro.plotting import plot_line_graphs_overlayed
+from platiagro.plotting import plot_line_subgraphs_alongisde
+from platiagro.plotting import plot_simple_line_graph
+from platiagro.plotting import plot_simple_line_graph
+from platiagro.plotting import plot_shap_classification_summary
+
+
 
  
 RUN_ID = str(uuid4())
@@ -1201,3 +1211,137 @@ class TestPlotting(TestCase):
         plot_data_table( df , col_width=3.0, row_height=0.625, font_size=8, 
                 header_color="#40466e", row_colors=["#f1f1f2", "w"], edge_color="w", bbox=[0, 0, 1, 1],
                 header_columns=0, column_quantity=40)
+
+
+    def test_line_subgraphs_alongisde(self):
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+        x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
+        y2 = np.sin(x2) + 1.0 + 2
+        
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1)]
+            y_list = [np.array(y2)]
+            plot_line_subgraphs_alongisde(x_list,
+                                        y_list,
+                                        x_axe_names= ["x"],
+                                        y_axe_names = ["y"],
+                                        col_wrap=1,
+                                        suptitle="Train Performance",
+                                        subtitles = ['Loss'],
+                                        subplot_size = (10,10))
+
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1),np.array(x2)]
+            y_list = [np.array(y2)]
+            plot_line_subgraphs_alongisde(x_list,
+                                        y_list,
+                                        x_axe_names= ["x"],
+                                        y_axe_names = ["y"],
+                                        col_wrap=1,
+                                        suptitle="",
+                                        subtitles = ['Loss'],
+                                        subplot_size = (10,10))
+
+        
+
+
+
+        x_list = [np.array(x1),np.array(x2),np.array(x2)]
+        y_list = [np.array(y1),np.array(y2),np.array(y2)]
+        
+
+
+        plot_line_subgraphs_alongisde(x_list,
+                                    y_list,
+                                    x_axe_names= ["x"],
+                                    y_axe_names = ["y"],
+                                    col_wrap=1,
+                                    suptitle="Train Performance",
+                                    subtitles = ['Loss','Acurácia','Outro'],
+                                    subplot_size = (10,10))
+
+    def test_line_graphs_overlayed(self):
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+        x2 = np.linspace(0, 10 - 2 * 3, 200) + 2
+        y2 = np.sin(x2) + 1.0 + 2
+        
+
+
+
+        with self.assertRaises(ValueError):
+            x_list = [np.array(x1)]
+            y_list = [np.array(y1)]
+            legends = ["legend1"]
+            plot_line_graphs_overlayed(x_list = x_list,
+                                                y_list=y_list,
+                                                x_axe_name="x_axe", 
+                                                y_axe_name="y_axe",
+                                                legends=legends,
+                                                title="Title",
+                                                legend_position='upper right')
+        with self.assertRaises(ValueError):
+
+            x_list = [np.array(x1),np.array(x2)]
+            y_list = [np.array(y1), np.array(y2)]
+            legends = ["legend1"]
+            plot_line_graphs_overlayed(x_list = x_list,
+                                                y_list=y_list,
+                                                x_axe_name="x_axe", 
+                                                y_axe_name="y_axe",
+                                                legends=legends,
+                                                title="Title",
+                                                legend_position='upper right')
+                            
+        
+        x_list = [np.array(x1),np.array(x2)]
+        y_list = [np.array(y1),np.array(y2)]
+        legends = ["legend1","legend2"]
+        plot_line_graphs_overlayed(x_list = x_list,
+                                        y_list=y_list,
+                                        x_axe_name="x_axe", 
+                                        y_axe_name="y_axe",
+                                        legends=legends,
+                                        title="Title",
+                                        legend_position='upper right')
+
+
+
+    def test_simple_line_graph(self):
+
+
+        with self.assertRaises(TypeError):
+
+            x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+            y1 = [1]*len(x1)
+
+            plot_simple_line_graph(x =x1 ,
+                                        y=y1,
+                                        x_axe_name="x_axe", 
+                                        y_axe_name="y_axe",
+                                        title="Title" )
+
+        x1 = np.linspace(0, 10 - 2 * 1, 200) + 1
+        y1 = np.sin(x1) + 1.0 + 1
+
+
+        plot_simple_line_graph(x =x1 ,
+                                    y=y1,
+                                    x_axe_name="x_axe", 
+                                    y_axe_name="y_axe",
+                                    title="Title")
+
+
+
+    def test_shap_classification_summary(self):
+        X_train,_,y_train,_ = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
+        shap.initjs()
+        dict_map = {0 : "iris-setosa", 1 : "iris-versicolor",2 : "iris-virginica"}
+        y_train = np.vectorize(dict_map.get)(y_train)
+        label_encoder = LabelEncoder()
+        y_train = label_encoder.fit_transform(y_train)
+        clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder)
+
+ 
