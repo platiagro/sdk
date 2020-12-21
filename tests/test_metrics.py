@@ -73,18 +73,11 @@ class TestMetrics(TestCase):
         with self.assertRaises(TypeError):
             save_metrics(accuracy=lambda x: "WUT")
 
-        with self.assertRaises(TypeError):
-            save_metrics(confusion_matrix=1)
-
-        data = np.array([[2, 0, 0], [0, 0, 1], [1, 0, 2]])
-        labels = ["Iris-setosa", "Iris-virginica", "Iris-versicolor"]
-        confusion_matrix = pd.DataFrame(data, columns=labels, index=labels)
         scores = pd.Series([1.0, 0.5, 0.1])
 
         save_metrics(accuracy=0.5)
         save_metrics(scores=scores)
         save_metrics(r2_score=-3.0)
-        save_metrics(confusion_matrix=confusion_matrix)
         del environ["EXPERIMENT_ID"]
         del environ["OPERATOR_ID"]
 
@@ -97,9 +90,6 @@ class TestMetrics(TestCase):
         save_metrics(experiment_id=EXPERIMENT_ID,
                      operator_id=OPERATOR_ID,
                      r2_score=-3.0)
-        save_metrics(experiment_id=EXPERIMENT_ID,
-                     operator_id=OPERATOR_ID,
-                     confusion_matrix=confusion_matrix)
 
     def test_run_id(self):
         metrics = list_metrics(experiment_id=EXPERIMENT_ID,
