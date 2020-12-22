@@ -5,13 +5,10 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from typing import List,Tuple
-import math
 
-import shap
 import sklearn
 from sklearn import preprocessing
-from sklearn.metrics import auc, roc_curve, plot_confusion_matrix, accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import auc, roc_curve, confusion_matrix, accuracy_score, precision_recall_fscore_support
 from sklearn.feature_selection import RFE
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
@@ -19,9 +16,9 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
-from shap.plots._labels import labels
 
 warnings.filterwarnings("ignore")
+
 
 loc_locale = "lower right"
 
@@ -117,7 +114,7 @@ def plot_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray):
     ax.set_ylabel("Taxa de Verdadeiro Positivo")
     ax.set_title("Curva ROC", fontweight='bold')
 
-    if len(y_test) == 2:
+    if len(set(y_test)) == 2:
         ax = _calculate_two_class_roc_curve(y_test, y_prob, labels, ax)
     else:
         ax = _calculate_full_roc_curve(y_test, y_prob, labels, ax)
@@ -396,47 +393,50 @@ def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
 
     ax = plt.subplot()
 
-    # Get n% of the test targets that are closest to set's mean (to avoid outliers influence)
-    n = 0.99
-    centralized_y = y_test - np.mean(y_test)
-    sorted_idx = np.argsort(np.abs(centralized_y))
-    n = int(n*len(y_test))
-    idx = sorted_idx[:n]
-    sorted_samples = y_test[idx]
+    try:
+        # Get n% of the test targets that are closest to set's mean (to avoid outliers influence)
+        n = 0.99
+        centralized_y = y_test - np.mean(y_test)
+        sorted_idx = np.argsort(np.abs(centralized_y))
+        n = int(n*len(y_test))
+        idx = sorted_idx[:n]
+        sorted_samples = y_test[idx]
 
-    # split targets in n intervals
-    n = 5
-    r = sorted_samples.max() - sorted_samples.min() # range of targets 
+        # split targets in n intervals
+        n = 5
+        r = sorted_samples.max() - sorted_samples.min() # range of targets 
 
-    d = r/n # size of interval
-    limits = np.array(list(range(n+1)))*d + sorted_samples.min()
-    limits[0] = y_test.min()
-    limits[-1] = y_test.max()
+        d = r/n # size of interval
+        limits = np.array(list(range(n+1)))*d + sorted_samples.min()
+        limits[0] = y_test.min()
+        limits[-1] = y_test.max()
 
-    cmap = sns.color_palette("Spectral_r", 256)
-    colors = list(cmap)
+        cmap = sns.color_palette("Spectral_r", 256)
+        colors = list(cmap)
 
-    # plot error per interval
-    err = y_pred - y_test
-    for i, upper in enumerate(limits[1:]):
-        lower = limits[i]        
-        boolean_array = ((lower < y_test) & (y_test < upper))
-        idx = np.where(boolean_array)[0]
+        # plot error per interval
+        err = y_pred - y_test
+        for i, upper in enumerate(limits[1:]):
+            lower = limits[i]        
+            boolean_array = ((lower < y_test) & (y_test < upper))
+            idx = np.where(boolean_array)[0]
 
-        kde = gaussian_kde(err[idx])
-        x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
-        p_err = kde(x_err)
-        label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
-        ax.plot(x_err, p_err, c='#424242', linewidth=4)
-        ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
-    
-    ax.set_xlabel("Erro", fontweight='bold')
-    ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
-    ax.set_title("Distribuição do erro por segmento", fontweight='bold')
+            kde = gaussian_kde(err[idx])
+            x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
+            p_err = kde(x_err)
+            label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
+            ax.plot(x_err, p_err, c='#424242', linewidth=4)
+            ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
+        
+        ax.set_xlabel("Erro", fontweight='bold')
+        ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
+        ax.set_title("Distribuição do erro por segmento", fontweight='bold')
 
-    ax.grid(True)
+        ax.grid(True)
 
-    ax.legend(loc=loc_locale)
+        ax.legend(loc=loc_locale)
+    except ValueError:
+        pass
 
     return ax
 
@@ -604,23 +604,35 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     return ax
 
 
-def plot_matrix(estimator, x_test: np.ndarray, y_test: np.ndarray):
+def plot_matrix(data: pd.DataFrame):
     """Plots a confusion matrix.
 
     Args:
-        estimator: scikit-learn classification estimator.
-        x_test (np.ndarray): test data.
-        y_test (np.ndarray): target split used for tests.
+        data (pd.Dataframe): confusion matrix.
 
     Returns:
         (matplotlib.Axes): the axes object.
     """
-    
-    cmap = sns.color_palette("Blues", as_cmap=True)
 
-    ax = plot_confusion_matrix(estimator, x_test, y_test, cmap=cmap)
+    data.index.name = "Classes Verdadeiras"
+    data.columns.name = "Classes Previstas"
+
+    ax = sns.heatmap(data,
+                     annot=True,
+                     annot_kws={"fontsize": 14},
+                     cbar=False,
+                     cmap="Blues")
+
+    ax.set_xlabel(data.columns.name, fontsize=16, rotation=0, labelpad=20)
+    ax.set_ylabel(data.index.name, fontsize=16, labelpad=20)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+    ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
+    ax.xaxis.set_label_position("top")
+    ax.xaxis.tick_top()
+    plt.tight_layout()
 
     return ax
+    
 
 
 def plot_common_metrics(y_test: np.ndarray, y_pred: np.ndarray, labels_enc: np.ndarray, labels_dec: np.ndarray):
@@ -810,220 +822,3 @@ def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_si
             cell.set_facecolor(row_colors[k[0] % len(row_colors)])
 
     return ax
-
-
-
-
-def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
-                                  y_list:List[np.ndarray],
-                                  x_axe_names:List[str], 
-                                  y_axe_names:List[str],
-                                  col_wrap:int,
-                                  suptitle:str,
-                                  subtitles:List[str],
-                                  subplot_size:Tuple[int] = (5,5)):
-  
-    """Plot multiple graphs individually .
-
-    Args:
-        x_list (List[np.ndarray]): input data x axis list.
-        y_list (List[np.ndarray]): input data y axis list.
-        x_axe_names (List[str]): x axe name.
-        y_axe_names (List[str]): y axe name.
-        col_wrap (int): number of desired columns.
-        suptitle (str): graph ensemble suptitle.
-        subtitles (List[str]): subtitles list.
-        subplot_size (Tuple[int]): tuple with figsize dimentions.
-
-    Returns:
-        (matplotlib.Axes): the axes object.
-    """
-    if len(x_list) == 1:
-      raise ValueError("You are passing only one graph, please use a simple plot")
-
-    if not (len(x_list) == len(y_list) ==len(subtitles)):
-        raise ValueError(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
-
-    if len(x_axe_names) == 1:
-      x_axe_names= len(x_list)*x_axe_names
-    
-    if len(y_axe_names) == 1:
-      y_axe_names= len(x_list)*y_axe_names
-
-    cmap = sns.color_palette("Spectral_r", 256)
-    color_map = list(cmap)
-    colors = [color_map[20]]*len(x_list)
-    line_styles = ['-']*len(x_list)
-    marker_styles = ['']*len(x_list)
-
-    cols = col_wrap
-    rows = math.ceil(len(x_list)/col_wrap)
-    
-    fig, axs = plt.subplots(rows,cols)
-    axs = axs.ravel()
-    axs_to_remove = []
-
-    for i in range(len(axs)):
-      if i > len(x_list)-1:
-        axs_to_remove.append(i)
-    
-
-    if axs_to_remove:
-      for k in axs_to_remove:
-        fig.delaxes(axs[k])
-
-    axs = axs[:len(x_list)]
-    
-    for ax,subtitle,x_data,y_data,line_style,marker_style,color,x_axe_name,y_axe_name in zip(axs,subtitles,x_list,y_list,line_styles,marker_styles,colors,x_axe_names,y_axe_names):
-
-      ax.plot(x_data, y_data, linestyle=line_style,marker=marker_style, color=color)
-      ax.set_xlabel(x_axe_name,fontsize=10)
-      ax.set_ylabel(y_axe_name,fontsize=10)
-      ax.set_title(subtitle,fontsize=15)
-      ax.figure.set_size_inches(subplot_size[0], subplot_size[1])
-
-    plt.suptitle(suptitle,fontsize=20)
-    fig.tight_layout()
-    plt.subplots_adjust(top=0.8)
-    plt.show()
-    
-    return axs
-
-def plot_line_graphs_overlayed(x_list:List[np.ndarray],
-                                  y_list:List[np.ndarray],
-                                  x_axe_name:str, 
-                                  y_axe_name:str,
-                                  legends:List[str],
-                                  title:str,
-                                  legend_position:str='upper right',
-                                  figsize:Tuple[int] = (10,10)):
-    
-    """Plot multiple graphs together .
-
-    Args:
-        x_list (List[np.ndarray]): input data x axis list.
-        y_list (List[np.ndarray]): input data y axis list.
-        x_axe_name (str): x axe name.
-        y_axe_name (str): y axe name.
-        legends (List[str]): legends list.
-        title (str): graph title.
-        legend_position (str): legend position on graph.
-        figsize (Tuple[int]): tuple with figsize dimentions.
-
-    Returns:
-        (matplotlib.Axes): the axes object.
-    """
-    if not (len(x_list) == len(y_list) == len(legends)):
-        raise ValueError(f"Legends (with length {len(legends)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
-
-    if (len(legends) == 1 and legends != ["None_Marker"]):
-        raise ValueError("You are passing only one graph, please use a simple plot")
-        
-    cmap = sns.color_palette("Spectral_r", 256)
-    color_map = list(cmap)
-    color_options = [color_map[20],color_map[-20], color_map[40],color_map[-40],color_map[255],color_map[-90]]
-    n_repetitions = math.ceil(len(color_options)/len(x_list))
-    color_repetitions = n_repetitions*color_options
-    colors = color_repetitions[:len(x_list)]
-
-    line_styles_options = ['-', '--', '-.', ':']
-    line_styles = sum([[line_style]*len(color_options) for line_style in line_styles_options],[])[:len(x_list)]
-
-    marker_styles = ['']*len(line_styles)
-
-    fig, ax = plt.subplots()
-    plot_list = []
-
-    for x,y,line_style,marker_style,color,legend in zip(x_list,y_list,line_styles,marker_styles,colors,legends):
-      if legend ==  "None_Marker":
-        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style))
-      else:
-        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style,label=legend))
-      
-
-    if legends !=  ["None_Marker"]:
-      ax.legend(loc=legend_position)
-    ax.set_xlabel(x_axe_name,fontsize = 10)
-    ax.set_ylabel(y_axe_name,fontsize = 10)
-    ax.set_title(title,fontsize = 20)
-    ax.figure.set_size_inches(figsize[0], figsize[1])
-    fig.tight_layout()
-    plt.show()
-
-    return ax
-
-
-def plot_simple_line_graph(x:np.ndarray,
-                        y:np.ndarray,
-                        x_axe_name:str, 
-                        y_axe_name:str,
-                        title:str,
-                        figsize:Tuple[int] = (10,10)):
-    
-    """Plot simple line grapj .
-
-    Args:
-        x_list (List[np.ndarray]): input data x axis.
-        y_list (List[np.ndarray]): input data y axis.
-        x_axe_name (str): x axe name.
-        y_axe_name (str): y axe name.
-        title (str): graph title.
-        line_style (str): graphs line style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        marker_style (str): graphs marker style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        figsize (Tuple[int]): tuple with figsize dimentions.
-        color (str): graph color. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        title_fontize (int): title fontsize.
-        axes_fontisze (int): axes fontsize.
-
-    Returns:
-        (matplotlib.Axes): the axes object.
-    """
-
-    if not (type(x) == type(y) == np.ndarray):
-        raise TypeError("x and y must be numpy arrays")
-
-    x = [x]
-    y = [y]
-
-    legends = ["None_Marker"]
-
-    ax = plot_line_graphs_overlayed(x_list=x,
-                                y_list=y,
-                                x_axe_name = x_axe_name, 
-                                y_axe_name = y_axe_name, 
-                                legends=legends,
-                                title= title,
-                                figsize=figsize)
-    return ax
-
-def plot_shap_classification_summary(sklearn_model,
-                                    X:np.ndarray,
-                                    Y:np.ndarray,
-                                    feature_names:List,
-                                    max_display:int,
-                                    label_encoder=None):
-    
-    """Plots summary of features contribution for each class
-
-    Args:
-        model: clasification scikit learning model or pipeline
-        X (np.ndarray): input data .
-        Y (str): output data.
-        feature_names (List): List with evey input feature.
-        max_display (int): number of features that will be orderem by importance
-        label_encoder : label encoder required for retrieving output class names.
-
-    Returns:
-        
-    """
-
-    explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
-    shap_values = explainer.shap_values(X)
-    for i in range(len(explainer.expected_value)):
-        shap.initjs()
-        plt.figure()
-        if label_encoder:
-            plt.title(label_encoder.inverse_transform([i])[0]) 
-        else:
-            plt.title(f"class_{i}")
-        shap.summary_plot(shap_values[i], X,feature_names=feature_names)
