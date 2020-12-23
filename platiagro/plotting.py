@@ -11,7 +11,7 @@ import math
 import shap
 import sklearn
 from sklearn import preprocessing
-from sklearn.metrics import auc, roc_curve, confusion_matrix, accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fscore_support
 from sklearn.feature_selection import RFE
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
