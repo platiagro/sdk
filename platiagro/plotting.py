@@ -11,7 +11,7 @@ import math
 import shap
 import sklearn
 from sklearn import preprocessing
-from sklearn.metrics import auc, roc_curve, plot_confusion_matrix, accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fscore_support
 from sklearn.feature_selection import RFE
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
@@ -22,6 +22,7 @@ from scipy.stats import probplot
 from shap.plots._labels import labels
 
 warnings.filterwarnings("ignore")
+
 
 loc_locale = "lower right"
 
@@ -117,7 +118,7 @@ def plot_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np.ndarray):
     ax.set_ylabel("Taxa de Verdadeiro Positivo")
     ax.set_title("Curva ROC", fontweight='bold')
 
-    if len(y_test) == 2:
+    if len(set(y_test)) == 2:
         ax = _calculate_two_class_roc_curve(y_test, y_prob, labels, ax)
     else:
         ax = _calculate_full_roc_curve(y_test, y_prob, labels, ax)
@@ -396,47 +397,50 @@ def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
 
     ax = plt.subplot()
 
-    # Get n% of the test targets that are closest to set's mean (to avoid outliers influence)
-    n = 0.99
-    centralized_y = y_test - np.mean(y_test)
-    sorted_idx = np.argsort(np.abs(centralized_y))
-    n = int(n*len(y_test))
-    idx = sorted_idx[:n]
-    sorted_samples = y_test[idx]
+    try:
+        # Get n% of the test targets that are closest to set's mean (to avoid outliers influence)
+        n = 0.99
+        centralized_y = y_test - np.mean(y_test)
+        sorted_idx = np.argsort(np.abs(centralized_y))
+        n = int(n*len(y_test))
+        idx = sorted_idx[:n]
+        sorted_samples = y_test[idx]
 
-    # split targets in n intervals
-    n = 5
-    r = sorted_samples.max() - sorted_samples.min() # range of targets 
+        # split targets in n intervals
+        n = 5
+        r = sorted_samples.max() - sorted_samples.min() # range of targets 
 
-    d = r/n # size of interval
-    limits = np.array(list(range(n+1)))*d + sorted_samples.min()
-    limits[0] = y_test.min()
-    limits[-1] = y_test.max()
+        d = r/n # size of interval
+        limits = np.array(list(range(n+1)))*d + sorted_samples.min()
+        limits[0] = y_test.min()
+        limits[-1] = y_test.max()
 
-    cmap = sns.color_palette("Spectral_r", 256)
-    colors = list(cmap)
+        cmap = sns.color_palette("Spectral_r", 256)
+        colors = list(cmap)
 
-    # plot error per interval
-    err = y_pred - y_test
-    for i, upper in enumerate(limits[1:]):
-        lower = limits[i]        
-        boolean_array = ((lower < y_test) & (y_test < upper))
-        idx = np.where(boolean_array)[0]
+        # plot error per interval
+        err = y_pred - y_test
+        for i, upper in enumerate(limits[1:]):
+            lower = limits[i]        
+            boolean_array = ((lower < y_test) & (y_test < upper))
+            idx = np.where(boolean_array)[0]
 
-        kde = gaussian_kde(err[idx])
-        x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
-        p_err = kde(x_err)
-        label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
-        ax.plot(x_err, p_err, c='#424242', linewidth=4)
-        ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
-    
-    ax.set_xlabel("Erro", fontweight='bold')
-    ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
-    ax.set_title("Distribuição do erro por segmento", fontweight='bold')
+            kde = gaussian_kde(err[idx])
+            x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
+            p_err = kde(x_err)
+            label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
+            ax.plot(x_err, p_err, c='#424242', linewidth=4)
+            ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
+        
+        ax.set_xlabel("Erro", fontweight='bold')
+        ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
+        ax.set_title("Distribuição do erro por segmento", fontweight='bold')
 
-    ax.grid(True)
+        ax.grid(True)
 
-    ax.legend(loc=loc_locale)
+        ax.legend(loc=loc_locale)
+    except ValueError:
+        pass
 
     return ax
 
@@ -604,23 +608,35 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     return ax
 
 
-def plot_matrix(estimator, x_test: np.ndarray, y_test: np.ndarray):
+def plot_matrix(data: pd.DataFrame):
     """Plots a confusion matrix.
 
     Args:
-        estimator: scikit-learn classification estimator.
-        x_test (np.ndarray): test data.
-        y_test (np.ndarray): target split used for tests.
+        data (pd.Dataframe): confusion matrix.
 
     Returns:
         (matplotlib.Axes): the axes object.
     """
-    
-    cmap = sns.color_palette("Blues", as_cmap=True)
 
-    ax = plot_confusion_matrix(estimator, x_test, y_test, cmap=cmap)
+    data.index.name = "Classes Verdadeiras"
+    data.columns.name = "Classes Previstas"
+
+    ax = sns.heatmap(data,
+                     annot=True,
+                     annot_kws={"fontsize": 14},
+                     cbar=False,
+                     cmap="Blues")
+
+    ax.set_xlabel(data.columns.name, fontsize=16, rotation=0, labelpad=20)
+    ax.set_ylabel(data.index.name, fontsize=16, labelpad=20)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)
+    ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
+    ax.xaxis.set_label_position("top")
+    ax.xaxis.tick_top()
+    plt.tight_layout()
 
     return ax
+    
 
 
 def plot_common_metrics(y_test: np.ndarray, y_pred: np.ndarray, labels_enc: np.ndarray, labels_dec: np.ndarray):
@@ -812,8 +828,6 @@ def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_si
     return ax
 
 
-
-
 def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
                                   y_list:List[np.ndarray],
                                   x_axe_names:List[str], 
@@ -888,6 +902,7 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
     plt.show()
     
     return axs
+
 
 def plot_line_graphs_overlayed(x_list:List[np.ndarray],
                                   y_list:List[np.ndarray],
@@ -995,6 +1010,7 @@ def plot_simple_line_graph(x:np.ndarray,
                                 title= title,
                                 figsize=figsize)
     return ax
+
 
 def plot_shap_classification_summary(sklearn_model,
                                     X:np.ndarray,

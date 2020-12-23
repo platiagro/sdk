@@ -19,6 +19,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
 
 from platiagro.plotting import plot_roc_curve
 from platiagro.plotting import plot_regression_error
@@ -739,7 +740,18 @@ class TestPlotting(TestCase):
 
         _ = pipeline.fit(X_train, y_train)
 
-        plot_matrix(pipeline.steps[2][1], X_test, y_test)
+        y_pred = pipeline.predict(X_test)
+        y_prob = pipeline.predict_proba(X_test)
+
+        # computes confusion matrix
+        labels = np.unique(y)
+        data = confusion_matrix(y_test, y_pred, labels=labels)
+
+        # puts matrix in pandas.DataFrame for better format
+        labels_dec = label_encoder.inverse_transform(labels)
+        df = pd.DataFrame(data, columns=labels_dec, index=labels_dec)
+
+        plot_matrix(df)
 
 
     def test_common_metrics(self):
