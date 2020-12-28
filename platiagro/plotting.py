@@ -583,16 +583,22 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     # Stack arrays
     grid = np.hstack((r1,r2))
 
-    # Predict with grid
-    yhat = estimator.predict(grid)
-    zz = yhat.reshape(xx.shape)
+    zz = None
+    try:
+        # Predict with grid
+        yhat = estimator.predict(grid)
+        zz = yhat.reshape(xx.shape)
+    except MemoryError:
+        pass
 
     # Plot data
     fig, ax = plt.subplots()
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
-    ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
+    if zz is not None:
+        ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
+
     ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
@@ -602,7 +608,7 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
         ax.set_xlabel(f'{columns[sel_columns][0]}', fontweight='bold')
         ax.set_ylabel(f'{columns[sel_columns][1]}', fontweight='bold')
     else:
-        ax.set_ylabel('a', fontweight='bold')
+        ax.set_xlabel('a', fontweight='bold')
         ax.set_ylabel('b', fontweight='bold')
 
     return ax
