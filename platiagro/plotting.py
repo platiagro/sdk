@@ -490,6 +490,10 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
 
     Args:
+        pipeline (sklearn.pipeline): pipeline used to train the model.
+        columns (np.ndarray): dataset columns list.
+        x_train (np.ndarray): data used to train model.
+        y_train (np.ndarray): target used to train model.
         y_test (np.ndarray): target split used for tests.
         y_pred (np.ndarray): probability of each y_test class according to the model.
 
@@ -533,12 +537,17 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     return ax
 
 
-def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
+def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray, contour=False):
     """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
 
     Args:
+        pipeline (sklearn.pipeline): pipeline used to train the model.
+        columns (np.ndarray): dataset columns list.
+        x_train (np.ndarray): data used to train model.
+        y_train (np.ndarray): target used to train model.
         y_test (np.ndarray): target split used for tests.
         y_pred (np.ndarray): probability of each y_test class according to the model.
+        contour (boolean): plot contour if necessary.
 
     Returns:
         (matplotlib.Axes): the axes object.
@@ -562,41 +571,42 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
 
     data_test['target'] = estimator.predict(data_test)
 
-    # Create decision space
-    # Credit: https://machinelearningmastery.com/plot-a-decision-surface-for-machine-learning/
+    if contour:
+        # Create decision space
+        # Credit: https://machinelearningmastery.com/plot-a-decision-surface-for-machine-learning/
 
-    # Get mins and maxs
-    min1, max1 = data_test.iloc[:, 0].min()-1, data_test.iloc[:, 0].max()+1
-    min2, max2 = data_test.iloc[:, 1].min()-1, data_test.iloc[:, 1].max()+1
+        # Get mins and maxs
+        min1, max1 = data_test.iloc[:, 0].min()-1, data_test.iloc[:, 0].max()+1
+        min2, max2 = data_test.iloc[:, 1].min()-1, data_test.iloc[:, 1].max()+1
 
-    # Create a grid
-    x1grid = np.arange(min1, max1, 0.1)
-    x2grid = np.arange(min2, max2, 0.1)
+        # Create a grid
+        x1grid = np.arange(min1, max1, 0.1)
+        x2grid = np.arange(min2, max2, 0.1)
 
-    # Create a meshgrid
-    xx, yy = np.meshgrid(x1grid, x2grid)
+        # Create a meshgrid
+        xx, yy = np.meshgrid(x1grid, x2grid)
 
-    # Flatten matrixes
-    r1, r2 = xx.flatten(), yy.flatten()
-    r1, r2 = r1.reshape((len(r1), 1)), r2.reshape((len(r2), 1))
+        # Flatten matrixes
+        r1, r2 = xx.flatten(), yy.flatten()
+        r1, r2 = r1.reshape((len(r1), 1)), r2.reshape((len(r2), 1))
 
-    # Stack arrays
-    grid = np.hstack((r1,r2))
+        # Stack arrays
+        grid = np.hstack((r1,r2))
 
-    zz = None
-    try:
-        # Predict with grid
-        yhat = estimator.predict(grid)
-        zz = yhat.reshape(xx.shape)
-    except MemoryError:
-        pass
+        zz = None
+        try:
+            # Predict with grid
+            yhat = estimator.predict(grid)
+            zz = yhat.reshape(xx.shape)
+        except MemoryError:
+            pass
 
     # Plot data
     fig, ax = plt.subplots()
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
-    if zz is not None:
+    if contour and zz is not None:
         ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
 
     ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
