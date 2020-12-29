@@ -175,3 +175,16 @@ Get feature types
   featuretypes = ["float", "int", "str"]
   validate_featuretypes(featuretypes)
   ValueError: featuretype must be one of DateTime, Numerical, Categorical
+
+Download artifact
+-----------------
+
+.. currentmodule:: platiagro
+
+.. autofunction:: download_artifact
+
+.. code-block:: python
+
+  from platiagro import download_artifact
+
+  download_artifact(name="glove_s100.zip", path="/tmp/glove_s100.zip")
