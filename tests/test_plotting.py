@@ -1353,7 +1353,5 @@ class TestPlotting(TestCase):
         y_train = np.vectorize(dict_map.get)(y_train)
         label_encoder = LabelEncoder()
         y_train = label_encoder.fit_transform(y_train)
-        clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+        clf = LogisticRegression(random_state=0)
         plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder)
-
- 

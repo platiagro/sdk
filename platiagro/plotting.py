@@ -1049,6 +1049,7 @@ def plot_shap_classification_summary(sklearn_model,
         
     """
 
+    sklearn_model.fit(X, Y)
     explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
     shap_values = explainer.shap_values(X)
     for i in range(len(explainer.expected_value)):
