@@ -1048,15 +1048,19 @@ def plot_shap_classification_summary(sklearn_model,
     Returns:
         
     """
-
-    sklearn_model.fit(X, Y)
-    explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
-    shap_values = explainer.shap_values(X)
-    for i in range(len(explainer.expected_value)):
-        shap.initjs()
-        plt.figure()
-        if label_encoder:
-            plt.title(label_encoder.inverse_transform([i])[0]) 
-        else:
-            plt.title(f"class_{i}")
-        shap.summary_plot(shap_values[i], X,feature_names=feature_names)
+    try: 
+        np.float64(X) #check to verify if all elements are numbers
+        sklearn_model.fit(X, Y)
+        explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
+        shap_values = explainer.shap_values(X)
+        for i in range(len(explainer.expected_value)):
+            shap.initjs()
+            plt.figure()
+            if label_encoder:
+                plt.title(label_encoder.inverse_transform([i])[0]) 
+            else:
+                plt.title(f"class_{i}")
+            shap.summary_plot(shap_values[i], X,feature_names=feature_names)
+    
+    except:
+        print("O gráfico SHAP funciona apenas se todos os elementos em X forem numéricos.")
