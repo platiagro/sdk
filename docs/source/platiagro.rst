@@ -188,3 +188,16 @@ Download artifact
   from platiagro import download_artifact
 
   download_artifact(name="glove_s100.zip", path="/tmp/glove_s100.zip")
+
+Run experiment
+--------------
+
+.. currentmodule:: platiagro
+
+.. autofunction:: run_experiment
+
+.. code-block:: python
+
+  from platiagro import run_experiment
+
+  run_experiment(project_name="Sample Project", experiment_name="Experiment 1", dataset="path/to/file")
