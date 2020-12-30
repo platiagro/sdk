@@ -1049,7 +1049,7 @@ def plot_shap_classification_summary(sklearn_model,
         
     """
     try: 
-        np.float64(X) #check to verify if all elements are numbers
+        np.float64(X) #check to verify if all elements are numbers. If not raises Value Error
         sklearn_model.fit(X, Y)
         explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
         shap_values = explainer.shap_values(X)
@@ -1063,4 +1063,4 @@ def plot_shap_classification_summary(sklearn_model,
             shap.summary_plot(shap_values[i], X,feature_names=feature_names)
     
     except:
-        print("O gráfico SHAP funciona apenas se todos os elementos em X forem numéricos.")
+        raise ValueError("O gráfico SHAP funciona apenas se todos os elementos em X forem numéricos.")
