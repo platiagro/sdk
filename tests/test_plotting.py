@@ -1354,7 +1354,7 @@ class TestPlotting(TestCase):
             shap.initjs()
             label_encoder = LabelEncoder()
             clf = LogisticRegression(random_state=0)
-            plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=["column1","column2"],max_display=2,label_encoder=label_encoder)
+            plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=["column1","column2"],max_display=2,label_encoder=label_encoder,non_numerical_indexes=np.array([]))
 
         X_train,_,y_train,_ = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
         shap.initjs()
@@ -1363,4 +1363,4 @@ class TestPlotting(TestCase):
         label_encoder = LabelEncoder()
         y_train = label_encoder.fit_transform(y_train)
         clf = LogisticRegression(random_state=0)
-        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder)
+        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder,non_numerical_indexes=np.array([]))
