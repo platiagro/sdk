@@ -1,14 +1,16 @@
 import warnings
+import math
+from copy import deepcopy
+from typing import List,Tuple
 
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from typing import List,Tuple
-import math
-
 import shap
+from shap.plots._labels import labels
+
 import sklearn
 from sklearn import preprocessing
 from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fscore_support
@@ -19,7 +21,6 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
-from shap.plots._labels import labels
 
 warnings.filterwarnings("ignore")
 
@@ -501,6 +502,8 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
         (matplotlib.Axes): the axes object.
     """
 
+    pipeline = deepcopy(pipeline)
+
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
 
@@ -552,6 +555,8 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
@@ -728,6 +733,8 @@ def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_trans = _transform_data(pipeline, x_test)
     
@@ -1032,8 +1039,9 @@ def plot_shap_classification_summary(sklearn_model,
                                     X:np.ndarray,
                                     Y:np.ndarray,
                                     feature_names:List,
-                                    max_display:int,
-                                    label_encoder=None):
+                                    label_encoder,
+                                    non_numerical_indexes,
+                                    max_display:int=None):
     
     """Plots summary of features contribution for each class
 
@@ -1042,25 +1050,34 @@ def plot_shap_classification_summary(sklearn_model,
         X (np.ndarray): input data .
         Y (str): output data.
         feature_names (List): List with evey input feature.
+        label_encoder : label encoder required for retrieving output class names
+        non_numerical_indexes (numpy.ndarray): Numpy array with the non numerical indexes related to the columns in X
         max_display (int): number of features that will be orderem by importance
-        label_encoder : label encoder required for retrieving output class names.
 
     Returns:
         
     """
-    try: 
-        np.float64(X) #check to verify if all elements are numbers. If not raises Value Error
-        sklearn_model.fit(X, Y)
+    if  len(non_numerical_indexes)==0:
+
+
+
         explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
         shap_values = explainer.shap_values(X)
+        
         for i in range(len(explainer.expected_value)):
             shap.initjs()
+            cmap = sns.color_palette("Spectral_r", as_cmap=True)
             plt.figure()
             if label_encoder:
                 plt.title(label_encoder.inverse_transform([i])[0]) 
             else:
                 plt.title(f"class_{i}")
-            shap.summary_plot(shap_values[i], X,feature_names=feature_names)
-    
-    except:
-        raise ValueError("O gráfico SHAP funciona apenas se todos os elementos em X forem numéricos.")
+            shap.summary_plot(shap_values[i], X,feature_names=feature_names, show=False)
+            # Change the colormap of the artists
+
+            for fc in plt.gcf().get_children():
+                for fcc in fc.get_children():
+                    if hasattr(fcc, "set_cmap"):
+                        fcc.set_cmap(cmap)
+    else:
+        print("O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X")
