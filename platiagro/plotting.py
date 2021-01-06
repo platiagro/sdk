@@ -1,14 +1,16 @@
 import warnings
+import math
+from copy import deepcopy
+from typing import List,Tuple
 
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from typing import List,Tuple
-import math
-
 import shap
+from shap.plots._labels import labels
+
 import sklearn
 from sklearn import preprocessing
 from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fscore_support
@@ -19,7 +21,6 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
-from shap.plots._labels import labels
 
 warnings.filterwarnings("ignore")
 
@@ -501,6 +502,8 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
         (matplotlib.Axes): the axes object.
     """
 
+    pipeline = deepcopy(pipeline)
+
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
 
@@ -552,6 +555,8 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
@@ -728,6 +733,8 @@ def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_trans = _transform_data(pipeline, x_test)
     
