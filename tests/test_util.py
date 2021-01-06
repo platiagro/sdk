@@ -218,7 +218,7 @@ def get_iris():
 
     # Dataset separated from target
     X = dataset.copy()
-    y = X.pop('Species')
+    y = np.array(X.pop('Species'))
 
     # Encode target
     label_encoder = LabelEncoder()
@@ -245,7 +245,7 @@ def get_boston():
 
     # Dataset separated from target
     X = dataset.copy()
-    y = X.pop('medv')
+    y = np.array(X.pop('medv'))
 
     data = {'dataset': dataset,
             'dataset_columns': dataset.columns,
