@@ -40,7 +40,7 @@ from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_shap_classification_summary
 
-from test_util import get_iris, get_boston
+from .test_util import get_iris, get_boston
 
  
 RUN_ID = str(uuid4())
