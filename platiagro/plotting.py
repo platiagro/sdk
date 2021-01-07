@@ -1078,4 +1078,5 @@ def plot_shap_classification_summary(sklearn_model,
                     if hasattr(fcc, "set_cmap"):
                         fcc.set_cmap(cmap)
     else:
-        print("O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X")
+        msg = "O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X"
+        warnings.warn(msg)
