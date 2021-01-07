@@ -1102,7 +1102,7 @@ def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
     df['split'] = 'train'
     df.loc[test_idx, 'split'] = 'test'
     
-    df['Predito'] = model.predict(X)
+    df['Predito'] = model.predict(df.drop(['split'], axis=1))
     df['Residuo'] = df['Predito'] - y
     
     
