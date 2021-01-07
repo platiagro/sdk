@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import shap
 from shap.plots._labels import labels
+import plotly.express as px
 
 import sklearn
 from sklearn import preprocessing
@@ -19,6 +20,7 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
 
@@ -1080,3 +1082,64 @@ def plot_shap_classification_summary(sklearn_model,
     else:
         msg = "O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X"
         warnings.warn(msg)
+        
+       
+def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
+    """Plot model residuos to compare predicted values.
+
+    Args:
+        X (np.ndarray): features.
+        y (np.ndarray): target.
+        model: regression model or pipeline.
+        columns (np.ndarray): dataset columns list.
+
+    Returns:
+        (plotely.express): the plotly object.
+    """
+    df = pd.DataFrame(X, columns = columns)
+    
+    train_idx, test_idx = train_test_split(df.index, test_size=.3, random_state=0)
+    df['split'] = 'train'
+    df.loc[test_idx, 'split'] = 'test'
+    
+    df['Predito'] = model.predict(X)
+    df['Residuo'] = df['Predito'] - y
+    
+    
+    palet_colors = ['#a40843', '#377fb9']
+
+    fig = px.scatter(
+        df, x='Predito', y='Residuo',
+        marginal_x='histogram', marginal_y='box',
+        color='split',
+        color_discrete_sequence = palet_colors,
+        title='Gráfico de Resíduos'
+    )
+    
+    return fig
+
+
+def plot_model_coef_weight(coef: np.ndarray, columns: np.ndarray):
+    """Transform data according to pipeline.
+
+    Args:
+        coef (np.ndarray): model coefficients list.
+        columns (np.ndarray): dataset columns list.
+        
+    Returns:
+        (plotely.express): the express object.
+    """ 
+    colors = ['Positivo' if c > 0 else 'Negativo' for c in coef]
+    
+    palet_colors = ['#a40843', '#377fb9']
+
+    fig = px.bar(
+        x=coef,
+        y = columns,
+        color=colors,
+        color_discrete_sequence = palet_colors,
+        labels = dict(x ='Coeficiente Linear', y ='Features'),
+        title='Contribuição de cada freature para a variável resposta'
+    )
+    
+    return fig
