@@ -305,7 +305,7 @@ class TestPlotting(TestCase):
         
         plot_residues(boston['features'],
                       boston['target'],
-                      boston['clustering_pipeline'], 
+                      boston['regression_pipeline'], 
                       boston['features_columns'])     
            
     def test_model_coef_weight(self):
