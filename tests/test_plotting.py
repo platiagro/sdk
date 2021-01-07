@@ -39,6 +39,8 @@ from platiagro.plotting import plot_line_subgraphs_alongisde
 from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_shap_classification_summary
+from platiagro.plotting import plot_residues
+from platiagro.plotting import plot_model_coef_weight
 
 from .test_util import get_iris, get_boston
 
@@ -286,6 +288,22 @@ class TestPlotting(TestCase):
                                     title="Title")
 
 
+    def test_residues(self):
+        
+        plot_residues(boston['features'],
+                      boston['target'],
+                      boston['regression_pipeline'], 
+                      boston['features_columns'])     
+           
+    def test_model_coef_weight(self):
+        
+        coef = np.array([-39.29539212, 56.38758691, -7.72501075, 55.14748083, 47.09622402, -224.90523448, -135.84912488, 33.26157851, 85.88832604,
+                         2.82623224, 329.24528965, -90.46706709])
+        columns = np.array(['Length1', 'Length2', 'Length3', 'Height', 'Width', 'Species=Bream',
+                            'Species=Parkki', 'Species=Perch', 'Species=Pike', 'Species=Roach',
+                            'Species=Smelt', 'Species=Whitefish'])
+        
+        plot_model_coef_weight(coef, columns)
 
     def test_shap_classification_summary(self):     
             
@@ -305,3 +323,4 @@ class TestPlotting(TestCase):
                                             feature_names=iris['features_columns'],
                                             label_encoder=iris['label_encoder'],
                                             non_numerical_indexes=np.array([]))
+
