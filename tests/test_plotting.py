@@ -287,21 +287,21 @@ class TestPlotting(TestCase):
 
 
 
-def test_shap_classification_summary(self):     
-        
-    with self.assertWarns(expected_warning=Warning):
-                plot_shap_classification_summary(sklearn_model=iris['classification_pipeline'],
-                                        X=iris['features'],
-                                        Y=iris['target_encoded'],
-                                        feature_names=iris['features_columns'],
-                                        label_encoder=iris['label_encoder'],
-                                        non_numerical_indexes=np.array([1]))
+    def test_shap_classification_summary(self):     
+            
+        with self.assertWarns(expected_warning=Warning):
+                    plot_shap_classification_summary(pipeline=iris['classification_pipeline'],
+                                            X=iris['features'],
+                                            Y=iris['target_encoded'],
+                                            feature_names=iris['features_columns'],
+                                            label_encoder=iris['label_encoder'],
+                                            non_numerical_indexes=np.array([1]))
 
 
 
-    plot_shap_classification_summary(sklearn_model=iris['classification_pipeline'],
-                                        X=iris['features'],
-                                        Y=iris['target_encoded'],
-                                        feature_names=iris['features_columns'],
-                                        label_encoder=iris['label_encoder'],
-                                        non_numerical_indexes=np.array([]))
+        plot_shap_classification_summary(pipeline=iris['classification_pipeline'],
+                                            X=iris['features'],
+                                            Y=iris['target_encoded'],
+                                            feature_names=iris['features_columns'],
+                                            label_encoder=iris['label_encoder'],
+                                            non_numerical_indexes=np.array([]))
