@@ -1059,8 +1059,6 @@ def plot_shap_classification_summary(sklearn_model,
     """
     if  len(non_numerical_indexes)==0:
 
-
-
         explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
         shap_values = explainer.shap_values(X)
         
