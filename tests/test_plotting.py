@@ -302,7 +302,8 @@ class TestPlotting(TestCase):
         columns = np.array(['Length1', 'Length2', 'Length3', 'Height', 'Width', 'Species=Bream',
                             'Species=Parkki', 'Species=Perch', 'Species=Pike', 'Species=Roach',
                             'Species=Smelt', 'Species=Whitefish'])
-
+        
+        plot_model_coef_weight(coef, columns)
 
     def test_shap_classification_summary(self):     
             
