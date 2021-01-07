@@ -288,6 +288,7 @@ class TestPlotting(TestCase):
 
 
     def test_shap_classification_summary(self):
+       
         X_train,_,y_train,_ = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
         shap.initjs()
         dict_map = {0 : "iris-setosa", 1 : "iris-versicolor",2 : "iris-virginica"}
@@ -295,4 +296,5 @@ class TestPlotting(TestCase):
         label_encoder = LabelEncoder()
         y_train = label_encoder.fit_transform(y_train)
         clf = LogisticRegression(random_state=0)
-        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder)
+        clf.fit(X_train,y_train)
+        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder,non_numerical_indexes=np.array([]))
