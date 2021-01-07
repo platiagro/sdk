@@ -288,19 +288,6 @@ class TestPlotting(TestCase):
                                     title="Title")
 
 
-
-    def test_shap_classification_summary(self):
-       
-        X_train,_,y_train,_ = train_test_split(*shap.datasets.iris(), test_size=0.2, random_state=0)
-        shap.initjs()
-        dict_map = {0 : "iris-setosa", 1 : "iris-versicolor",2 : "iris-virginica"}
-        y_train = np.vectorize(dict_map.get)(y_train)
-        label_encoder = LabelEncoder()
-        y_train = label_encoder.fit_transform(y_train)
-        clf = LogisticRegression(random_state=0)
-        clf.fit(X_train,y_train)
-        plot_shap_classification_summary(sklearn_model=clf,X=X_train, Y=y_train,feature_names=X_train.columns,max_display=4,label_encoder=label_encoder,non_numerical_indexes=np.array([]))
-        
     def test_residues(self):
         
         plot_residues(boston['features'],
@@ -316,4 +303,23 @@ class TestPlotting(TestCase):
                             'Species=Parkki', 'Species=Perch', 'Species=Pike', 'Species=Roach',
                             'Species=Smelt', 'Species=Whitefish'])
 
-        plot_model_coef_weight(coef, columns)
+
+    def test_shap_classification_summary(self):     
+            
+        with self.assertWarns(expected_warning=Warning):
+                    plot_shap_classification_summary(pipeline=iris['classification_pipeline'],
+                                            X=iris['features'],
+                                            Y=iris['target_encoded'],
+                                            feature_names=iris['features_columns'],
+                                            label_encoder=iris['label_encoder'],
+                                            non_numerical_indexes=np.array([1]))
+
+
+
+        plot_shap_classification_summary(pipeline=iris['classification_pipeline'],
+                                            X=iris['features'],
+                                            Y=iris['target_encoded'],
+                                            feature_names=iris['features_columns'],
+                                            label_encoder=iris['label_encoder'],
+                                            non_numerical_indexes=np.array([]))
+

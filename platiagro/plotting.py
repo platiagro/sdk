@@ -1037,7 +1037,7 @@ def plot_simple_line_graph(x:np.ndarray,
     return ax
 
 
-def plot_shap_classification_summary(sklearn_model,
+def plot_shap_classification_summary(pipeline,
                                     X:np.ndarray,
                                     Y:np.ndarray,
                                     feature_names:List,
@@ -1061,7 +1061,7 @@ def plot_shap_classification_summary(sklearn_model,
     """
     if  len(non_numerical_indexes)==0:
 
-        explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
+        explainer = shap.KernelExplainer(pipeline.predict_proba, X)
         shap_values = explainer.shap_values(X)
         
         for i in range(len(explainer.expected_value)):

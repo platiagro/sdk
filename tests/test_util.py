@@ -229,13 +229,16 @@ def get_iris():
             'features': X,
             'target': y,
             'features_columns': X.columns,
+            'label_encoder':label_encoder,
             'target_encoded': y_enc}
 
     # Create and fit pipelines
     classification_pipeline = create_classification_pipeline(X, y_enc)
     clustering_pipeline = create_clustering_pipeline(X)
 
+    
     return {**data, **classification_pipeline, **clustering_pipeline}
+
 
 
 def get_boston():
