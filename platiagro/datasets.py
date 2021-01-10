@@ -99,6 +99,10 @@ def load_dataset(name: str,
             object_name=path.lstrip(f"{BUCKET_NAME}/"),
         )
         return BytesIO(data.read())
+    except KeyError:
+        # metadata file does not contains "columns" or "featuretypes"
+        # ignore this error and return dataset without cast its type
+        pass
     except FileNotFoundError:
         raise FileNotFoundError("The specified dataset does not exist")
 
