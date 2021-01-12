@@ -1,5 +1,9 @@
 import io
+import os
 import requests
+import shutil
+import zipfile
+
 
 import numpy as np
 import pandas as pd
@@ -15,7 +19,17 @@ from sklearn.linear_model import LinearRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.cluster import KMeans
 
+def download_zipfile(name):
+    if ".zip" in name:
+        name = name.replace(".zip","")
 
+    url = f"https://raw.githubusercontent.com/platiagro/datasets/master/samples/{name}.zip"
+    content = requests.get(url).content
+    os.makedirs("tmp/data", exist_ok=True)
+    with open(f"tmp/data/{name}.zip", "wb") as code:
+        code.write(content)
+
+    
 def download_dataset(name):
 
     url = f"https://raw.githubusercontent.com/platiagro/datasets/master/samples/{name}.csv"
