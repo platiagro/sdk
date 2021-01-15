@@ -149,14 +149,15 @@ def save_dataset(name: str,
     try:
         # gets metadata (if dataset exists)
         stored_metadata = stat_dataset(name, run_id)
+        metadata_should_be_updated = False
+
         # update stored metadata values
         if metadata:
             stored_metadata.update(metadata)
-            metadata_should_be_updated = False
-        else:
+        elif isinstance(data, pd.DataFrame):
             metadata_should_be_updated = True
-        metadata = stored_metadata
 
+        metadata = stored_metadata
         was_read_only = metadata.get("read_only", False)
     except FileNotFoundError:
         metadata_should_be_updated = False
