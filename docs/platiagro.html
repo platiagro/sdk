@@ -451,35 +451,6 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 </div>
-<div class="section" id="run-experiment">
-<h2>Run experiment<a class="headerlink" href="#run-experiment" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt id="platiagro.run_experiment">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">run_experiment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">project_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">experiment_name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">dataset_path</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.run_experiment" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs an experiment. Does not wait for a run to complete.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>project_name</strong> (<em>str</em>) – the project name.</p></li>
-<li><p><strong>experiment_name</strong> (<em>str</em>) – the experiment name.</p></li>
-<li><p><strong>dataset_path</strong> (<em>str</em>) – the path to a dataset file.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><ul class="simple">
-<li><p><strong>ValueError</strong> – when either the project or experiment does not exist.</p></li>
-<li><p><strong>RuntimeError</strong> – when PlatIAgro returns an error.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro</span> <span class="kn">import</span> <span class="n">run_experiment</span>
-
-<span class="n">run_experiment</span><span class="p">(</span><span class="n">project_name</span><span class="o">=</span><span class="s2">&quot;Sample Project&quot;</span><span class="p">,</span> <span class="n">experiment_name</span><span class="o">=</span><span class="s2">&quot;Experiment 1&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="s2">&quot;path/to/file&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -507,7 +478,6 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#list-and-save-figures">List and save figures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-feature-types">Get feature types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-artifact">Download artifact</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#run-experiment">Run experiment</a></li>
 </ul>
 </li>
 </ul>
