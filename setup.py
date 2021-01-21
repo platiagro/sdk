@@ -19,6 +19,9 @@ extras = {
         "shap==0.37.0",
         "seaborn>=0.10.0",
         "plotly>=4.14.1",
+        "tornado>=4.3,<6",
+        "ipykernel>=5.2.0",
+        "notebook>=6.0.2",
     ],
     "testing": [
         "pytest>=4.4.0",
