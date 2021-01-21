@@ -5,7 +5,6 @@ from tempfile import _get_candidate_names
 from typing import List, Optional
 
 import base64
-import matplotlib.figure
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
     get_experiment_id, get_operator_id, get_run_id, stat_metadata, operator_filepath
@@ -65,23 +64,20 @@ def list_figures(experiment_id: Optional[str] = None,
     return figures
 
 
-def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
+def save_figure(figure: [bytes, str],
                 extension: Optional[str] = None,
                 experiment_id: Optional[str] = None,
                 operator_id: Optional[str] = None,
                 run_id: Optional[str] = None):
-    """Saves a matplotlib figure to the object storage.
+    """Saves a figure to the object storage.
 
     Args:
-        figure (bytes, matplotlib.figure.Figure, str):
-            a base64 bytes or a matplotlib figure or a bae64 string.
+        figure (bytes, str):
+            a base64 bytes or a base64 string.
         extension (str, optional): the file extension when base64 is send. Defaults to None.
         experiment_id (str, optional): the experiment uuid. Defaults to None.
         operator_id (str, optional): the operator uuid. Defaults to None.
         run_id (str, optional): the run id. Defaults to None.
-
-    Raises:
-        TypeError: when a figure is not a matplotlib figure.
     """
     if experiment_id is None:
         # gets experiment_id from env variables
@@ -117,17 +113,11 @@ def save_figure(figure: [bytes, matplotlib.figure.Figure, str],
 
     random_str = next(_get_candidate_names())
 
-    if isinstance(figure, matplotlib.figure.Figure):
-        buffer = BytesIO()
-        figure.savefig(buffer, format="svg")
-        buffer.seek(0)
-        figure_name = f"figure-{random_str}.svg"
+    if extension == 'html':
+        buffer = BytesIO(figure.encode())
     else:
-        if extension == 'html':
-            buffer = BytesIO(figure.encode())
-        else:
-            buffer = BytesIO(base64.b64decode(figure))
-        figure_name = f"figure-{random_str}.{extension}"
+        buffer = BytesIO(base64.b64decode(figure))
+    figure_name = f"figure-{random_str}.{extension}"
 
     length = buffer.getbuffer().nbytes
 
