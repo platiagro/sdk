@@ -1,14 +1,17 @@
 import warnings
+import math
+from copy import deepcopy
+from typing import List,Tuple
 
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from typing import List,Tuple
-import math
-
 import shap
+from shap.plots._labels import labels
+import plotly.express as px
+
 import sklearn
 from sklearn import preprocessing
 from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fscore_support
@@ -17,9 +20,9 @@ from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
-from shap.plots._labels import labels
 
 warnings.filterwarnings("ignore")
 
@@ -501,6 +504,8 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
         (matplotlib.Axes): the axes object.
     """
 
+    pipeline = deepcopy(pipeline)
+
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
 
@@ -537,7 +542,7 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     return ax
 
 
-def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray, contour=False):
+def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
     """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
 
     Args:
@@ -547,11 +552,12 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
         y_train (np.ndarray): target used to train model.
         y_test (np.ndarray): target split used for tests.
         y_pred (np.ndarray): probability of each y_test class according to the model.
-        contour (boolean): plot contour if necessary.
 
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_train_trans = _transform_data(pipeline, x_train)
     x_test_trans = _transform_data(pipeline, x_test)
@@ -571,43 +577,10 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
 
     data_test['target'] = estimator.predict(data_test)
 
-    if contour:
-        # Create decision space
-        # Credit: https://machinelearningmastery.com/plot-a-decision-surface-for-machine-learning/
-
-        # Get mins and maxs
-        min1, max1 = data_test.iloc[:, 0].min()-1, data_test.iloc[:, 0].max()+1
-        min2, max2 = data_test.iloc[:, 1].min()-1, data_test.iloc[:, 1].max()+1
-
-        # Create a grid
-        x1grid = np.arange(min1, max1, 0.1)
-        x2grid = np.arange(min2, max2, 0.1)
-
-        # Create a meshgrid
-        xx, yy = np.meshgrid(x1grid, x2grid)
-
-        # Flatten matrixes
-        r1, r2 = xx.flatten(), yy.flatten()
-        r1, r2 = r1.reshape((len(r1), 1)), r2.reshape((len(r2), 1))
-
-        # Stack arrays
-        grid = np.hstack((r1,r2))
-
-        zz = None
-        try:
-            # Predict with grid
-            yhat = estimator.predict(grid)
-            zz = yhat.reshape(xx.shape)
-        except MemoryError:
-            pass
-
     # Plot data
     fig, ax = plt.subplots()
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
-
-    if contour and zz is not None:
-        ax.contourf(xx, yy, zz, cmap=cmap, alpha=0.3)
 
     ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
 
@@ -728,6 +701,8 @@ def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test
     Returns:
         (matplotlib.Axes): the axes object.
     """
+
+    pipeline = deepcopy(pipeline)
 
     x_trans = _transform_data(pipeline, x_test)
     
@@ -1028,12 +1003,13 @@ def plot_simple_line_graph(x:np.ndarray,
     return ax
 
 
-def plot_shap_classification_summary(sklearn_model,
+def plot_shap_classification_summary(pipeline,
                                     X:np.ndarray,
                                     Y:np.ndarray,
                                     feature_names:List,
-                                    max_display:int,
-                                    label_encoder=None):
+                                    label_encoder,
+                                    non_numerical_indexes,
+                                    max_display:int=None):
     
     """Plots summary of features contribution for each class
 
@@ -1042,21 +1018,94 @@ def plot_shap_classification_summary(sklearn_model,
         X (np.ndarray): input data .
         Y (str): output data.
         feature_names (List): List with evey input feature.
+        label_encoder : label encoder required for retrieving output class names
+        non_numerical_indexes (numpy.ndarray): Numpy array with the non numerical indexes related to the columns in X
         max_display (int): number of features that will be orderem by importance
-        label_encoder : label encoder required for retrieving output class names.
 
     Returns:
         
     """
+    if  len(non_numerical_indexes)==0:
 
-    sklearn_model.fit(X, Y)
-    explainer = shap.KernelExplainer(sklearn_model.predict_proba, X)
-    shap_values = explainer.shap_values(X)
-    for i in range(len(explainer.expected_value)):
-        shap.initjs()
-        plt.figure()
-        if label_encoder:
-            plt.title(label_encoder.inverse_transform([i])[0]) 
-        else:
-            plt.title(f"class_{i}")
-        shap.summary_plot(shap_values[i], X,feature_names=feature_names)
+        explainer = shap.KernelExplainer(pipeline.predict_proba, X)
+        shap_values = explainer.shap_values(X)
+        
+        for i in range(len(explainer.expected_value)):
+            shap.initjs()
+            cmap = sns.color_palette("Spectral_r", as_cmap=True)
+            plt.figure()
+            if label_encoder:
+                plt.title(label_encoder.inverse_transform([i])[0]) 
+            else:
+                plt.title(f"class_{i}")
+            shap.summary_plot(shap_values[i], X,feature_names=feature_names, show=False)
+            # Change the colormap of the artists
+
+            for fc in plt.gcf().get_children():
+                for fcc in fc.get_children():
+                    if hasattr(fcc, "set_cmap"):
+                        fcc.set_cmap(cmap)
+    else:
+        msg = "O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X"
+        warnings.warn(msg)
+        
+       
+def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
+    """Plot model residuos to compare predicted values.
+
+    Args:
+        X (np.ndarray): features.
+        y (np.ndarray): target.
+        model: regression model or pipeline.
+        columns (np.ndarray): dataset columns list.
+
+    Returns:
+        (plotely.express): the plotly object.
+    """
+    df = pd.DataFrame(X, columns = columns)
+    
+    train_idx, test_idx = train_test_split(df.index, test_size=.3, random_state=0)
+    df['split'] = 'train'
+    df.loc[test_idx, 'split'] = 'test'
+    
+    df['Predito'] = model.predict(df.drop(['split'], axis=1))
+    df['Residuo'] = df['Predito'] - y
+    
+    
+    palet_colors = ['#a40843', '#377fb9']
+
+    fig = px.scatter(
+        df, x='Predito', y='Residuo',
+        marginal_x='histogram', marginal_y='box',
+        color='split',
+        color_discrete_sequence = palet_colors,
+        title='Gráfico de Resíduos'
+    )
+    
+    return fig
+
+
+def plot_model_coef_weight(coef: np.ndarray, columns: np.ndarray):
+    """Transform data according to pipeline.
+
+    Args:
+        coef (np.ndarray): model coefficients list.
+        columns (np.ndarray): dataset columns list.
+        
+    Returns:
+        (plotely.express): the express object.
+    """ 
+    colors = ['Positivo' if c > 0 else 'Negativo' for c in coef]
+    
+    palet_colors = ['#a40843', '#377fb9']
+
+    fig = px.bar(
+        x=coef,
+        y = columns,
+        color=colors,
+        color_discrete_sequence = palet_colors,
+        labels = dict(x ='Coeficiente Linear', y ='Features'),
+        title='Contribuição de cada freature para a variável resposta'
+    )
+    
+    return fig
