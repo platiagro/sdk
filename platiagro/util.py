@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 from os import getenv
-from os.path import basename
 from typing import Optional
 
-from IPython.lib import kernel
 from json import loads
 from minio import Minio
 from minio.error import BucketAlreadyOwnedByYou, NoSuchBucket, NoSuchKey
-from notebook.services.contents.filemanager import FileContentsManager
-from requests import get
 from s3fs.core import S3FileSystem
-from traitlets.config import MultipleInstanceError
 from typing import Dict
 
 BUCKET_NAME = "anonymous"
@@ -69,22 +64,6 @@ def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None
     if experiment_id is not None:
         return experiment_id
 
-    try:
-        # get kernel id from running kernel
-        connection_file_path = kernel.get_connection_file()
-        connection_file = basename(connection_file_path)
-        kernel_id = connection_file.split("-", 1)[1].split(".")[0]
-
-        # then extract experiment id from notebook metadata
-        sessions = get(f"{JUPYTER_ENDPOINT}/api/sessions").json()
-        for sess in sessions:
-            if sess["kernel"]["id"] == kernel_id:
-                filename = sess["notebook"]["name"]
-                file = FileContentsManager().get(filename)
-                return file["content"]["metadata"].get("experiment_id")
-    except (RuntimeError, ConnectionError):
-        pass
-
     if raise_for_none:
         raise TypeError("experiment_id is undefined")
 
@@ -111,22 +90,6 @@ def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
 
     if operator_id is not None:
         return operator_id
-
-    try:
-        # get kernel id from running kernel
-        connection_file_path = kernel.get_connection_file()
-        connection_file = basename(connection_file_path)
-        kernel_id = connection_file.split("-", 1)[1].split(".")[0]
-
-        # then extract experiment id from notebook metadata
-        sessions = get(f"{JUPYTER_ENDPOINT}/api/sessions").json()
-        for sess in sessions:
-            if sess["kernel"]["id"] == kernel_id:
-                filename = sess["notebook"]["name"]
-                file = FileContentsManager().get(filename)
-                return file["content"]["metadata"].get("operator_id")
-    except (RuntimeError, ConnectionError, MultipleInstanceError):
-        pass
 
     if raise_for_none:
         raise TypeError("operator_id is undefined")
