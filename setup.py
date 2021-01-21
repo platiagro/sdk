@@ -19,7 +19,7 @@ extras = {
         "shap==0.37.0",
         "seaborn>=0.10.0",
         "plotly>=4.14.1",
-    ]
+    ],
     "testing": [
         "pytest>=4.4.0",
         "pytest-xdist==1.31.0",
