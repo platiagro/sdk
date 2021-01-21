@@ -1,7 +1,6 @@
 from platiagro.artifacts import download_artifact
 from platiagro.datasets import list_datasets, load_dataset, save_dataset, \
     stat_dataset, download_dataset, update_dataset_metadata
-from platiagro.experiments import run as run_experiment
 from platiagro.featuretypes import infer_featuretypes, validate_featuretypes, \
     DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.figures import list_figures, save_figure
@@ -11,7 +10,6 @@ from platiagro.models import load_model, save_model
 __all__ = ["download_artifact",
            "list_datasets", "load_dataset", "save_dataset", "stat_dataset",
            "download_dataset", "update_dataset_metadata",
-           "run_experiment",
            "infer_featuretypes", "validate_featuretypes",
            "DATETIME", "CATEGORICAL", "NUMERICAL",
            "list_figures", "save_figure",
