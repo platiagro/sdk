@@ -38,7 +38,9 @@ def list_datasets() -> List[str]:
 
 def load_dataset(name: str,
                  run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
+                 operator_id: Optional[str] = None,
+                 page: Optional[int] = None,
+                 page_size: Optional[int] = None) -> Union[pd.DataFrame, BinaryIO]:
     """Retrieves the contents of a dataset.
 
     If run_id exists, then loads the dataset from the specified run.
@@ -82,9 +84,19 @@ def load_dataset(name: str,
     # builds the path to the dataset file
     path = data_filepath(name, run_id, operator_id)
 
+    if page_size and page_size > 0:
+        nrows = page_size
+    else:
+        nrows = None
+
+    if page and page > 0:
+        skiprows = (page - 1) * page_size
+    else:
+        skiprows = None
+
     try:
         metadata = stat_dataset(name, run_id, operator_id)
-        dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False)
+        dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False, nrows=nrows, skiprows=skiprows)
 
         dtypes = dict(
             (column, "object")
@@ -183,6 +195,7 @@ def save_dataset(name: str,
         # sets metadata specific for pandas.DataFrame:
         # columns, featuretypes
         metadata["columns"] = data.columns.tolist()
+        metadata["total"] = len(data.index)
 
         if "featuretypes" not in metadata:
             metadata["featuretypes"] = infer_featuretypes(data)
