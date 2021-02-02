@@ -195,6 +195,7 @@ def save_dataset(name: str,
         # sets metadata specific for pandas.DataFrame:
         # columns, featuretypes
         metadata["columns"] = data.columns.tolist()
+        metadata["total"] = len(data.index)
 
         if "featuretypes" not in metadata:
             metadata["featuretypes"] = infer_featuretypes(data)
