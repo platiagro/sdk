@@ -84,17 +84,17 @@ def load_dataset(name: str,
     # builds the path to the dataset file
     path = data_filepath(name, run_id, operator_id)
 
+    if page_size and page_size > 0:
+        nrows = page_size
+    else:
+        nrows = None
+
+    if page and page > 0:
+        skiprows = (page - 1) * page_size
+    else:
+        skiprows = None
+
     try:
-        if page_size and page_size > 0:
-            nrows = page_size
-        else:
-            nrows = None
-
-        if page and page > 0:
-            skiprows = (page - 1) * page_size
-        else:
-            skiprows = None
-
         metadata = stat_dataset(name, run_id, operator_id)
         dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False, nrows=nrows, skiprows=skiprows)
 
