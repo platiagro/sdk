@@ -1025,6 +1025,9 @@ def plot_shap_classification_summary(pipeline,
     Returns:
         
     """
+    X = pd.DataFrame(X)
+    X =  X.sample(n = 100) if len(X) > 100 else X  
+
     if  len(non_numerical_indexes)==0:
 
         explainer = shap.KernelExplainer(pipeline.predict_proba, X)
@@ -1062,7 +1065,9 @@ def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
     Returns:
         (plotely.express): the plotly object.
     """
+
     df = pd.DataFrame(X, columns = columns)
+    
     
     train_idx, test_idx = train_test_split(df.index, test_size=.3, random_state=0)
     df['split'] = 'train'
