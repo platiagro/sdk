@@ -29,6 +29,9 @@ def list_figures(experiment_id: Optional[str] = None,
     if operator_id is None:
         operator_id = get_operator_id()
 
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
     if run_id is None:
         # gets run_id from env variable
         # Attention: returns None if env is unset
@@ -41,9 +44,6 @@ def list_figures(experiment_id: Optional[str] = None,
             return []
 
     figures = []
-
-    # ensures MinIO bucket exists
-    make_bucket(BUCKET_NAME)
 
     prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)

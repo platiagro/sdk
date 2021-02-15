@@ -33,6 +33,9 @@ def list_metrics(experiment_id: Optional[str] = None,
     if operator_id is None:
         operator_id = get_operator_id()
 
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
     if run_id is None:
         # gets run_id from env variable
         # Attention: returns None if env is unset
@@ -43,9 +46,6 @@ def list_metrics(experiment_id: Optional[str] = None,
             run_id = metadata.get("run_id")
         except FileNotFoundError:
             return []
-
-    # ensures MinIO bucket exists
-    make_bucket(BUCKET_NAME)
 
     try:
         object_name = operator_filepath(METRICS_FILE, experiment_id, operator_id, run_id)
@@ -84,6 +84,9 @@ def save_metrics(experiment_id: Optional[str] = None,
         # Attention: returns None if env is unset
         run_id = get_run_id()
 
+    # ensures MinIO bucket exists
+    make_bucket(BUCKET_NAME)
+
     if run_id:
         metadata = {}
         try:
@@ -102,9 +105,6 @@ def save_metrics(experiment_id: Optional[str] = None,
             data=buffer,
             length=buffer.getbuffer().nbytes,
         )
-
-    # ensures MinIO bucket exists
-    make_bucket(BUCKET_NAME)
 
     object_name = operator_filepath(METRICS_FILE, experiment_id, operator_id, run_id)
 
