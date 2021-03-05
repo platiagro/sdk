@@ -22,7 +22,7 @@ class TestPipeline(TestCase):
         gt = GuaranteeType()
 
         assert gt.fit(x).dtype == float
-        assert gt.transform(x) == float
-        assert gt.fit_transform(x) == float
-        assert gt.predict(x) == float
-        assert gt.predict_proba(x) == float
+        assert gt.transform(x).dtype == float
+        assert gt.fit_transform(x).dtype == float
+        assert gt.predict(x).dtype == float
+        assert gt.predict_proba(x).dtype == float
