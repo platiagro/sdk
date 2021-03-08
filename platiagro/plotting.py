@@ -473,8 +473,10 @@ def _select_columns(x_train_trans, y_train, columns, classification=False):
         (np.ndarray): the axes object.
     """
 
-    if len(columns) <= 2:
-        return columns
+    if len(columns) == 2:
+        return [0, 1]
+    elif len(columns) == 1:
+        return [0]
 
     estimator = None
 
