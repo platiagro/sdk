@@ -197,11 +197,7 @@ class TestDatasets(TestCase):
         })
 
         df = pd.DataFrame({"col0": []})
-        save_dataset("test.csv", df, read_only=True)
-
-        with self.assertRaises(PermissionError):
-            df = pd.DataFrame({"col0": []})
-            save_dataset("test.csv", df)
+        save_dataset("test.csv", df)
 
         df = pd.DataFrame(
             data=[self.mock_values() for x in range(int(1e2))],
