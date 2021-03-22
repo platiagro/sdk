@@ -125,7 +125,6 @@ def save_dataset(name: str,
                  data: Union[pd.DataFrame, BinaryIO] = None,
                  df: pd.DataFrame = None,
                  metadata: Optional[Dict[str, str]] = None,
-                 read_only: bool = False,
                  run_id: Optional[str] = None,
                  operator_id: Optional[str] = None):
     """Saves a dataset and its metadata to the object storage.
@@ -137,8 +136,7 @@ def save_dataset(name: str,
         df (pandas.DataFrame, optional): the dataset contents as an `pandas.DataFrame`.
             df exists only for compatibility with existing components.
             Use "data" for all types of datasets. Defaults to None.
-        metadata (dict, optional): metadata about the dataset. Defaults to None.
-        read_only (bool, optional): whether the dataset will be read only. Defaults to False.
+        metadata (dict, optional): metadata about the dataset. Defaults to None..
         run_id (str, optional): the run id. Defaults to None.
         operator_id (str, optional): the operator uuid. Defaults to None.
 
@@ -170,21 +168,15 @@ def save_dataset(name: str,
             metadata_should_be_updated = True
 
         metadata = stored_metadata
-        was_read_only = metadata.get("read_only", False)
     except FileNotFoundError:
         metadata_should_be_updated = False
-        was_read_only = False
-
-    if was_read_only:
-        raise PermissionError("The specified dataset was marked as read only")
 
     # builds metadata dict:
-    # sets filename, read_only, run_id
+    # sets filename and run_id
     if metadata is None:
         metadata = {}
 
     metadata["filename"] = name
-    metadata["read_only"] = read_only
 
     # df exists only for compatibility with existing components
     # from now on one must use "data" for all types of datasets
