@@ -6,7 +6,6 @@ from json import dumps, loads
 from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
-from numpy import delete
 from minio.error import NoSuchBucket, NoSuchKey
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
@@ -158,6 +157,11 @@ def save_dataset(name: str,
         # Attention: returns None if env is unset
         operator_id = get_operator_id(raise_for_none=False)
 
+    # df exists only for compatibility with existing components
+    # from now on one must use "data" for all types of datasets
+    if df is not None:
+        data = df
+
     try:
         # gets metadata (if dataset exists)
         stored_metadata = stat_dataset(name, run_id)
@@ -186,11 +190,6 @@ def save_dataset(name: str,
     metadata["filename"] = name
     metadata["read_only"] = read_only
 
-    # df exists only for compatibility with existing components
-    # from now on one must use "data" for all types of datasets
-    if df is not None:
-        data = df
-
     if isinstance(data, pd.DataFrame):
         # sets metadata specific for pandas.DataFrame:
         # columns, featuretypes
@@ -203,19 +202,19 @@ def save_dataset(name: str,
     # if the metadata was given (set manually), ignore updates, otherwise
     # search for changes and then update current featuretypes to be even with columns
     if metadata_should_be_updated:
-        previous_columns = stat_dataset(name, run_id)["columns"]
-        added_columns = set(metadata["columns"]).difference(previous_columns)
-        removed_columns = set(previous_columns).difference(metadata["columns"])
+        previous_metadata = stat_dataset(name, run_id)
+        previous_columns = previous_metadata["columns"]
+        previous_featuretypes = previous_metadata["featuretypes"]
+        column_to_type = dict(zip(previous_columns, previous_featuretypes))
 
-        if removed_columns:
-            indexes = [previous_columns.index(column) for column in removed_columns]
-            metadata["featuretypes"] = delete(metadata["featuretypes"], indexes).tolist()
+        new_featuretypes = []
+        for new_column in metadata["columns"]:
+            if new_column in column_to_type:
+                new_featuretypes.append(column_to_type[new_column])
+            else:
+                new_featuretypes.append(infer_featuretypes(pd.DataFrame(data[new_column]))[0])
 
-        if added_columns:
-            for column in added_columns:
-                column_type = infer_featuretypes(pd.DataFrame(data[column]))[0]
-                column_index = metadata["columns"].index(column)
-                metadata["featuretypes"].insert(column_index, column_type)
+        metadata["featuretypes"] = new_featuretypes
 
     if run_id:
         metadata["run_id"] = run_id
