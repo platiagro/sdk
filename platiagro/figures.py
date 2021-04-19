@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps
-from tempfile import _get_candidate_names
 from typing import List, Optional
 
 import base64
@@ -111,13 +110,13 @@ def save_figure(figure: [bytes, str],
             length=buffer.getbuffer().nbytes,
         )
 
-    random_str = next(_get_candidate_names())
-
     if extension == 'html':
         buffer = BytesIO(figure.encode())
     else:
         buffer = BytesIO(base64.b64decode(figure))
-    figure_name = f"figure-{random_str}.{extension}"
+
+    seq = iter(range(1, 100))
+    figure_name = f"figure-{next(seq)}.{extension}"
 
     length = buffer.getbuffer().nbytes
 
