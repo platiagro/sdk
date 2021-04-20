@@ -2,6 +2,7 @@
 from io import BytesIO
 from json import dumps
 from typing import List, Optional
+from datetime import datetime
 
 import base64
 
@@ -115,8 +116,8 @@ def save_figure(figure: [bytes, str],
     else:
         buffer = BytesIO(base64.b64decode(figure))
 
-    seq = iter(range(1, 100))
-    figure_name = f"figure-{next(seq)}.{extension}"
+    pref = datetime.now().strftime("%y%m%d%H%M%S")
+    figure_name = f"figure-{pref}.{extension}"
 
     length = buffer.getbuffer().nbytes
 
