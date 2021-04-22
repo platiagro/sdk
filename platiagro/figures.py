@@ -61,7 +61,7 @@ def list_figures(experiment_id: Optional[str] = None,
         else:
             figure = f"data:image/{file_extension};base64,{encoded_figure}"
         figures.append(figure)
-    return figures
+    return sorted(figures)
 
 
 def save_figure(figure: [bytes, str],
@@ -116,7 +116,7 @@ def save_figure(figure: [bytes, str],
     else:
         buffer = BytesIO(base64.b64decode(figure))
 
-    pref = datetime.now().strftime("%y%m%d%H%M%S")
+    pref = datetime.now().strftime("%y%m%d%H%M%S%f")
     figure_name = f"figure-{pref}.{extension}"
 
     length = buffer.getbuffer().nbytes
