@@ -61,7 +61,7 @@ def list_figures(experiment_id: Optional[str] = None,
         else:
             figure = f"data:image/{file_extension};base64,{encoded_figure}"
         figures.append(figure)
-    return sorted(figures)
+    return figures
 
 
 def save_figure(figure: [bytes, str],
