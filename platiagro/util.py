@@ -43,7 +43,7 @@ def make_bucket(name: str):
         pass
 
 
-def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None):
+def get_experiment_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an experiment id in various locations.
 
     1st env variable "EXPERIMENT_ID".
@@ -70,7 +70,7 @@ def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None
     return default
 
 
-def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
+def get_operator_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an operator id in various locations.
 
     1st env variable "OPERATOR_ID".

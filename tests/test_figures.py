@@ -97,8 +97,6 @@ class TestFigures(TestCase):
         environ["EXPERIMENT_ID"] = "testHtmlFigure"
         environ["OPERATOR_ID"] = "testHtmlFigure"
         environ["RUN_ID"] = RUN_ID
-        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
-        environ["MONITORING_ID"] = "testHtmlFigure"
         html_figure = '<html><body></body></html>'
         save_figure(figure=html_figure, extension='html')
 
@@ -108,5 +106,15 @@ class TestFigures(TestCase):
         del environ["EXPERIMENT_ID"]
         del environ["OPERATOR_ID"]
         del environ["RUN_ID"]
+
+    def test_save_html_figure_deploy_monit_id(self):
+        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
+        environ["MONITORING_ID"] = "testHtmlFigure"
+        html_figure = '<html><body></body></html>'
+        save_figure(figure=html_figure, extension='html')
+
+        expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
+        self.assertEqual(expected, list_figures())
+
         del environ["DEPLOYMENT_ID"]
         del environ["MONITORING_ID"]
