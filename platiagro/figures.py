@@ -13,7 +13,9 @@ from platiagro.util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
 
 def list_figures(experiment_id: Optional[str] = None,
                  operator_id: Optional[str] = None,
-                 run_id: Optional[str] = None) -> List[str]:
+                 run_id: Optional[str] = None,
+                 deployment_id: Optional[str] = None,
+                 monitoring_id: Optional[str] = None) -> List[str]:
     """Lists all figures from object storage as data URI scheme.
 
     Args:
@@ -29,6 +31,12 @@ def list_figures(experiment_id: Optional[str] = None,
 
     if operator_id is None:
         operator_id = get_operator_id()
+
+    if deployment_id is None:
+        deployment_id = get_deployment_id()
+
+    if monitoring_id is None:
+        monitoring_id = get_monitoring_id()
 
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
@@ -46,8 +54,13 @@ def list_figures(experiment_id: Optional[str] = None,
 
     figures = []
 
-    prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
+    if deployment_id is not None:
+        prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/"
+    else:
+        prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
+
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
+
     for obj in objects:
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,

@@ -120,6 +120,7 @@ def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
 
     return default
 
+
 def get_deployment_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an run id in env variable "DEPLOYMENT_ID".
 
@@ -142,6 +143,7 @@ def get_deployment_id(raise_for_none: bool = False, default: Optional[str] = Non
         raise TypeError("deployment_id is undefined")
 
     return default
+
 
 def get_monitoring_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an run id in env variable "MONITORING_ID".

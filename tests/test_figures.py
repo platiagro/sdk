@@ -32,7 +32,11 @@ class TestFigures(TestCase):
             pass
 
     def create_mock_figure(self):
-        file = BytesIO(b'<svg viewBox=\'0 0 125 80\' xmlns=\'http://www.w3.org/2000/svg\'>\n  <text y="75" font-size="100" font-family="serif"><![CDATA[10]]></text>\n</svg>\n')
+        file = BytesIO(
+            b'<svg viewBox=\'0 0 125 80\' xmlns=\'http://www.w3.org/2000/svg\'>\n'
+            b'<text y="75" font-size="100" font-family="serif"><![CDATA[10]]></text>\n'
+            b'</svg>\n'
+            )
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name="experiments/test/operators/test/figure-123456.svg",
@@ -93,6 +97,8 @@ class TestFigures(TestCase):
         environ["EXPERIMENT_ID"] = "testHtmlFigure"
         environ["OPERATOR_ID"] = "testHtmlFigure"
         environ["RUN_ID"] = RUN_ID
+        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
+        environ["MONITORING_ID"] = "testHtmlFigure"
         html_figure = '<html><body></body></html>'
         save_figure(figure=html_figure, extension='html')
 
@@ -102,3 +108,5 @@ class TestFigures(TestCase):
         del environ["EXPERIMENT_ID"]
         del environ["OPERATOR_ID"]
         del environ["RUN_ID"]
+        del environ["DEPLOYMENT_ID"]
+        del environ["MONITORING_ID"]
