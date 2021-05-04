@@ -5,7 +5,6 @@ from os import environ
 from unittest import TestCase
 from uuid import uuid4
 
-import numpy as np
 import pandas as pd
 from minio.error import BucketAlreadyOwnedByYou
 from platiagro import list_metrics, save_metrics
@@ -43,13 +42,7 @@ class TestMetrics(TestCase):
         with self.assertRaises(FileNotFoundError):
             list_metrics("UNK", "UNK")
 
-        with self.assertRaises(TypeError):
-            list_metrics()
-
         environ["EXPERIMENT_ID"] = EXPERIMENT_ID
-        with self.assertRaises(TypeError):
-            list_metrics()
-
         environ["OPERATOR_ID"] = OPERATOR_ID
         metrics = list_metrics()
         self.assertIsInstance(metrics, list)
@@ -62,13 +55,7 @@ class TestMetrics(TestCase):
         self.assertDictEqual(metrics[0], {"accuracy": 1.0})
 
     def test_save_metrics(self):
-        with self.assertRaises(TypeError):
-            save_metrics(accuracy=1.0)
-
         environ["EXPERIMENT_ID"] = EXPERIMENT_ID
-        with self.assertRaises(TypeError):
-            save_metrics(accuracy=1.0)
-
         environ["OPERATOR_ID"] = OPERATOR_ID
         with self.assertRaises(TypeError):
             save_metrics(accuracy=lambda x: "WUT")

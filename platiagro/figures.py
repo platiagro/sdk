@@ -7,12 +7,15 @@ from datetime import datetime
 import base64
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, make_bucket, \
-    get_experiment_id, get_operator_id, get_run_id, stat_metadata, operator_filepath
+    get_experiment_id, get_operator_id, get_run_id, get_deployment_id, get_monitoring_id, \
+    stat_metadata, operator_filepath
 
 
 def list_figures(experiment_id: Optional[str] = None,
                  operator_id: Optional[str] = None,
-                 run_id: Optional[str] = None) -> List[str]:
+                 run_id: Optional[str] = None,
+                 deployment_id: Optional[str] = None,
+                 monitoring_id: Optional[str] = None) -> List[str]:
     """Lists all figures from object storage as data URI scheme.
 
     Args:
@@ -28,6 +31,12 @@ def list_figures(experiment_id: Optional[str] = None,
 
     if operator_id is None:
         operator_id = get_operator_id()
+
+    if deployment_id is None:
+        deployment_id = get_deployment_id()
+
+    if monitoring_id is None:
+        monitoring_id = get_monitoring_id()
 
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
@@ -45,8 +54,13 @@ def list_figures(experiment_id: Optional[str] = None,
 
     figures = []
 
-    prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
+    if deployment_id is not None:
+        prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/"
+    else:
+        prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
+
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
+
     for obj in objects:
         data = MINIO_CLIENT.get_object(
             bucket_name=BUCKET_NAME,
@@ -68,7 +82,9 @@ def save_figure(figure: [bytes, str],
                 extension: Optional[str] = None,
                 experiment_id: Optional[str] = None,
                 operator_id: Optional[str] = None,
-                run_id: Optional[str] = None):
+                run_id: Optional[str] = None,
+                deployment_id: Optional[str] = None,
+                monitoring_id: Optional[str] = None):
     """Saves a figure to the object storage.
 
     Args:
@@ -78,6 +94,8 @@ def save_figure(figure: [bytes, str],
         experiment_id (str, optional): the experiment uuid. Defaults to None.
         operator_id (str, optional): the operator uuid. Defaults to None.
         run_id (str, optional): the run id. Defaults to None.
+        deployment_id (str, optional): the deployment id. Defaults to None.
+        monitoring_id (str, optional): the monitoring id. Defaults to None.
     """
     if experiment_id is None:
         # gets experiment_id from env variables
@@ -91,6 +109,16 @@ def save_figure(figure: [bytes, str],
         # gets run_id from env variables
         # Attention: returns None if env is unset
         run_id = get_run_id()
+
+    if deployment_id is None:
+        # gets run_id from env variables
+        # Attention: returns None if env is unset
+        deployment_id = get_deployment_id()
+
+    if monitoring_id is None:
+        # gets run_id from env variables
+        # Attention: returns None if env is unset
+        monitoring_id = get_monitoring_id()
 
     if run_id:
         metadata = {}
@@ -122,7 +150,11 @@ def save_figure(figure: [bytes, str],
     length = buffer.getbuffer().nbytes
 
     # uploads figure to MinIO
-    object_name = operator_filepath(figure_name, experiment_id, operator_id, run_id)
+    if deployment_id is not None:
+        object_name = f"deployments/{deployment_id}/monitorings/{monitoring_id}/{figure_name}"
+    else:
+        object_name = operator_filepath(figure_name, experiment_id, operator_id, run_id)
+
     MINIO_CLIENT.put_object(
         bucket_name=BUCKET_NAME,
         object_name=object_name,

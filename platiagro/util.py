@@ -43,7 +43,7 @@ def make_bucket(name: str):
         pass
 
 
-def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None):
+def get_experiment_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an experiment id in various locations.
 
     1st env variable "EXPERIMENT_ID".
@@ -70,7 +70,7 @@ def get_experiment_id(raise_for_none: bool = True, default: Optional[str] = None
     return default
 
 
-def get_operator_id(raise_for_none: bool = True, default: Optional[str] = None):
+def get_operator_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an operator id in various locations.
 
     1st env variable "OPERATOR_ID".
@@ -117,6 +117,54 @@ def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
 
     if raise_for_none:
         raise TypeError("run_id is undefined")
+
+    return default
+
+
+def get_deployment_id(raise_for_none: bool = False, default: Optional[str] = None):
+    """Looks for an run id in env variable "DEPLOYMENT_ID".
+
+    Args:
+        raise_for_none (bool): Whether to raise TypeError if deployment id is undefined. Defaults to False.
+        default (str): A default value to return deployment id is undefined. Defaults to None.
+
+    Returns:
+        str: the deployment uuid.
+
+    Raises:
+        TypeError: when raise_for_none is True and deployment id is undefinded.
+    """
+    deployment_id = getenv("DEPLOYMENT_ID")
+
+    if deployment_id is not None:
+        return deployment_id
+
+    if raise_for_none:
+        raise TypeError("deployment_id is undefined")
+
+    return default
+
+
+def get_monitoring_id(raise_for_none: bool = False, default: Optional[str] = None):
+    """Looks for an run id in env variable "MONITORING_ID".
+
+    Args:
+        raise_for_none (bool): Whether to raise TypeError if monitoring id is undefined. Defaults to False.
+        default (str): A default value to return monitoring id is undefined. Defaults to None.
+
+    Returns:
+        str: the monitoring uuid.
+
+    Raises:
+        TypeError: when raise_for_none is True and monitoring id is undefinded.
+    """
+    monitoring_id = getenv("MONITORING_ID")
+
+    if monitoring_id is not None:
+        return monitoring_id
+
+    if raise_for_none:
+        raise TypeError("monitoring_id is undefined")
 
     return default
 
