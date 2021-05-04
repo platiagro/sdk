@@ -45,9 +45,6 @@ class TestModels(TestCase):
         )
 
     def test_load_model(self):
-        with self.assertRaises(TypeError):
-            load_model()
-
         environ["EXPERIMENT_ID"] = EXPERIMENT_ID
         environ["OPERATOR_ID"] = OPERATOR_ID
         model = load_model()

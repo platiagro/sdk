@@ -45,12 +45,9 @@ class TestFigures(TestCase):
         )
 
     def test_list_figures(self):
-        with self.assertRaises(TypeError):
-            list_figures()
-
         environ["EXPERIMENT_ID"] = "test"
-        with self.assertRaises(TypeError):
-            list_figures()
+        result = list_figures()
+        self.assertTrue(isinstance(result, list))
 
         environ["OPERATOR_ID"] = "test"
         result = list_figures()
