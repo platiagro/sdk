@@ -39,10 +39,7 @@ def create_task(name: str,
             "is_default": is_default
         }
 
-    try:
-        response = requests.post(url=PROJECTS_ENDPOINT, data=json.dumps(data))
-        if response.status_code == 200:
-            return response.json()
-    except requests.exceptions.RequestException as e:
-        logging.exception("Error occurred: {}".format(e))
-        return {}
+    response = requests.post(url=PROJECTS_ENDPOINT, data=json.dumps(data))
+
+    if response.ok:
+        return response.json()
