@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import requests
+import logging
 from typing import Dict, List, Optional
 from platiagro.util import PROJECTS_ENDPOINT
 
@@ -38,6 +39,10 @@ def create_task(name: str,
             "is_default": is_default
         }
 
-    response = requests.post(url=PROJECTS_ENDPOINT, data=json.dumps(data))
-
-    return response.json()
+    try:
+        response = requests.post(url=PROJECTS_ENDPOINT, data=json.dumps(data))
+        if response.status_code == 200:
+            return response.json()
+    except requests.exceptions.RequestException as e:
+        logging.exception("Error occurred: {}".format(e))
+        return {}
