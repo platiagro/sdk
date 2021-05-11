@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
-import requests
-import logging
 from typing import Dict, List, Optional
+import requests
 from platiagro.util import PROJECTS_ENDPOINT
 
 
