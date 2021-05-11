@@ -9,7 +9,7 @@ class TestTasks(TestCase):
     def test_create_tasks(self):
         response = create_task(
             "teste-task",
-            "Teste para criacao de uma tarefa ")
+        )
         self.assertIsInstance(response, dict)
 
 
