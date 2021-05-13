@@ -48,6 +48,6 @@ def create_task(name, **kwargs):
             "is_default": is_default
         }
 
-    response = requests.post(url=f"http://{PROJECTS_ENDPOINT}/tasks", data=json.dumps(data))
+    response = requests.post(url=f"{PROJECTS_ENDPOINT}/tasks", data=json.dumps(data))
 
     return response.json()
