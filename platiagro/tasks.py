@@ -1,25 +1,35 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Dict, List, Optional
 import requests
 from platiagro.util import PROJECTS_ENDPOINT
 
 
-def create_task(name: str,
-                description: Optional[str] = None,
-                tags: Optional[List[str]] = None,
-                copy_from: Optional[str] = None,
-                image: Optional[str] = None,
-                commands: Optional[str] = None,
-                arguments: Optional[str] = None,
-                parameters: Optional[List] = None,
-                experiment_notebook: Optional[Dict] = None,
-                deployment_notebook: Optional[Dict] = None,
-                cpu_limit: Optional[str] = None,
-                cpu_request: Optional[str] = None,
-                memory_limit: Optional[str] = None,
-                memory_request: Optional[str] = None,
-                is_default: Optional[bool] = None):
+def create_task(name, **kwargs):
+    """API to create tasks.
+
+    Args:
+        name (str): the task name.
+        **kwargs
+            Arbitrary keyword arguments.
+
+    Returns:
+        dict: a dictionary with information about the created task.
+    """
+    description = kwargs.get("description")
+    tags = kwargs.get("tags")
+    copy_from = kwargs.get("copy_from")
+    image = kwargs.get("image")
+    commands = kwargs.get("commands")
+    arguments = kwargs.get("arguments")
+    parameters = kwargs.get("parameters")
+    experiment_notebook = kwargs.get("experiment_notebook")
+    deployment_notebook = kwargs.get("deployment_notebook")
+    cpu_limit = kwargs.get("cpu_limit")
+    cpu_request = kwargs.get("cpu_request")
+    memory_limit = kwargs.get("memory_limit")
+    memory_request = kwargs.get("memory_request")
+    is_default = kwargs.get("is_default")
+
     data = {
             "name": name,
             "description": description,
@@ -38,7 +48,6 @@ def create_task(name: str,
             "is_default": is_default
         }
 
-    response = requests.post(url=PROJECTS_ENDPOINT, data=json.dumps(data))
+    response = requests.post(url=f"http://{PROJECTS_ENDPOINT}/tasks", data=json.dumps(data))
 
-    if response.ok:
-        return response.json()
+    return response.json()
