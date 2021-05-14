@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import json
 import requests
 from platiagro.util import PROJECTS_ENDPOINT
 
@@ -41,13 +40,13 @@ def create_task(name, **kwargs):
             "parameters": parameters,
             "experiment_notebook": experiment_notebook,
             "deployment_notebook": deployment_notebook,
-            "cpu_limit": cpu_limit,
-            "cpu_request": cpu_request,
-            "memory_limit": memory_limit,
-            "memory_request": memory_request,
-            "is_default": is_default
+            "cpuLimit": cpu_limit,
+            "cpuRequest": cpu_request,
+            "memoryLimit": memory_limit,
+            "memoryRequest": memory_request,
+            "isDefault": is_default
         }
 
-    response = requests.post(url=f"http://{PROJECTS_ENDPOINT}/tasks", data=json.dumps(data))
+    response = requests.post(url=f"{PROJECTS_ENDPOINT}/tasks", json=data)
 
-    return response.json()
+    return response
