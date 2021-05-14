@@ -12,8 +12,7 @@ class TestTasks(TestCase):
         mock_post.return_value = mock_response
 
         response = create_task("TestTasks")
-        expected = {"name": "TestTasks"}
-        self.assertDictEqual(expected, response)
+        self.assertEqual(response.status_code, 200)
 
 
 if __name__ == "__main__":
