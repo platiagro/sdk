@@ -12,7 +12,7 @@ def create_task(name, **kwargs):
             Arbitrary keyword arguments.
 
     Returns:
-        dict: a dictionary with information about the created task.
+        requests.Response: the response returned by PlatIAgro Projects API.
     """
     description = kwargs.get("description")
     tags = kwargs.get("tags")
