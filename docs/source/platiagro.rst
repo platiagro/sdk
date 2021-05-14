@@ -201,3 +201,50 @@ Create tasks
   from platiagro import create_task
 
   create_task(name = "", **kwargs)
+
+Runs deployments
+----------------
+
+.. currentmodule:: platiagro
+
+.. autofunction:: list_projects
+
+.. code-block:: python
+
+  from platiagro import list_projects
+
+  list_projects()
+
+.. autofunction:: get_project_name
+
+.. code-block:: python
+
+  get_project_name(project_name: str):
+
+  projects = list_projects()
+
+.. autofunction:: list_deployments
+
+.. code-block:: python
+
+  list_deployments(project_name: str)
+
+  project = get_project_name(project_name)
+
+.. autofunction:: get_deployment_name
+
+.. code-block:: python
+
+  get_deployment_name(deployment_name: str, project_name: str)
+
+  deployments = list_deployments(project_name)
+
+.. autofunction:: run_deployments
+
+.. code-block:: python
+
+  run_deployments(deployment_name: str, project_name: str)
+
+  project = get_project_name(project_name)
+
+  deployment = get_deployment_name(deployment_name, project_name)
