@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Functions you may use in your components: &#8212; PlatIAgro 0.0.2 documentation</title>
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
@@ -31,13 +32,13 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="functions-you-may-use-in-your-components">
+  <section id="functions-you-may-use-in-your-components">
 <h1>Functions you may use in your components:<a class="headerlink" href="#functions-you-may-use-in-your-components" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="list-load-and-save-datasets">
+<section id="list-load-and-save-datasets">
 <h2>List, load and save datasets<a class="headerlink" href="#list-load-and-save-datasets" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.list_datasets">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">list_datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#platiagro.list_datasets" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.list_datasets">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.list_datasets" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists dataset names from object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -56,8 +57,8 @@
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.load_dataset">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">load_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>BinaryIO<span class="p">]</span><a class="headerlink" href="#platiagro.load_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.load_dataset">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">load_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">page_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">BinaryIO</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.load_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the contents of a dataset.</p>
 <p>If run_id exists, then loads the dataset from the specified run.
 If the dataset does not exist for given run_id/operator_id return the
@@ -92,8 +93,8 @@ If the dataset does not exist for given run_id/operator_id return the
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.save_dataset">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">data</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Union<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>BinaryIO<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metadata</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span><span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">read_only</span><span class="p">:</span> <span class="n">bool</span> <span class="o">=</span> <span class="default_value">False</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.save_dataset">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">,</span> </span><span class="pre">BinaryIO</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">pandas.core.frame.DataFrame</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a dataset and its metadata to the object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -104,8 +105,7 @@ pandas.DataFrame or an <cite>BinaryIO</cite> buffer. Defaults to None.</p></li>
 <li><p><strong>df</strong> (<em>pandas.DataFrame</em><em>, </em><em>optional</em>) – the dataset contents as an <cite>pandas.DataFrame</cite>.
 df exists only for compatibility with existing components.
 Use “data” for all types of datasets. Defaults to None.</p></li>
-<li><p><strong>metadata</strong> (<em>dict</em><em>, </em><em>optional</em>) – metadata about the dataset. Defaults to None.</p></li>
-<li><p><strong>read_only</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether the dataset will be read only. Defaults to False.</p></li>
+<li><p><strong>metadata</strong> (<em>dict</em><em>, </em><em>optional</em>) – metadata about the dataset. Defaults to None..</p></li>
 <li><p><strong>run_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the run id. Defaults to None.</p></li>
 <li><p><strong>operator_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the operator uuid. Defaults to None.</p></li>
 </ul>
@@ -127,8 +127,8 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.stat_dataset">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">stat_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>str<span class="p">]</span><a class="headerlink" href="#platiagro.stat_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.stat_dataset">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">stat_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.stat_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves the metadata of a dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -159,8 +159,8 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.download_dataset">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">download_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.download_dataset" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.download_dataset">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">download_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.download_dataset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Downloads the given dataset to the path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -180,12 +180,12 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="n">download_dataset</span><span class="p">(</span><span class="n">dataset</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="load-and-save-models">
+</section>
+<section id="load-and-save-models">
 <h2>Load and save models<a class="headerlink" href="#load-and-save-models" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.load_model">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>object<span class="p">]</span><a class="headerlink" href="#platiagro.load_model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.load_model">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">load_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.load_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves a model from object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -220,8 +220,8 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.save_model">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_model" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.save_model">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serializes and saves models.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -243,12 +243,12 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="n">save_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="save-metrics">
+</section>
+<section id="save-metrics">
 <h2>Save metrics<a class="headerlink" href="#save-metrics" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.list_metrics">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">list_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>Dict<span class="p">[</span>str<span class="p">, </span>object<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#platiagro.list_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.list_metrics">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">list_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">object</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.list_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists metrics from object storage.
 :param experiment_id: the experiment uuid. Defaults to None.
 :type experiment_id: str, optional
@@ -279,8 +279,8 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.save_metrics">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_metrics" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.save_metrics">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_metrics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves metrics of an experiment to the object storage.
 :param experiment_id: the experiment uuid. Defaults to None
 :type experiment_id: str, optional
@@ -311,12 +311,12 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="n">save_metrics</span><span class="p">(</span><span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">r2_score</span><span class="o">=-</span><span class="mf">3.0</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="list-and-save-figures">
+</section>
+<section id="list-and-save-figures">
 <h2>List and save figures<a class="headerlink" href="#list-and-save-figures" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.list_figures">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">list_figures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">experiment_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">operator_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_id</span><span class="p">:</span> <span class="n">Optional<span class="p">[</span>str<span class="p">]</span></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#platiagro.list_figures" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.list_figures">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">list_figures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitoring_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#platiagro.list_figures" title="Permalink to this definition">¶</a></dt>
 <dd><p>Lists all figures from object storage as data URI scheme.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -342,21 +342,20 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.save_figure">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">save_figure</code><span class="sig-paren">(</span><em class="sig-param">figure: [&lt;class 'bytes'&gt;, &lt;class 'matplotlib.figure.Figure'&gt;, &lt;class 'str'&gt;], extension: Optional[str] = None, experiment_id: Optional[str] = None, operator_id: Optional[str] = None, run_id: Optional[str] = None</em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_figure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves a matplotlib figure to the object storage.</p>
+<dt class="sig sig-object py" id="platiagro.save_figure">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_figure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves a figure to the object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>figure</strong> (<em>bytes</em><em>, </em><em>matplotlib.figure.Figure</em><em>, </em><em>str</em>) – a base64 bytes or a matplotlib figure or a bae64 string.</p></li>
+<li><p><strong>figure</strong> (<em>bytes</em><em>, </em><em>str</em>) – a base64 bytes or a base64 string.</p></li>
 <li><p><strong>extension</strong> (<em>str</em><em>, </em><em>optional</em>) – the file extension when base64 is send. Defaults to None.</p></li>
 <li><p><strong>experiment_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the experiment uuid. Defaults to None.</p></li>
 <li><p><strong>operator_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the operator uuid. Defaults to None.</p></li>
 <li><p><strong>run_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the run id. Defaults to None.</p></li>
+<li><p><strong>deployment_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the deployment id. Defaults to None.</p></li>
+<li><p><strong>monitoring_id</strong> (<em>str</em><em>, </em><em>optional</em>) – the monitoring id. Defaults to None.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Raises</dt>
-<dd class="field-even"><p><strong>TypeError</strong> – when a figure is not a matplotlib figure.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -370,12 +369,12 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="n">save_figure</span><span class="p">(</span><span class="n">figure</span><span class="o">=</span><span class="n">plot</span><span class="o">.</span><span class="n">figure</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="get-feature-types">
+</section>
+<section id="get-feature-types">
 <h2>Get feature types<a class="headerlink" href="#get-feature-types" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.infer_featuretypes">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">infer_featuretypes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">nrows</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">100</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.infer_featuretypes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.infer_featuretypes">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">infer_featuretypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrows</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.infer_featuretypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Infer featuretypes from DataFrame columns.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -401,8 +400,8 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 <dl class="py function">
-<dt id="platiagro.validate_featuretypes">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">validate_featuretypes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">featuretypes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.validate_featuretypes" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.validate_featuretypes">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">validate_featuretypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">featuretypes</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.validate_featuretypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verifies whether all feature types are valid.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -425,12 +424,12 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="ne">ValueError</span><span class="p">:</span> <span class="n">featuretype</span> <span class="n">must</span> <span class="n">be</span> <span class="n">one</span> <span class="n">of</span> <span class="n">DateTime</span><span class="p">,</span> <span class="n">Numerical</span><span class="p">,</span> <span class="n">Categorical</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="download-artifact">
+</section>
+<section id="download-artifact">
 <h2>Download artifact<a class="headerlink" href="#download-artifact" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="platiagro.download_artifact">
-<code class="sig-prename descclassname">platiagro.</code><code class="sig-name descname">download_artifact</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.download_artifact" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="platiagro.download_artifact">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">download_artifact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.download_artifact" title="Permalink to this definition">¶</a></dt>
 <dd><p>Downloads the given artifact to the path.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -450,8 +449,36 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <span class="n">download_artifact</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;glove_s100.zip&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s2">&quot;/tmp/glove_s100.zip&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+</section>
+<section id="create-tasks">
+<h2>Create tasks<a class="headerlink" href="#create-tasks" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.create_task">
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">create_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.create_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>API to create tasks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the task name.</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the response returned by PlatIAgro Projects API.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro</span> <span class="kn">import</span> <span class="n">create_task</span>
+
+<span class="n">create_task</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
 </div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -478,6 +505,7 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#list-and-save-figures">List and save figures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-feature-types">Get feature types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-artifact">Download artifact</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-tasks">Create tasks</a></li>
 </ul>
 </li>
 </ul>
@@ -516,7 +544,7 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
       &copy;2020, Fabio Beranizo Fontes Lopes.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

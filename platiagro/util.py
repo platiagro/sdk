@@ -13,6 +13,7 @@ MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
 JUPYTER_ENDPOINT = getenv("JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server")
+PROJECTS_ENDPOINT = getenv("PROJECTS_ENDPOINT", "projects.platiagro:8080")
 
 MINIO_CLIENT = Minio(
     endpoint=MINIO_ENDPOINT,

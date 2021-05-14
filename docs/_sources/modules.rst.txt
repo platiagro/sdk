@@ -1,7 +1,0 @@
-platiagro
-=========
-
-.. toctree::
-   :maxdepth: 4
-
-   platiagro

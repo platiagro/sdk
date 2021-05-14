@@ -8,13 +8,12 @@ from platiagro.pipeline import GuaranteeType
 
 RUN_ID = str(uuid4())
 
-class TestPipeline(TestCase):
 
+class TestPipeline(TestCase):
 
     def setUp(self):
         pass
 
-    
     def test_guarantee(self):
 
         x = np.array([1, 2, 3, 4, 5])

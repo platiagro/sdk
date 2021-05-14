@@ -188,3 +188,16 @@ Download artifact
   from platiagro import download_artifact
 
   download_artifact(name="glove_s100.zip", path="/tmp/glove_s100.zip")
+
+Create tasks
+------------
+
+.. currentmodule:: platiagro
+
+.. autofunction:: create_task
+
+.. code-block:: python
+
+  from platiagro import create_task
+
+  create_task(name = "", **kwargs)
