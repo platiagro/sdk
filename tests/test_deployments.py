@@ -28,11 +28,8 @@ class TestRuns(TestCase):
             ]
         }
         mock_get.return_value = mock_response
-        for project in mock_response.json.return_value["projects"]:
-            if project["name"] == "projects01":
-                return project
 
-        result = get_project_by_name(project)
+        result = get_project_by_name("projects01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -77,11 +74,8 @@ class TestRuns(TestCase):
             ]
         }
         mock_get.return_value = mock_response
-        for deployment in mock_response.json.return_value["deployments"]:
-            if deployment["name"] == "deployments01":
-                return deployment
 
-        result = get_deployment_by_name("projects01", deployment)
+        result = get_deployment_by_name("projects01", "deployments01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.post")
