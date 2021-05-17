@@ -55,9 +55,12 @@ def get_deployment_by_name(project_name: str, deployment_name: str):
         list: returns the list of deployments by name.
     """
     deployments = list_deployments(project_name)
+
     for deployment in deployments["deployments"]:
         if deployment["name"] == deployment_name:
-            return deployment
+            deploymentname = deployment
+
+    return deploymentname
 
 
 def run_deployments(project_name: str, deployment_name: str):

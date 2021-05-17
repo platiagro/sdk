@@ -18,7 +18,7 @@ class TestRuns(TestCase):
         expected = {"name": "projects01"}
         self.assertDictEqual(expected, response)
 
-    @mock.patch("platiagro.deployments.get_project_by_name")
+    @mock.patch("platiagro.deployments.requests.get")
     def test_get_project_name(self, mock_get):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
@@ -29,7 +29,8 @@ class TestRuns(TestCase):
         }
         mock_get.return_value = mock_response
 
-        self.assertIsInstance(mock_response.json.return_value, dict)
+        result = get_project_by_name("projects01")
+        self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.get")
     def test_mock_list_deployments(self, mock_get):
@@ -75,7 +76,8 @@ class TestRuns(TestCase):
         }
         mock_get.return_value = mock_response
 
-        self.assertTrue(isinstance(mock_response.json.return_value, dict))
+        #result = get_deployment_by_name("projects01", "deployments01")
+        self.assertIsInstance(mock_response.json.return_value, dict)
 
     @mock.patch("platiagro.deployments.requests.post")
     def test_run_deployments(self, mock_post):
