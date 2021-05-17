@@ -44,7 +44,7 @@ def list_deployments(project_name: str):
     return response.json()
 
 
-def get_deployment_name(deployment_name: str, project_name: str):
+def get_deployment_name(project_name: str, deployment_name: str):
     """Lists deployments by name.
 
     Args:
@@ -60,7 +60,7 @@ def get_deployment_name(deployment_name: str, project_name: str):
             return deployment
 
 
-def run_deployments(deployment_name: str, project_name: str):
+def run_deployments(project_name: str, deployment_name: str):
     """Runs a deployement.
 
     Args:
@@ -71,7 +71,7 @@ def run_deployments(deployment_name: str, project_name: str):
         requests.Response: a dictionary with information about the deployment runs.
     """
     project = get_project_name(project_name)
-    deployment = get_deployment_name(deployment_name, project_name)
+    deployment = get_deployment_name(project_name, deployment_name)
     project_id = project["uuid"]
     deployment_id = deployment["uuid"]
     response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")

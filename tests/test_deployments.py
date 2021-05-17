@@ -73,7 +73,7 @@ class TestTasks(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = get_deployment_name("teste", "teste2")
+        result = get_deployment_name("teste2", "teste")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -99,7 +99,7 @@ class TestTasks(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = run_deployments("deployments01", "projects01")
+        result = run_deployments("projects01", "deployments01")
         self.assertTrue(isinstance(result, dict))
 
 
