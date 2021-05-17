@@ -9,7 +9,7 @@ def list_projects():
     Returns:
         requests.Response: the response returned list Projects.
     """
-    response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects")
+    response = requests.get(url=f"https://{PROJECTS_ENDPOINT}/projects")
     return response.json()
 
 
@@ -40,7 +40,7 @@ def list_deployments(project_name: str):
     """
     project = get_project_name(project_name)
     project_id = project["uuid"]
-    response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments")
+    response = requests.get(url=f"https://{PROJECTS_ENDPOINT}/projects/{project_id}/deployments")
     return response.json()
 
 
@@ -74,5 +74,5 @@ def run_deployments(project_name: str, deployment_name: str):
     deployment = get_deployment_name(project_name, deployment_name)
     project_id = project["uuid"]
     deployment_id = deployment["uuid"]
-    response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs", json={})
+    response = requests.post(url=f"https://{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")
     return response.json()
