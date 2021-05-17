@@ -100,7 +100,7 @@ class TestTasks(TestCase):
         mock_get.return_value = mock_response
 
         result = run_deployments("projects01", "deployments01")
-        self.assertTrue(isinstance(result, dict))
+        self.assertEqual(result.status_code, 200)
 
 
 if __name__ == "__main__":
