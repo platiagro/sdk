@@ -1,9 +1,11 @@
 from unittest import TestCase, mock, main
-from platiagro.deployments import list_projects, get_project_name, list_deployments, \
-    get_deployment_name, run_deployments
+import requests
+from platiagro.util import PROJECTS_ENDPOINT
+from platiagro.deployments import list_projects, get_project_by_name, list_deployments, \
+    get_deployment_by_name
 
 
-class TestTasks(TestCase):
+class TestRuns(TestCase):
     @mock.patch("platiagro.deployments.requests.get")
     def test_mock_list_projects(self, mock_get):
         mock_response = mock.Mock(status_code=200)
@@ -27,7 +29,7 @@ class TestTasks(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = get_project_name("projects01")
+        result = get_project_by_name("projects01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -36,12 +38,12 @@ class TestTasks(TestCase):
         mock_response.json.return_value = {
             "projects": [
                 {
-                    "name": "projects02",
-                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea"
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "projects01"
                 },
                 {
-                    "name": "projects01",
-                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938"
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "projects02"
                 }
             ]
         }
@@ -73,11 +75,11 @@ class TestTasks(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = get_deployment_name("projects02", "deployments01")
+        result = get_deployment_by_name("projects01", "deployments01")
         self.assertTrue(isinstance(result, dict))
-
-    @mock.patch("platiagro.deployments.requests.get")
-    def test_run_deployments(self, mock_get):
+    """
+    @mock.patch("platiagro.deployments.requests.post")
+    def test_run_deployments(self, mock_post):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
             "projects": [
@@ -97,10 +99,39 @@ class TestTasks(TestCase):
                 }
             ]
         }
-        mock_get.return_value = mock_response
+        mock_post.return_value = mock_response
 
-        result = run_deployments("projects01", "deployments01")
-        self.assertEqual(result.status_code, 200)
+        response = run_deployments("projects01", "deployments01")
+        self.assertEqual(response.status_code, 200)
+    """
+    @mock.patch("platiagro.deployments.requests.post")
+    def test_run_deployments(self, mock_post):
+        data = {
+            "runs": [{
+                "uuid": "7c186204-23d8-4a83-8e51-68f99145e06a",
+                "operators": {
+                    "c5078756-feab-4dfd-8d05-b8966024dd99": {
+                        "status": "Succeeded",
+                        "parameters": {
+                            "dataset": "null",
+                            "features_to_filter": [
+                                "nox"
+                            ]
+                        },
+                        "taskId": "c03dfde0-e6bb-4e83-a370-8caa99c79cff"
+                    },
+                    "deployment": {
+                        "status": "Succeeded",
+                        "parameters": {}
+                    }
+                },
+                "createdAt": "2021-05-17T17:50:13+00:00"
+            }]
+        }
+        response = requests.post(
+            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
+        mock_post.assert_called_with(
+            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
 
 
 if __name__ == "__main__":

@@ -13,7 +13,7 @@ def list_projects():
     return response.json()
 
 
-def get_project_name(project_name: str):
+def get_project_by_name(project_name: str):
     """Lists projects by name.
 
     Args:
@@ -38,13 +38,13 @@ def list_deployments(project_name: str):
     Returns:
         requests.Response: returns the list of deployments.
     """
-    project = get_project_name(project_name)
+    project = get_project_by_name(project_name)
     project_id = project["uuid"]
     response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments")
     return response.json()
 
 
-def get_deployment_name(project_name: str, deployment_name: str):
+def get_deployment_by_name(project_name: str, deployment_name: str):
     """Lists deployments by name.
 
     Args:
@@ -70,11 +70,9 @@ def run_deployments(project_name: str, deployment_name: str):
     Returns:
         requests.Response: a dictionary with information about the deployment runs.
     """
-    data = {}
-
-    project = get_project_name(project_name)
-    deployment = get_deployment_name(project_name, deployment_name)
+    project = get_project_by_name(project_name)
+    deployment = get_deployment_by_name(project_name, deployment_name)
     project_id = project["uuid"]
     deployment_id = deployment["uuid"]
-    response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs", json=data)
+    response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")
     return response
