@@ -74,5 +74,5 @@ def run_deployments(project_name: str, deployment_name: str):
     deployment = get_deployment_name(project_name, deployment_name)
     project_id = project["uuid"]
     deployment_id = deployment["uuid"]
-    response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")
+    response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs", json={})
     return response.json()
