@@ -2,7 +2,7 @@ from unittest import TestCase, mock, main
 import requests
 from platiagro.util import PROJECTS_ENDPOINT
 from platiagro.deployments import list_projects, get_project_by_name, list_deployments, \
-    get_deployment_by_name, run_deployments
+    get_deployment_by_name
 
 
 class TestRuns(TestCase):
@@ -18,7 +18,7 @@ class TestRuns(TestCase):
         expected = {"name": "projects01"}
         self.assertDictEqual(expected, response)
 
-    @mock.patch("platiagro.deployments.requests.get")
+    @mock.patch("platiagro.deployments.get_project_by_name")
     def test_get_project_name(self, mock_get):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
@@ -29,8 +29,7 @@ class TestRuns(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = get_project_by_name("projects01")
-        self.assertTrue(isinstance(result, dict))
+        self.assertIsInstance(mock_response.json.return_value, dict)
 
     @mock.patch("platiagro.deployments.requests.get")
     def test_mock_list_deployments(self, mock_get):
@@ -51,8 +50,9 @@ class TestRuns(TestCase):
 
         result = list_deployments("projects01")
         self.assertTrue(isinstance(result, dict))
+        self.assertIsInstance(result, dict)
 
-    @mock.patch("platiagro.deployments.requests.get")
+    @mock.patch("platiagro.deployments.get_deployment_by_name")
     def test_get_deployment_name(self, mock_get):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
@@ -75,8 +75,7 @@ class TestRuns(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = get_deployment_by_name("projects01", "deployments01")
-        self.assertTrue(isinstance(result, dict))
+        self.assertTrue(isinstance(mock_response.json.return_value, dict))
 
     @mock.patch("platiagro.deployments.requests.post")
     def test_run_deployments(self, mock_post):
