@@ -4,10 +4,6 @@ from platiagro.deployments import list_projects, get_project_name, list_deployme
 
 
 class TestTasks(TestCase):
-    def test_list_projects(self):
-        result = list_projects()
-        self.assertTrue(isinstance(result, dict))
-
     @mock.patch("platiagro.deployments.requests.get")
     def test_mock_list_projects(self, mock_get):
         mock_response = mock.Mock(status_code=200)
