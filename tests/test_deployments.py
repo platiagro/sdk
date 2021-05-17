@@ -32,7 +32,7 @@ class TestRuns(TestCase):
             if project["name"] == "projects01":
                 return project
 
-        result = get_project_by_name("projects01")
+        result = get_project_by_name(project)
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -81,7 +81,7 @@ class TestRuns(TestCase):
             if deployment["name"] == "deployments01":
                 return deployment
 
-        result = get_deployment_by_name("projects01", "deployments01")
+        result = get_deployment_by_name("projects01", deployment)
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.post")
