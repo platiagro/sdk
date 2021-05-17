@@ -8,12 +8,12 @@ class TestTasks(TestCase):
     def test_mock_list_projects(self, mock_get):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
-            "name": "Teste"
+            "name": "projects01"
         }
         mock_get.return_value = mock_response
 
         response = list_projects()
-        expected = {"name": "Teste"}
+        expected = {"name": "projects01"}
         self.assertDictEqual(expected, response)
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -21,13 +21,13 @@ class TestTasks(TestCase):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
             "projects": [
-                {"name": "teste"},
-                {"name": "teste2"}
+                {"name": "projects01"},
+                {"name": "projects02"}
             ]
         }
         mock_get.return_value = mock_response
 
-        result = get_project_name("teste")
+        result = get_project_name("projects01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -36,18 +36,18 @@ class TestTasks(TestCase):
         mock_response.json.return_value = {
             "projects": [
                 {
-                    "name": "teste",
-                    "uuid": "123456"
+                    "name": "projects02",
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea"
                 },
                 {
-                    "name": "teste2",
-                    "uuid": "12345678"
+                    "name": "projects01",
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938"
                 }
             ]
         }
         mock_get.return_value = mock_response
 
-        result = list_deployments("teste")
+        result = list_deployments("projects01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -56,24 +56,24 @@ class TestTasks(TestCase):
         mock_response.json.return_value = {
             "projects": [
                 {
-                    "name": "teste",
-                    "uuid": "123456"
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "projects01"
                 },
                 {
-                    "name": "teste2",
-                    "uuid": "123456"
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "projects02"
                 }
             ],
             "deployments": [
                 {
                     "uuid": "c1406cc2-f82e-4d97-b82a-274880b2ce2d",
-                    "name": "teste"
+                    "name": "deployments01"
                 }
             ]
         }
         mock_get.return_value = mock_response
 
-        result = get_deployment_name("teste2", "teste")
+        result = get_deployment_name("projects02", "deployments01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.get")
