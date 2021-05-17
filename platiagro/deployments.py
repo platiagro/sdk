@@ -28,8 +28,6 @@ def get_project_by_name(project_name: str):
         if project["name"] == project_name:
             return project
 
-    return projects
-
 
 def list_deployments(project_name: str):
     """Lists the deployments.
