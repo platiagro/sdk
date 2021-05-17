@@ -99,7 +99,7 @@ class TestTasks(TestCase):
         }
         mock_get.return_value = mock_response
 
-        result = run_deployments("teste", "teste2")
+        result = run_deployments("deployments01", "projects01")
         self.assertTrue(isinstance(result, dict))
 
 
