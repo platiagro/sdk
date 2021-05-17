@@ -77,33 +77,7 @@ class TestRuns(TestCase):
 
         result = get_deployment_by_name("projects01", "deployments01")
         self.assertTrue(isinstance(result, dict))
-    """
-    @mock.patch("platiagro.deployments.requests.post")
-    def test_run_deployments(self, mock_post):
-        mock_response = mock.Mock(status_code=200)
-        mock_response.json.return_value = {
-            "projects": [
-                {
-                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
-                    "name": "projects01"
-                },
-                {
-                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
-                    "name": "projects02"
-                }
-            ],
-            "deployments": [
-                {
-                    "uuid": "c1406cc2-f82e-4d97-b82a-274880b2ce2d",
-                    "name": "deployments01"
-                }
-            ]
-        }
-        mock_post.return_value = mock_response
 
-        response = run_deployments("projects01", "deployments01")
-        self.assertEqual(response.status_code, 200)
-    """
     @mock.patch("platiagro.deployments.requests.post")
     def test_run_deployments(self, mock_post):
         data = {
@@ -132,6 +106,7 @@ class TestRuns(TestCase):
             url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
         mock_post.assert_called_with(
             url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
+        self.assertFalse(isinstance(response, list))
 
 
 if __name__ == "__main__":
