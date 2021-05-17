@@ -2,7 +2,7 @@ from unittest import TestCase, mock, main
 import requests
 from platiagro.util import PROJECTS_ENDPOINT
 from platiagro.deployments import list_projects, get_project_by_name, list_deployments, \
-    get_deployment_by_name
+    get_deployment_by_name, run_deployments
 
 
 class TestRuns(TestCase):
@@ -28,6 +28,9 @@ class TestRuns(TestCase):
             ]
         }
         mock_get.return_value = mock_response
+        for project in mock_response.json.return_value["projects"]:
+            if project["name"] == "projects01":
+                return project
 
         result = get_project_by_name("projects01")
         self.assertTrue(isinstance(result, dict))
@@ -74,13 +77,17 @@ class TestRuns(TestCase):
             ]
         }
         mock_get.return_value = mock_response
+        for deployment in mock_response.json.return_value["deployments"]:
+            if deployment["name"] == "deployments01":
+                return deployment
 
         result = get_deployment_by_name("projects01", "deployments01")
         self.assertTrue(isinstance(result, dict))
 
     @mock.patch("platiagro.deployments.requests.post")
     def test_run_deployments(self, mock_post):
-        data = {
+        mock_response = mock.Mock(status_code=200)
+        mock_response.json.return_value = {
             "runs": [{
                 "uuid": "7c186204-23d8-4a83-8e51-68f99145e06a",
                 "operators": {
@@ -102,11 +109,14 @@ class TestRuns(TestCase):
                 "createdAt": "2021-05-17T17:50:13+00:00"
             }]
         }
+        mock_post.return_value = mock_response
+
         response = requests.post(
-            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
+            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=mock_post.return_value)
         mock_post.assert_called_with(
-            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=data)
+            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=mock_post.return_value)
         self.assertFalse(isinstance(response, list))
+        self.assertEqual(response.status_code, 200)
 
 
 if __name__ == "__main__":
