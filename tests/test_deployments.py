@@ -83,11 +83,11 @@ class TestTasks(TestCase):
             "projects": [
                 {
                     "name": "teste",
-                    "uuid": "123456"
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea"
                 },
                 {
                     "name": "teste2",
-                    "uuid": "123456"
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938"
                 }
             ],
             "deployments": [
