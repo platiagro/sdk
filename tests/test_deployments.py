@@ -82,23 +82,22 @@ class TestTasks(TestCase):
         mock_response.json.return_value = {
             "projects": [
                 {
-                    "name": "teste",
-                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea"
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "projects01"
                 },
                 {
-                    "name": "teste2",
-                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938"
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "projects02"
                 }
             ],
             "deployments": [
                 {
                     "uuid": "c1406cc2-f82e-4d97-b82a-274880b2ce2d",
-                    "name": "teste"
+                    "name": "deployments01"
                 }
             ]
         }
         mock_get.return_value = mock_response
-        mock_get.return_value.status_code = 200
 
         result = run_deployments("teste", "teste2")
         self.assertTrue(isinstance(result, dict))
