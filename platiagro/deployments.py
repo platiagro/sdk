@@ -58,9 +58,7 @@ def get_deployment_by_name(project_name: str, deployment_name: str):
 
     for deployment in deployments["deployments"]:
         if deployment["name"] == deployment_name:
-            deploymentname = deployment
-
-    return deploymentname
+            return deployment
 
 
 def run_deployments(project_name: str, deployment_name: str):

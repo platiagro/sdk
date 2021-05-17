@@ -54,7 +54,8 @@ class TestRuns(TestCase):
         self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.get_deployment_by_name")
-    def test_get_deployment_name(self, mock_get):
+    @mock.patch("platiagro.deployments.requests.get")
+    def test_get_deployment_name(self, mock_get, mock_requests):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
             "projects": [
@@ -75,9 +76,11 @@ class TestRuns(TestCase):
             ]
         }
         mock_get.return_value = mock_response
+        mock_requests.return_value = mock_response
 
-        #result = get_deployment_by_name("projects01", "deployments01")
+        result = get_deployment_by_name("projects01", "deployments01")
         self.assertIsInstance(mock_response.json.return_value, dict)
+        self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.post")
     def test_run_deployments(self, mock_post):
