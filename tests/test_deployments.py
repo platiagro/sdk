@@ -47,7 +47,7 @@ class TestRuns(TestCase):
         with pytest.raises(ValueError):
             assert get_project_by_name("foo")
 
-        result = get_project_by_name("projects01")
+        result = get_project_by_name("projects02")
         self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.get")
@@ -104,7 +104,10 @@ class TestRuns(TestCase):
         }
         mock_list_deployments.return_value = mock_response
 
-        result = get_deployment_by_name("project01", "deployment01")
+        with pytest.raises(ValueError):
+            assert get_deployment_by_name("project01", "foo")
+
+        result = get_deployment_by_name("project01", "deployment02")
         self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.post")
