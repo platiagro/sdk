@@ -7,7 +7,7 @@ def list_projects():
     """Lists the projects.
 
     Returns:
-        requests.Response: the response returned list Projects.
+        dict: the response returned list Projects.
     """
     response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects")
     return response.json()
@@ -36,7 +36,7 @@ def list_deployments(project_name: str):
         project_name (str): the project name.
 
     Returns:
-        requests.Response: returns the list of deployments.
+        dict: returns the list of deployments.
     """
     project = get_project_by_name(project_name)
     project_id = project["uuid"]

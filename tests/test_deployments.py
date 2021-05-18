@@ -109,9 +109,7 @@ class TestRuns(TestCase):
         mock_post.return_value = mock_response
 
         response = requests.post(
-            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=mock_post.return_value)
-        mock_post.assert_called_with(
-            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs", json=mock_post.return_value)
+            url=f"{PROJECTS_ENDPOINT}/bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea/deployments/c1406cc2-f82e-4d97-b82a-274880b2ce2d/runs")
         self.assertFalse(isinstance(response, list))
         self.assertEqual(response.status_code, 200)
 
