@@ -71,9 +71,7 @@ def run_deployments(project_name: str, deployment_name: str):
     Returns:
         requests.Response: a dictionary with information about the deployment runs.
     """
-    project = get_project_by_name(project_name)
-    deployment = get_deployment_by_name(project_name, deployment_name)
-    project_id = project["uuid"]
-    deployment_id = deployment["uuid"]
+    deployment_id = get_deployment_by_name(project_name, deployment_name)["uuid"]
+    project_id = get_project_by_name(project_name)["uuid"]
     response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")
     return response

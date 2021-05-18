@@ -86,26 +86,25 @@ class TestRuns(TestCase):
     def test_run_deployments(self, mock_post):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
-            "runs": [{
-                "uuid": "7c186204-23d8-4a83-8e51-68f99145e06a",
-                "operators": {
-                    "c5078756-feab-4dfd-8d05-b8966024dd99": {
-                        "status": "Succeeded",
-                        "parameters": {
-                            "dataset": "null",
-                            "features_to_filter": [
-                                "nox"
-                            ]
-                        },
-                        "taskId": "c03dfde0-e6bb-4e83-a370-8caa99c79cff"
+            "uuid": "f72a180a-2b8f-4a16-b2c6-e93a27ff8da0",
+            "operators": {
+                "a4a16d55-f745-4e06-9273-d26c16b20269": {
+                    "status": "Pending",
+                    "parameters": {
+                        "dataset": "null",
+                        "features_to_filter": [
+                            "nox"
+                        ]
                     },
-                    "deployment": {
-                        "status": "Succeeded",
-                        "parameters": {}
-                    }
+                    "taskId": "c03dfde0-e6bb-4e83-a370-8caa99c79cff"
                 },
-                "createdAt": "2021-05-17T17:50:13+00:00"
-            }]
+                "deployment": {
+                    "status": "Pending",
+                    "parameters": {}
+                }
+            },
+            "createdAt": "2021-05-18T00:21:16+00:00",
+            "deploymentId": "c2ac8d9b-8a0a-4a41-ac8b-48a5685f6c86"
         }
         mock_post.return_value = mock_response
 
