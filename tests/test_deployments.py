@@ -4,20 +4,11 @@ from platiagro.deployments import list_projects, get_project_by_name, list_deplo
 
 
 class TestRuns(TestCase):
-    @mock.patch("platiagro.deployments.list_projects")
-    def test_mock_list_projects(self, mock_list_projects):
-        mock_response = mock.Mock(
-            status_code=200
-            )
-
-        mock_list_projects.return_value = mock_response
-        result = list_projects()
-        self.assertEqual(result.status_code, 200)
 
     @mock.patch("platiagro.deployments.requests.get")
     def test_mock_requests_list_projects(self, mock_get):
         mock_response = mock.Mock(status_code=200)
-        mock_response.json.return_value = {
+        mock_response.return_value = {
             "name": "projects01"
         }
         mock_get.return_value = mock_response
