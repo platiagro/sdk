@@ -6,77 +6,100 @@ from platiagro.deployments import list_projects, get_project_by_name, list_deplo
 class TestRuns(TestCase):
 
     @mock.patch("platiagro.deployments.requests.get")
-    def test_mock_requests_list_projects(self, mock_get):
+    def test_list_projects(self, mock_get):
         mock_response = mock.Mock(status_code=200)
-        mock_response.return_value = {
-            "name": "projects01"
+        mock_response.json.return_value = {
+            "projects": [
+                {
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "projects01"
+                },
+                {
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "projects02"
+                }
+            ]
         }
         mock_get.return_value = mock_response
 
         result = list_projects()
         self.assertEqual(result.status_code, 200)
 
-    @mock.patch("platiagro.deployments.requests.get")
-    def test_get_project_by_name(self, mock_get):
+    @mock.patch("platiagro.deployments.list_projects")
+    def test_get_project_by_name(self, mock_list_projects):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
             "projects": [
-                {"name": "projects01"},
-                {"name": "projects02"}
+                {
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "projects01"
+                },
+                {
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "projects02"
+                }
             ]
         }
-        mock_get.return_value = mock_response
+        mock_list_projects.return_value = mock_response
 
         result = get_project_by_name("projects01")
         self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.get")
-    def test_mock_list_deployments(self, mock_get):
-        mock_response = mock.Mock(status_code=200)
-        mock_response.json.return_value = {
+    def test_list_deployments(self, mock_get):
+        mock_get_project_response = mock.Mock(status_code=200)
+        mock_get_project_response.json.return_value = {
             "projects": [
                 {
                     "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
-                    "name": "projects01"
+                    "name": "project01"
                 },
                 {
                     "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
-                    "name": "projects02"
+                    "name": "project02"
                 }
             ]
         }
-        mock_get.return_value = mock_response
-
-        result = list_deployments("projects01")
-        self.assertEqual(result.status_code, 200)
-
-    @mock.patch("platiagro.deployments.get_deployment_by_name")
-    @mock.patch("platiagro.deployments.requests.get")
-    def test_get_deployment_name(self, mock_get, mock_requests):
-        mock_response = mock.Mock(status_code=200)
-        mock_response.json.return_value = {
-            "projects": [
-                {
-                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
-                    "name": "projects01"
-                },
-                {
-                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
-                    "name": "projects02"
-                }
-            ],
+        mock_get_deployments_response = mock.Mock(status_code=200)
+        mock_get_deployments_response.json.return_value = {
             "deployments": [
                 {
-                    "uuid": "c1406cc2-f82e-4d97-b82a-274880b2ce2d",
-                    "name": "deployments01"
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "deployment01"
+                },
+                {
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "deployment02"
                 }
             ]
         }
-        mock_get.return_value = mock_response
-        mock_requests.return_value = mock_response
 
-        result = get_deployment_by_name("projects01", "deployments01")
-        self.assertIsInstance(mock_response.json.return_value, dict)
+        mock_get.side_effect = [
+            mock_get_project_response, 
+            mock_get_deployments_response
+        ]
+
+        result = list_deployments("project01")
+        self.assertEqual(result.status_code, 200)
+
+    @mock.patch("platiagro.deployments.list_deployments")
+    def test_get_deployment_by_name(self, mock_list_deployments):
+        mock_response = mock.Mock(status_code=200)
+        mock_response.json.return_value = {
+            "deployments": [
+                {
+                    "uuid": "bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea",
+                    "name": "deployment01"
+                },
+                {
+                    "uuid": "a8ab15b1-7a90-4f18-b18d-e14f7422c938",
+                    "name": "deployment02"
+                }
+            ]
+        }
+        mock_list_deployments.return_value = mock_response
+
+        result = get_deployment_by_name("project01", "deployment01")
         self.assertIsInstance(result, dict)
 
     @mock.patch("platiagro.deployments.requests.post")
