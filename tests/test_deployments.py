@@ -1,4 +1,6 @@
+import pytest
 from unittest import TestCase, mock, main
+
 from platiagro.deployments import list_projects, get_project_by_name, list_deployments, \
     get_deployment_by_name
 
@@ -41,6 +43,9 @@ class TestRuns(TestCase):
             ]
         }
         mock_list_projects.return_value = mock_response
+
+        with pytest.raises(ValueError):
+            assert get_project_by_name("foo")
 
         result = get_project_by_name("projects01")
         self.assertIsInstance(result, dict)

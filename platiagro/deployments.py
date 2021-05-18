@@ -21,12 +21,17 @@ def get_project_by_name(project_name: str):
 
     Returns:
         requests.Response: the response returned list of projects.
+
+    Raises:
+        ValueError: If the given deployment name doesn't exist.
     """
     projects = list_projects().json()
 
     for project in projects["projects"]:
         if project["name"] == project_name:
             return project
+
+    raise ValueError("project for the given name doesn't exist")
 
 
 def list_deployments(project_name: str):
@@ -59,6 +64,8 @@ def get_deployment_by_name(project_name: str, deployment_name: str):
     for deployment in deployments["deployments"]:
         if deployment["name"] == deployment_name:
             return deployment
+
+    raise ValueError("project for the given name doesn't exist")
 
 
 def run_deployments(project_name: str, deployment_name: str):
