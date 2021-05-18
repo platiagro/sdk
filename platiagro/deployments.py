@@ -7,10 +7,10 @@ def list_projects():
     """Lists the projects.
 
     Returns:
-        dict: the response returned list Projects.
+        requests.Response: the response returned list Projects.
     """
     response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects")
-    return response.json()
+    return response
 
 
 def get_project_by_name(project_name: str):
@@ -20,9 +20,9 @@ def get_project_by_name(project_name: str):
         project_name (str): the project name.
 
     Returns:
-        list: returns the list of projects.
+        requests.Response: the response returned list of projects.
     """
-    projects = list_projects()
+    projects = list_projects().json()
 
     for project in projects["projects"]:
         if project["name"] == project_name:
@@ -36,12 +36,12 @@ def list_deployments(project_name: str):
         project_name (str): the project name.
 
     Returns:
-        dict: returns the list of deployments.
+        requests.Response: the response returned list of deployments.
     """
     project = get_project_by_name(project_name)
     project_id = project["uuid"]
     response = requests.get(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments")
-    return response.json()
+    return response
 
 
 def get_deployment_by_name(project_name: str, deployment_name: str):
@@ -52,9 +52,9 @@ def get_deployment_by_name(project_name: str, deployment_name: str):
         project_name (str): the project name.
 
     Returns:
-        list: returns the list of deployments by name.
+        requests.Response: the response returned list of deployments by name.
     """
-    deployments = list_deployments(project_name)
+    deployments = list_deployments(project_name).json()
 
     for deployment in deployments["deployments"]:
         if deployment["name"] == deployment_name:
@@ -69,9 +69,9 @@ def run_deployments(project_name: str, deployment_name: str):
         project_name (str): the project name.
 
     Returns:
-        requests.Response: a dictionary with information about the deployment runs.
+        requests.Response: the response returned dictionary with information about the deployment runs.
     """
-    deployment_id = get_deployment_by_name(project_name, deployment_name)["uuid"]
     project_id = get_project_by_name(project_name)["uuid"]
+    deployment_id = get_deployment_by_name(project_name, deployment_name)["uuid"]
     response = requests.post(url=f"{PROJECTS_ENDPOINT}/projects/{project_id}/deployments/{deployment_id}/runs")
     return response
