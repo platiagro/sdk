@@ -41,6 +41,7 @@ Export these environment variables:
 export MINIO_ENDPOINT=localhost:9000
 export MINIO_ACCESS_KEY=minio
 export MINIO_SECRET_KEY=minio123
+export PROJECTS_ENDPOINT=projects.platiagro:8080
 ```
 
 (Optional) Start a MinIO instance:

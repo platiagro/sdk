@@ -1,4 +1,5 @@
 from platiagro.artifacts import download_artifact
+from platiagro import client
 from platiagro.datasets import list_datasets, load_dataset, save_dataset, \
     stat_dataset, download_dataset, update_dataset_metadata
 from platiagro.featuretypes import infer_featuretypes, validate_featuretypes, \
