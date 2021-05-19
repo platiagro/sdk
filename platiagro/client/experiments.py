@@ -12,7 +12,7 @@ def list_experiments(project_id: str):
         project_id (str): the project uuid.
 
     Returns:
-        requests.Response: list of projects.
+        requests.Response: list of experiments.
     """
     response = requests.get(url=f'{PROJECTS_ENDPOINT}/projects/{project_id}/experiments')
     return response
@@ -26,7 +26,7 @@ def get_experiment_by_name(project_id: str, experiment_name: str):
         experiment_name (str): the experiment name.
 
     Returns:
-        dict: the project corresponding to the given project name.
+        dict: the experiment corresponding to the given name.
 
     Raises:
         ValueError: if the given experiment name doesn't exist.
@@ -51,9 +51,12 @@ def run_experiment(project_name: str, experiment_name: str):
         requests.Response: the details of experiment.
     """
     project = get_project_by_name(project_name=project_name)
+    project_id = project["uuid"]
 
-    experiment = get_experiment_by_name(project_id=project["uuid"],
+    experiment = get_experiment_by_name(project_id=project_id,
                                         experiment_name=experiment_name)
 
-    response = requests.post(url=f'{PROJECTS_ENDPOINT}/projects/{project["uuid"]}/experiments/{experiment["uuid"]}/runs')
+    response = requests.post(
+        url=f'{PROJECTS_ENDPOINT}/projects/{project_id}/experiments/{experiment["uuid"]}/runs'
+    )
     return response

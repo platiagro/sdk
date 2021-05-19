@@ -22,7 +22,7 @@ EXPERIMENTS_LIST = {
 
 class TestRuns(TestCase):
     
-    @mock.patch("requests.get")
+    @mock.patch("platiagro.client.experiments.requests.get")
     def test_list_experiments(self, mock_get):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = EXPERIMENTS_LIST

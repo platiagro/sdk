@@ -13,7 +13,6 @@ MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
 JUPYTER_ENDPOINT = getenv("JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server")
-PROJECTS_ENDPOINT = getenv("PROJECTS_ENDPOINT", "http://projects.platiagro:8080")
 
 MINIO_CLIENT = Minio(
     endpoint=MINIO_ENDPOINT,
@@ -106,7 +105,7 @@ def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
         default (str): A default value to return run id is undefined. Defaults to None.
 
     Returns:
-        str: the experiment uuid.
+        str: the run uuid.
 
     Raises:
         TypeError: when raise_for_none is True and run id is undefinded.
