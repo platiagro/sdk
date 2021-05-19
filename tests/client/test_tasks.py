@@ -1,9 +1,9 @@
-from unittest import TestCase, mock, main
-from platiagro.tasks import create_task
+from unittest import mock, TestCase
+from platiagro.client.tasks import create_task
 
 
 class TestTasks(TestCase):
-    @mock.patch("platiagro.tasks.requests.post")
+    @mock.patch("platiagro.client.tasks.requests.post")
     def test_create_tasks(self, mock_post):
         mock_response = mock.Mock(status_code=200)
         mock_response.json.return_value = {
@@ -13,7 +13,3 @@ class TestTasks(TestCase):
 
         response = create_task("TestTasks")
         self.assertEqual(response.status_code, 200)
-
-
-if __name__ == "__main__":
-    main()
