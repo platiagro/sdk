@@ -27,7 +27,7 @@ def get_deployment_by_name(project_id: str, deployment_name: str):
 
     Returns:
         dict: the deployment corresponding to the given name.
-    
+
     Raises:
         ValueError: if the given deployment name doesn't exist.
     """
@@ -38,6 +38,7 @@ def get_deployment_by_name(project_id: str, deployment_name: str):
             return deployment
 
     raise ValueError("deployment for the given name doesn't exist")
+
 
 def run_deployment(project_name: str, deployment_name: str):
     """Runs the given deployement.
