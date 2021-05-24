@@ -12,3 +12,5 @@ Source code: https://github.com/platiagro/sdk/
    :maxdepth: 3
 
    platiagro
+   
+   client

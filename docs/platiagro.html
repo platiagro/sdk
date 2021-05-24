@@ -15,6 +15,7 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Client" href="client.html" />
     <link rel="prev" title="PlatIAgro SDK documentation" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -343,7 +344,7 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="platiagro.save_figure">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_figure</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_figure" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">save_figure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figure</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitoring_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.save_figure" title="Permalink to this definition">¶</a></dt>
 <dd><p>Saves a figure to the object storage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -450,152 +451,6 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 </pre></div>
 </div>
 </section>
-<section id="create-tasks">
-<h2>Create tasks<a class="headerlink" href="#create-tasks" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.create_task">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">create_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.create_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>API to create tasks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – the task name.</p></li>
-<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>the response returned by PlatIAgro Projects API.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>requests.Response</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro</span> <span class="kn">import</span> <span class="n">create_task</span>
-
-<span class="n">create_task</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
-<section id="runs-deployments">
-<h2>Runs deployments<a class="headerlink" href="#runs-deployments" title="Permalink to this headline">¶</a></h2>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.list_projects">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">list_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.list_projects" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists the projects.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>returns the list of projects.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro</span> <span class="kn">import</span> <span class="n">list_projects</span>
-
-<span class="n">list_projects</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.get_project_name">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">get_project_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.get_project_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists projects by name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>project_name</strong> (<em>str</em>) – the project name.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>returns the list of projects.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">get_project_name</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-
-<span class="n">projects</span> <span class="o">=</span> <span class="n">list_projects</span><span class="p">()</span>
-</pre></div>
-</div>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.list_deployments">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">list_deployments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.list_deployments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists the deployments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>project_name</strong> (<em>str</em>) – the project name.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>returns the list of deployments.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">list_deployments</span><span class="p">(</span><span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
-
-<span class="n">project</span> <span class="o">=</span> <span class="n">get_project_name</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.get_deployment_name">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">get_deployment_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deployment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.get_deployment_name" title="Permalink to this definition">¶</a></dt>
-<dd><p>Lists deployments by name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>deployment_name</strong> (<em>str</em>) – the deployment name.</p></li>
-<li><p><strong>project_name</strong> (<em>str</em>) – the project name.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>returns the list of deployments by name.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>list</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">get_deployment_name</span><span class="p">(</span><span class="n">deployment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
-
-<span class="n">deployments</span> <span class="o">=</span> <span class="n">list_deployments</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py function">
-<dt class="sig sig-object py" id="platiagro.run_deployments">
-<span class="sig-prename descclassname"><span class="pre">platiagro.</span></span><span class="sig-name descname"><span class="pre">run_deployments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">deployment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.run_deployments" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs a deployement.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>deployment_name</strong> (<em>str</em>) – the deployment name.</p></li>
-<li><p><strong>project_name</strong> (<em>str</em>) – the project name.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a dictionary with information about the deployment runs.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
-</dd></dl>
-
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">run_deployments</span><span class="p">(</span><span class="n">deployment_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span>
-
-<span class="n">project</span> <span class="o">=</span> <span class="n">get_project_name</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
-
-<span class="n">deployment</span> <span class="o">=</span> <span class="n">get_deployment_name</span><span class="p">(</span><span class="n">deployment_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span>
-</pre></div>
-</div>
-</section>
 </section>
 
 
@@ -623,10 +478,9 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <li class="toctree-l2"><a class="reference internal" href="#list-and-save-figures">List and save figures</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#get-feature-types">Get feature types</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-artifact">Download artifact</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#create-tasks">Create tasks</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#runs-deployments">Runs deployments</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="client.html">Client</a></li>
 </ul>
 
 <div class="relations">
@@ -634,6 +488,7 @@ Use “data” for all types of datasets. Defaults to None.</p></li>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="index.html" title="previous chapter">PlatIAgro SDK documentation</a></li>
+      <li>Next: <a href="client.html" title="next chapter">Client</a></li>
   </ul></li>
 </ul>
 </div>

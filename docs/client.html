@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Client &#8212; PlatIAgro 0.0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Functions you may use in your components:" href="platiagro.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="client">
+<h1>Client<a class="headerlink" href="#client" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>You may access PlatIAgro Projects API using the following functions.</p>
+</div></blockquote>
+<section id="experiments">
+<h2>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.list_experiments">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">list_experiments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.list_experiments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists all experiments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_id</strong> (<em>str</em>) – the project uuid.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of experiments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">list_experiments</span>
+
+<span class="n">project_id</span> <span class="o">=</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span>
+
+<span class="n">list_experiments</span><span class="p">(</span><span class="n">project_id</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;experiments&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;a8ab15b1-7a90-4f18-b18d-e14f7422c938&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;project_id&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.get_experiment_by_name">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">get_experiment_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.get_experiment_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the experiment by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_id</strong> (<em>str</em>) – the project uuid.</p></li>
+<li><p><strong>experiment_name</strong> (<em>str</em>) – the experiment name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the experiment corresponding to the given name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the given experiment name doesn’t exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">get_experiment_by_name</span>
+
+<span class="n">project_id</span> <span class="o">=</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span>
+<span class="n">experiment_name</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span>
+
+<span class="n">get_experiment_by_name</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="n">experiment_name</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;a8ab15b1-7a90-4f18-b18d-e14f7422c938&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;project_id&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.run_experiment">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">run_experiment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">experiment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.run_experiment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the given experiment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> (<em>str</em>) – the project name.</p></li>
+<li><p><strong>experiment_name</strong> (<em>str</em>) – the experiment name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the details of experiment.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">run_experiment</span>
+
+<span class="n">project_name</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span>
+<span class="n">experiment_name</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+
+<span class="n">run_experiment</span><span class="p">(</span><span class="n">experiment_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;bc4a0874-4a6b-4e20-bd7e-ed00c51fd8ea&#39;</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">:</span> <span class="s1">&#39;2021-05-24T13:57:20.767Z&#39;</span><span class="p">,</span> <span class="s1">&#39;operators&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+</pre></div>
+</div>
+</section>
+<section id="deployments">
+<h2>Deployments<a class="headerlink" href="#deployments" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.list_deployments">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">list_deployments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.list_deployments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists all deployments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_id</strong> (<em>str</em>) – the project uuid.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of deployments.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">list_deployments</span>
+
+<span class="n">project_id</span> <span class="o">=</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span>
+
+<span class="n">list_deployments</span><span class="p">(</span><span class="n">project_id</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;deployments&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;ea5661ab-28fe-4531-b310-8a37bd77197b&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;project_id&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.get_deployment_by_name">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">get_deployment_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.get_deployment_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the deployment by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_id</strong> (<em>str</em>) – the project uuid.</p></li>
+<li><p><strong>deployment_name</strong> (<em>str</em>) – the deployment name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the deployment corresponding to the given name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the given deployment name doesn’t exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">get_deployment_by_name</span>
+
+<span class="n">project_id</span> <span class="o">=</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span>
+<span class="n">deployment_name</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span>
+
+<span class="n">get_deployment_by_name</span><span class="p">(</span><span class="n">project_id</span><span class="p">,</span> <span class="n">deployment_name</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;ea5661ab-28fe-4531-b310-8a37bd77197b&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;project_id&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.run_deployment">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">run_deployment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deployment_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.run_deployment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the given deployement.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> (<em>str</em>) – the project name.</p></li>
+<li><p><strong>deployment_name</strong> (<em>str</em>) – the deployment name.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the details of deployment.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">run_deployment</span>
+
+<span class="n">project_name</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span>
+<span class="n">deployment_name</span> <span class="o">=</span> <span class="s1">&#39;bar&#39;</span>
+
+<span class="n">run_deployment</span><span class="p">(</span><span class="n">deployment_name</span><span class="p">,</span> <span class="n">project_name</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;b793c517-2f95-41f0-a4bb-25da50d6e052&#39;</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">:</span> <span class="s1">&#39;2021-05-24T13:57:20.767Z&#39;</span><span class="p">,</span> <span class="s1">&#39;operators&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+</pre></div>
+</div>
+</section>
+<section id="projects">
+<h2>Projects<a class="headerlink" href="#projects" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.list_projects">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">list_projects</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.list_projects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lists all projects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>list of projects.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">list_projects</span>
+
+<span class="n">list_projects</span><span class="p">()</span>
+<span class="p">{</span><span class="s1">&#39;projects&#39;</span><span class="p">:</span> <span class="p">[{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.get_project_by_name">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">get_project_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.get_project_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the project by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>project_name</strong> (<em>str</em>) – the project name.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the project corresponding to the given project name.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – if the given project name doesn’t exist.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">from</span> <span class="n">platiagro</span><span class="o">.</span><span class="n">client</span> <span class="kn">import</span> <span class="nn">get_project_by_name</span>
+
+<span class="n">project_name</span> <span class="o">=</span> <span class="s1">&#39;foo&#39;</span>
+<span class="n">get_project_by_name</span><span class="p">(</span><span class="n">project_name</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;c862813f-13e8-4adb-a430-56a1444209a0&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="tasks">
+<h2>Tasks<a class="headerlink" href="#tasks" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="platiagro.client.create_task">
+<span class="sig-prename descclassname"><span class="pre">platiagro.client.</span></span><span class="sig-name descname"><span class="pre">create_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#platiagro.client.create_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>API to create tasks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – the task name.</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the response returned by PlatIAgro Projects API.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>requests.Response</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">platiagro.client</span> <span class="kn">import</span> <span class="n">create_task</span>
+
+<span class="n">create_task</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;foo&quot;</span><span class="p">)</span>
+<span class="p">{</span><span class="s1">&#39;uuid&#39;</span><span class="p">:</span> <span class="s1">&#39;3fa85f64-5717-4562-b3fc-2c963f66afa6&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">:</span> <span class="s1">&#39;2021-05-24T14:04:44.126Z&#39;</span><span class="p">,</span> <span class="s1">&#39;updatedAt&#39;</span><span class="p">:</span> <span class="s1">&#39;2021-05-24T14:04:44.126Z&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PlatIAgro</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="platiagro.html">Functions you may use in your components:</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#experiments">Experiments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployments">Deployments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#projects">Projects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tasks">Tasks</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="platiagro.html" title="previous chapter">Functions you may use in your components:</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Fabio Beranizo Fontes Lopes.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/client.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
