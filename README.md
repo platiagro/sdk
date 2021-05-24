@@ -70,3 +70,15 @@ flake8 --max-line-length 127 platiagro/
 ## API
 
 See the [PlatIAgro SDK API doc](https://platiagro.github.io/sdk/) for API specification.
+
+## Update Documentation
+
+After making some changes in PlatIAgro SDK, you need to update the docs in this [file](https://github.com/platiagro/sdk/blob/master/docs/source/platiagro.rst) and run these commands:
+
+```bash
+pip install sphinx
+cd docs/
+make html
+rm -r _static/ _sources/
+mv build/html/* .
+```
