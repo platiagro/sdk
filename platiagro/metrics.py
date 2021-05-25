@@ -121,7 +121,7 @@ def save_metrics(experiment_id: Optional[str] = None,
         pass
 
     # appends new metrics
-    encoded_metrics.extend(encode_metrics(kwargs))
+    encoded_metrics.extend(_encode_metrics(kwargs))
 
     # puts metrics into buffer
     buffer = BytesIO(dumps(encoded_metrics).encode())
@@ -135,7 +135,7 @@ def save_metrics(experiment_id: Optional[str] = None,
     )
 
 
-def encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
+def _encode_metrics(metrics: Dict[str, object]) -> List[Dict[str, object]]:
     """Prepares metric values for JSON encoding.
 
     Args:

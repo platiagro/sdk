@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from io import BytesIO
 from json import dumps
-from typing import List, Optional
+from typing import List, Optional, Union
 from datetime import datetime
 
 import base64
@@ -78,7 +78,7 @@ def list_figures(experiment_id: Optional[str] = None,
     return figures
 
 
-def save_figure(figure: [bytes, str],
+def save_figure(figure: Union[bytes, str],
                 extension: Optional[str] = None,
                 experiment_id: Optional[str] = None,
                 operator_id: Optional[str] = None,

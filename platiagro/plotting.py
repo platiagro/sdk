@@ -1,7 +1,7 @@
 import warnings
 import math
 from copy import deepcopy
-from typing import List,Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import shap
-from shap.plots._labels import labels
 import plotly.express as px
 
 import sklearn
@@ -18,8 +17,6 @@ from sklearn.metrics import auc, roc_curve, accuracy_score, precision_recall_fsc
 from sklearn.feature_selection import RFE
 from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
 from sklearn.pipeline import Pipeline
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
@@ -55,7 +52,7 @@ def _calculate_two_class_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, label
         lw=lw,
         label="ROC curve (area = %0.2f)" % roc_auc,
     )
-    
+
     return ax
 
 
@@ -85,7 +82,7 @@ def _calculate_full_roc_curve(y_test: np.ndarray, y_prob: np.ndarray, labels: np
         roc_auc[i] = auc(fpr[i], tpr[i])
 
     color = cm.rainbow(np.linspace(0, 1, len(used_y) + 1))
-    
+
     lw = 2
     for i, c in zip(used_y, color):
         ax.plot(
@@ -188,7 +185,7 @@ def _annotate_error_plot(ax, aux, size, y_lim, h, abs_err):
             xy=((0 + min(aux)) / 2, (1 - p) * y_lim[1] / h),
             ha="center",
         )
-    
+
     return ax
 
 
@@ -202,7 +199,7 @@ def plot_regression_error(y_test: np.ndarray, y_pred: np.ndarray):
     Returns:
         (matplotlib.Axes): the axes object.
     """
-    
+
     # Calculate error
     abs_err = False
     if any(y_test == 0):
@@ -279,7 +276,7 @@ def plot_prediction_diff(y_test: np.ndarray, y_pred: np.ndarray):
 
     cmap = sns.color_palette("Spectral_r", 256)
     colors = list(cmap)
-    
+
     ax.plot(y_test, 'b-', label='Real', c=colors[20])
     ax.plot(y_pred, 'r--', label='Predito', c=colors[-20])
 
@@ -375,10 +372,10 @@ def plot_probability_error(y_test: np.ndarray, y_pred: np.ndarray):
     colors = list(cmap)
 
     probplot(y_pred - y_test,
-                    dist="norm",
-                    fit=True,
-                    rvalue=True,
-                    plot=ax)
+             dist="norm",
+             fit=True,
+             rvalue=True,
+             plot=ax)
 
     ax.get_lines()[0].set_markerfacecolor(colors[20])
     ax.get_lines()[0].set_markersize(7)
@@ -411,9 +408,9 @@ def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
 
         # split targets in n intervals
         n = 5
-        r = sorted_samples.max() - sorted_samples.min() # range of targets 
+        r = sorted_samples.max() - sorted_samples.min()     # range of targets
 
-        d = r/n # size of interval
+        d = r/n     # size of interval
         limits = np.array(list(range(n+1)))*d + sorted_samples.min()
         limits[0] = y_test.min()
         limits[-1] = y_test.max()
@@ -424,17 +421,17 @@ def plot_segment_error(y_test: np.ndarray, y_pred: np.ndarray):
         # plot error per interval
         err = y_pred - y_test
         for i, upper in enumerate(limits[1:]):
-            lower = limits[i]        
+            lower = limits[i]
             boolean_array = ((lower < y_test) & (y_test < upper))
             idx = np.where(boolean_array)[0]
 
             kde = gaussian_kde(err[idx])
             x_err = np.linspace(err[idx].min(), err[idx].max(), 1000)
             p_err = kde(x_err)
-            label =  " %.1f -> %.1f: %d" % (lower, upper, len(idx))
+            label = " %.1f -> %.1f: %d" % (lower, upper, len(idx))
             ax.plot(x_err, p_err, c='#424242', linewidth=4)
             ax.plot(x_err, p_err, label=label, c=colors[i*40], linewidth=2.5)
-        
+
         ax.set_xlabel("Erro", fontweight='bold')
         ax.set_ylabel('Estimativa de densidade do kernel', fontweight='bold')
         ax.set_title("Distribuição do erro por segmento", fontweight='bold')
@@ -491,7 +488,13 @@ def _select_columns(x_train_trans, y_train, columns, classification=False):
     return selector.support_
 
 
-def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
+def plot_regression_data(pipeline: sklearn.pipeline,
+                         columns: np.ndarray,
+                         x_train: pd.DataFrame,
+                         y_train: np.ndarray,
+                         x_test: pd.DataFrame,
+                         y_test: np.ndarray,
+                         y_pred: np.ndarray):
     """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
 
     Args:
@@ -525,17 +528,19 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
 
     # Plot data
     fig, ax = plt.subplots()
-    
+
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
-    
-    points = ax.scatter(x=data_test['target'], y=data_test['xy'], s=50, c=data_test['err'], cmap=cmap, edgecolors='#424242', alpha=0.8)
+
+    points = ax.scatter(x=data_test['target'], y=data_test['xy'],
+                        s=50, c=data_test['err'], cmap=cmap,
+                        edgecolors='#424242', alpha=0.8)
     cb = fig.colorbar(points)
     cb.ax.set_ylabel('Erro obtido', rotation=270, labelpad=10, fontweight='bold')
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
     ax.set_xlabel('Target', fontweight='bold')
     ax.grid(True)
-    
+
     if len(x_train_trans[0]) == len(columns):
         ax.set_ylabel(f'{columns[sel_columns][0]}*{columns[sel_columns][1]}', fontweight='bold')
     else:
@@ -544,7 +549,13 @@ def plot_regression_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_trai
     return ax
 
 
-def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_train: pd.DataFrame, y_train: np.ndarray, x_test: pd.DataFrame, y_test: np.ndarray, y_pred: np.ndarray):
+def plot_classification_data(pipeline: sklearn.pipeline,
+                             columns: np.ndarray,
+                             x_train: pd.DataFrame,
+                             y_train: np.ndarray,
+                             x_test: pd.DataFrame,
+                             y_test: np.ndarray,
+                             y_pred: np.ndarray):
     """Plot regression data according to x and y more important feature according to RFE (DecisionTreeRegressor) and target.
 
     Args:
@@ -584,11 +595,15 @@ def plot_classification_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
-    ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test['target'], cmap=cmap, edgecolors='#424242', alpha=0.8)
+    ax.scatter(x=data_test[data_test.columns[0]],
+               y=data_test[data_test.columns[1]],
+               s=50, c=data_test['target'],
+               cmap=cmap, edgecolors='#424242',
+               alpha=0.8)
 
     ax.set_title('Distribuição dos Dados de Teste', fontweight='bold')
     ax.grid(True)
-    
+
     if len(x_train_trans[0]) == len(columns):
         ax.set_xlabel(f'{columns[sel_columns][0]}', fontweight='bold')
         ax.set_ylabel(f'{columns[sel_columns][1]}', fontweight='bold')
@@ -627,7 +642,6 @@ def plot_matrix(data: pd.DataFrame):
     plt.tight_layout()
 
     return ax
-    
 
 
 def plot_common_metrics(y_test: np.ndarray, y_pred: np.ndarray, labels_enc: np.ndarray, labels_dec: np.ndarray):
@@ -687,7 +701,7 @@ def plot_common_metrics(y_test: np.ndarray, y_pred: np.ndarray, labels_enc: np.n
 
     if len(labels_dec) > 2:
         as_list = commom_metrics.index.tolist()
-        as_list[0 : len(labels_dec)] = labels_dec
+        as_list[0:len(labels_dec)] = labels_dec
         commom_metrics.index = as_list
 
     return plot_data_table(commom_metrics)
@@ -707,7 +721,7 @@ def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test
     pipeline = deepcopy(pipeline)
 
     x_trans = _transform_data(pipeline, x_test)
-    
+
     y_pred = np.array(y_pred)
     select_type = True if y_pred.dtype in [np.int32, np.int64] else False
     sel_columns = _select_columns(x_trans, y_pred, columns, classification=select_type)
@@ -723,11 +737,15 @@ def plot_clustering_data(pipeline: sklearn.pipeline, columns: np.ndarray, x_test
 
     cmap = sns.color_palette("Spectral_r", as_cmap=True)
 
-    points = ax.scatter(x=data_test[data_test.columns[0]], y=data_test[data_test.columns[1]], s=50, c=data_test["predicted"], cmap=cmap, edgecolors='#424242', alpha=0.8)
-    
+    points = ax.scatter(x=data_test[data_test.columns[0]],
+                        y=data_test[data_test.columns[1]],
+                        s=50, c=data_test["predicted"],
+                        cmap=cmap, edgecolors='#424242',
+                        alpha=0.8)
+
     mini = np.amin(y_pred)
     maxi = np.amax(y_pred)
-    
+
     cb = fig.colorbar(points, ticks=[x for x in range(mini, maxi+1)])
     cb.ax.set_ylabel('Clusters', rotation=270, labelpad=10, fontweight='bold')
 
@@ -757,9 +775,9 @@ def _format_str_cell(text, max_len=20):
     return text[:max_len] + "..." if len(text) > max_len else text
 
 
-def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_size=8, 
-                header_color="#40466e", row_colors=["#f1f1f2", "w"], edge_color="w", bbox=[0, 0, 1, 1],
-                header_columns=0, column_quantity=40, **kwargs):
+def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_size=8,
+                    header_color="#40466e", row_colors=["#f1f1f2", "w"], edge_color="w", bbox=[0, 0, 1, 1],
+                    header_columns=0, column_quantity=40, **kwargs):
     """Plot data as a table.
 
     Args:
@@ -821,15 +839,14 @@ def plot_data_table(data: pd.DataFrame, col_width=3.0, row_height=0.625, font_si
     return ax
 
 
-def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
-                                  y_list:List[np.ndarray],
-                                  x_axe_names:List[str], 
-                                  y_axe_names:List[str],
-                                  col_wrap:int,
-                                  suptitle:str,
-                                  subtitles:List[str],
-                                  subplot_size:Tuple[int] = (5,5)):
-  
+def plot_line_subgraphs_alongisde(x_list: List[np.ndarray],
+                                  y_list: List[np.ndarray],
+                                  x_axe_names: List[str],
+                                  y_axe_names: List[str],
+                                  col_wrap: int,
+                                  suptitle: str,
+                                  subtitles: List[str],
+                                  subplot_size: Tuple[int] = (5, 5)):
     """Plot multiple graphs individually .
 
     Args:
@@ -846,16 +863,16 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
         (matplotlib.Axes): the axes object.
     """
     if len(x_list) == 1:
-      raise ValueError("You are passing only one graph, please use a simple plot")
+        raise ValueError("You are passing only one graph, please use a simple plot")
 
-    if not (len(x_list) == len(y_list) ==len(subtitles)):
+    if not (len(x_list) == len(y_list) == len(subtitles)):
         raise ValueError(f"Subtitles (with length {len(subtitles)}) must have the same lenght as x_list (with length {len(x_list)}) and y_list (with length {len(y_list)})")
 
     if len(x_axe_names) == 1:
-      x_axe_names= len(x_list)*x_axe_names
-    
+        x_axe_names = len(x_list)*x_axe_names
+
     if len(y_axe_names) == 1:
-      y_axe_names= len(x_list)*y_axe_names
+        y_axe_names = len(x_list)*y_axe_names
 
     cmap = sns.color_palette("Spectral_r", 256)
     color_map = list(cmap)
@@ -865,47 +882,44 @@ def plot_line_subgraphs_alongisde(x_list:List[np.ndarray],
 
     cols = col_wrap
     rows = math.ceil(len(x_list)/col_wrap)
-    
-    fig, axs = plt.subplots(rows,cols)
+
+    fig, axs = plt.subplots(rows, cols)
     axs = axs.ravel()
     axs_to_remove = []
 
     for i in range(len(axs)):
-      if i > len(x_list)-1:
-        axs_to_remove.append(i)
-    
+        if i > len(x_list)-1:
+            axs_to_remove.append(i)
 
     if axs_to_remove:
-      for k in axs_to_remove:
-        fig.delaxes(axs[k])
+        for k in axs_to_remove:
+            fig.delaxes(axs[k])
 
     axs = axs[:len(x_list)]
-    
-    for ax,subtitle,x_data,y_data,line_style,marker_style,color,x_axe_name,y_axe_name in zip(axs,subtitles,x_list,y_list,line_styles,marker_styles,colors,x_axe_names,y_axe_names):
 
-      ax.plot(x_data, y_data, linestyle=line_style,marker=marker_style, color=color)
-      ax.set_xlabel(x_axe_name,fontsize=10)
-      ax.set_ylabel(y_axe_name,fontsize=10)
-      ax.set_title(subtitle,fontsize=15)
-      ax.figure.set_size_inches(subplot_size[0], subplot_size[1])
+    for ax, subtitle, x_data, y_data, line_style, marker_style, color, x_axe_name, y_axe_name in zip(axs, subtitles, x_list, y_list, line_styles, marker_styles, colors, x_axe_names, y_axe_names):
+        ax.plot(x_data, y_data, linestyle=line_style, marker=marker_style, color=color)
+        ax.set_xlabel(x_axe_name, fontsize=10)
+        ax.set_ylabel(y_axe_name, fontsize=10)
+        ax.set_title(subtitle, fontsize=15)
+        ax.figure.set_size_inches(subplot_size[0], subplot_size[1])
 
-    plt.suptitle(suptitle,fontsize=20)
+    plt.suptitle(suptitle, fontsize=20)
     fig.tight_layout()
     plt.subplots_adjust(top=0.8)
     plt.show()
-    
+
     return axs
 
 
-def plot_line_graphs_overlayed(x_list:List[np.ndarray],
-                                  y_list:List[np.ndarray],
-                                  x_axe_name:str, 
-                                  y_axe_name:str,
-                                  legends:List[str],
-                                  title:str,
-                                  legend_position:str='upper right',
-                                  figsize:Tuple[int] = (10,10)):
-    
+def plot_line_graphs_overlayed(x_list: List[np.ndarray],
+                               y_list: List[np.ndarray],
+                               x_axe_name: str,
+                               y_axe_name: str,
+                               legends: List[str],
+                               title: str,
+                               legend_position: str = 'upper right',
+                               figsize: Tuple[int] = (10, 10)):
     """Plot multiple graphs together .
 
     Args:
@@ -926,34 +940,33 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
 
     if (len(legends) == 1 and legends != ["None_Marker"]):
         raise ValueError("You are passing only one graph, please use a simple plot")
-        
+
     cmap = sns.color_palette("Spectral_r", 256)
     color_map = list(cmap)
-    color_options = [color_map[20],color_map[-20], color_map[40],color_map[-40],color_map[255],color_map[-90]]
+    color_options = [color_map[20], color_map[-20], color_map[40], color_map[-40], color_map[255], color_map[-90]]
     n_repetitions = math.ceil(len(color_options)/len(x_list))
     color_repetitions = n_repetitions*color_options
     colors = color_repetitions[:len(x_list)]
 
     line_styles_options = ['-', '--', '-.', ':']
-    line_styles = sum([[line_style]*len(color_options) for line_style in line_styles_options],[])[:len(x_list)]
+    line_styles = sum([[line_style]*len(color_options) for line_style in line_styles_options], [])[:len(x_list)]
 
     marker_styles = ['']*len(line_styles)
 
     fig, ax = plt.subplots()
     plot_list = []
 
-    for x,y,line_style,marker_style,color,legend in zip(x_list,y_list,line_styles,marker_styles,colors,legends):
-      if legend ==  "None_Marker":
-        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style))
-      else:
-        plot_list.append(ax.plot(x, y, color=color, linestyle=line_style,marker=marker_style,label=legend))
-      
+    for x, y, line_style, marker_style, color, legend in zip(x_list, y_list, line_styles, marker_styles, colors, legends):
+        if legend == "None_Marker":
+            plot_list.append(ax.plot(x, y, color=color, linestyle=line_style, marker=marker_style))
+        else:
+            plot_list.append(ax.plot(x, y, color=color, linestyle=line_style, marker=marker_style, label=legend))
 
-    if legends !=  ["None_Marker"]:
-      ax.legend(loc=legend_position)
-    ax.set_xlabel(x_axe_name,fontsize = 10)
-    ax.set_ylabel(y_axe_name,fontsize = 10)
-    ax.set_title(title,fontsize = 20)
+    if legends != ["None_Marker"]:
+        ax.legend(loc=legend_position)
+    ax.set_xlabel(x_axe_name, fontsize=10)
+    ax.set_ylabel(y_axe_name, fontsize=10)
+    ax.set_title(title, fontsize=20)
     ax.figure.set_size_inches(figsize[0], figsize[1])
     fig.tight_layout()
     plt.show()
@@ -961,13 +974,12 @@ def plot_line_graphs_overlayed(x_list:List[np.ndarray],
     return ax
 
 
-def plot_simple_line_graph(x:np.ndarray,
-                        y:np.ndarray,
-                        x_axe_name:str, 
-                        y_axe_name:str,
-                        title:str,
-                        figsize:Tuple[int] = (10,10)):
-    
+def plot_simple_line_graph(x: np.ndarray,
+                           y: np.ndarray,
+                           x_axe_name: str,
+                           y_axe_name: str,
+                           title: str,
+                           figsize: Tuple[int] = (10, 10)):
     """Plot simple line grapj .
 
     Args:
@@ -976,10 +988,13 @@ def plot_simple_line_graph(x:np.ndarray,
         x_axe_name (str): x axe name.
         y_axe_name (str): y axe name.
         title (str): graph title.
-        line_style (str): graphs line style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
-        marker_style (str): graphs marker style. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        line_style (str): graphs line style.
+            For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        marker_style (str): graphs marker style.
+            For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
         figsize (Tuple[int]): tuple with figsize dimentions.
-        color (str): graph color. For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
+        color (str): graph color.
+            For options check the documentation:https://matplotlib.org/2.1.1/api/_as_gen/matplotlib.pyplot.plot.html
         title_fontize (int): title fontsize.
         axes_fontisze (int): axes fontsize.
 
@@ -996,23 +1011,22 @@ def plot_simple_line_graph(x:np.ndarray,
     legends = ["None_Marker"]
 
     ax = plot_line_graphs_overlayed(x_list=x,
-                                y_list=y,
-                                x_axe_name = x_axe_name, 
-                                y_axe_name = y_axe_name, 
-                                legends=legends,
-                                title= title,
-                                figsize=figsize)
+                                    y_list=y,
+                                    x_axe_name=x_axe_name,
+                                    y_axe_name=y_axe_name,
+                                    legends=legends,
+                                    title=title,
+                                    figsize=figsize)
     return ax
 
 
 def plot_shap_classification_summary(pipeline,
-                                    X:np.ndarray,
-                                    Y:np.ndarray,
-                                    feature_names:List,
-                                    label_encoder,
-                                    non_numerical_indexes,
-                                    max_display:int=None):
-    
+                                     X: np.ndarray,
+                                     Y: np.ndarray,
+                                     feature_names: List,
+                                     label_encoder,
+                                     non_numerical_indexes,
+                                     max_display: int = None):
     """Plots summary of features contribution for each class
 
     Args:
@@ -1023,27 +1037,24 @@ def plot_shap_classification_summary(pipeline,
         label_encoder : label encoder required for retrieving output class names
         non_numerical_indexes (numpy.ndarray): Numpy array with the non numerical indexes related to the columns in X
         max_display (int): number of features that will be orderem by importance
-
-    Returns:
-        
     """
     X = pd.DataFrame(X)
-    X =  X.sample(n = 100) if len(X) > 100 else X  
+    X = X.sample(n=100) if len(X) > 100 else X
 
-    if  len(non_numerical_indexes)==0:
+    if len(non_numerical_indexes) == 0:
 
         explainer = shap.KernelExplainer(pipeline.predict_proba, X)
         shap_values = explainer.shap_values(X)
-        
+
         for i in range(len(explainer.expected_value)):
             shap.initjs()
             cmap = sns.color_palette("Spectral_r", as_cmap=True)
             plt.figure()
             if label_encoder:
-                plt.title(label_encoder.inverse_transform([i])[0]) 
+                plt.title(label_encoder.inverse_transform([i])[0])
             else:
                 plt.title(f"class_{i}")
-            shap.summary_plot(shap_values[i], X,feature_names=feature_names, show=False)
+            shap.summary_plot(shap_values[i], X, feature_names=feature_names, show=False)
             # Change the colormap of the artists
 
             for fc in plt.gcf().get_children():
@@ -1053,8 +1064,8 @@ def plot_shap_classification_summary(pipeline,
     else:
         msg = "O gráfico SHAP só pode ser contruído caso haja apenas índicies numéricos nas colunas de X"
         warnings.warn(msg)
-        
-       
+
+
 def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
     """Plot model residuos to compare predicted values.
 
@@ -1068,27 +1079,25 @@ def plot_residues(X: np.ndarray, y: np.ndarray, model, columns):
         (plotely.express): the plotly object.
     """
 
-    df = pd.DataFrame(X, columns = columns)
-    
-    
+    df = pd.DataFrame(X, columns=columns)
+
     train_idx, test_idx = train_test_split(df.index, test_size=.3, random_state=0)
     df['split'] = 'train'
     df.loc[test_idx, 'split'] = 'test'
-    
+
     df['Predito'] = model.predict(df.drop(['split'], axis=1))
     df['Residuo'] = df['Predito'] - y
-    
-    
+
     palet_colors = ['#a40843', '#377fb9']
 
     fig = px.scatter(
         df, x='Predito', y='Residuo',
         marginal_x='histogram', marginal_y='box',
         color='split',
-        color_discrete_sequence = palet_colors,
+        color_discrete_sequence=palet_colors,
         title='Gráfico de Resíduos'
     )
-    
+
     return fig
 
 
@@ -1098,21 +1107,21 @@ def plot_model_coef_weight(coef: np.ndarray, columns: np.ndarray):
     Args:
         coef (np.ndarray): model coefficients list.
         columns (np.ndarray): dataset columns list.
-        
+
     Returns:
         (plotely.express): the express object.
-    """ 
+    """
     colors = ['Positivo' if c > 0 else 'Negativo' for c in coef]
-    
+
     palet_colors = ['#a40843', '#377fb9']
 
     fig = px.bar(
         x=coef,
-        y = columns,
+        y=columns,
         color=colors,
-        color_discrete_sequence = palet_colors,
-        labels = dict(x ='Coeficiente Linear', y ='Features'),
+        color_discrete_sequence=palet_colors,
+        labels=dict(x='Coeficiente Linear', y='Features'),
         title='Contribuição de cada freature para a variável resposta'
     )
-    
+
     return fig

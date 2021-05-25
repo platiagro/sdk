@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import requests
-from platiagro.util import PROJECTS_ENDPOINT
+from platiagro.client._util import PROJECTS_ENDPOINT
 
 
 def create_task(name, **kwargs):

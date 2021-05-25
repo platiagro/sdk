@@ -22,9 +22,9 @@ def infer_featuretypes(df: pd.DataFrame, nrows: int = 100):
     featuretypes = []
     for col in df.columns:
         if df.dtypes[col].kind == "O":
-            if is_number(df[col].iloc[:nrows]):
+            if _is_number(df[col].iloc[:nrows]):
                 featuretypes.append(NUMERICAL)
-            elif is_datetime(df[col].iloc[:nrows]):
+            elif _is_datetime(df[col].iloc[:nrows]):
                 featuretypes.append(DATETIME)
             else:
                 featuretypes.append(CATEGORICAL)
@@ -33,7 +33,7 @@ def infer_featuretypes(df: pd.DataFrame, nrows: int = 100):
     return featuretypes
 
 
-def is_number(series: pd.Series):
+def _is_number(series: pd.Series):
     """Returns whether a series contains float values.
 
     Args:
@@ -50,7 +50,7 @@ def is_number(series: pd.Series):
     return True
 
 
-def is_datetime(series: pd.Series):
+def _is_datetime(series: pd.Series):
     """Returns whether a series contains datetime values.
 
     Args:
