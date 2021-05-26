@@ -198,7 +198,6 @@ def delete_figures(experiment_id: Optional[str] = None,
                 run_id = metadata.get("run_id")
         except FileNotFoundError:
             pass
-        metadata["run_id"] = run_id
 
     if deployment_id is not None:
         prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/"
@@ -207,11 +206,8 @@ def delete_figures(experiment_id: Optional[str] = None,
 
     objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
 
-    figures = list_figures()
-
-    if figures:
-        for obj in objects:
-            MINIO_CLIENT.remove_object(
-                bucket_name=BUCKET_NAME,
-                object_name=obj.object_name,
-            )
+    for obj in objects:
+        MINIO_CLIENT.remove_object(
+            bucket_name=BUCKET_NAME,
+            object_name=obj.object_name,
+        )
