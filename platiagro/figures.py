@@ -161,3 +161,53 @@ def save_figure(figure: Union[bytes, str],
         data=buffer,
         length=length,
     )
+
+
+def delete_figures(experiment_id: Optional[str] = None,
+                   operator_id: Optional[str] = None,
+                   run_id: Optional[str] = None,
+                   deployment_id: Optional[str] = None,
+                   monitoring_id: Optional[str] = None) -> List[str]:
+    """Delete a figure to the object storage.
+
+    Args:
+        experiment_id (str, optional): the experiment uuid. Defaults to None.
+        operator_id (str, optional): the operator uuid. Defaults to None.
+        run_id (str, optional): the run id. Defaults to None.
+        deployment_id (str, optional): the deployment id. Defaults to None.
+        monitoring_id (str, optional): the monitoring id. Defaults to None.
+    """
+
+    if experiment_id is None:
+        experiment_id = get_experiment_id()
+
+    if operator_id is None:
+        operator_id = get_operator_id()
+
+    if deployment_id is None:
+        deployment_id = get_deployment_id()
+
+    if monitoring_id is None:
+        monitoring_id = get_monitoring_id()
+
+    if run_id:
+        metadata = {}
+        try:
+            metadata = stat_metadata(experiment_id, operator_id)
+            if run_id == "latest":
+                run_id = metadata.get("run_id")
+        except FileNotFoundError:
+            pass
+
+    if deployment_id is not None:
+        prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/"
+    else:
+        prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
+
+    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
+
+    for obj in objects:
+        MINIO_CLIENT.remove_object(
+            bucket_name=BUCKET_NAME,
+            object_name=obj.object_name,
+        )
