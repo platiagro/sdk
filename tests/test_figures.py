@@ -127,3 +127,10 @@ class TestFigures(TestCase):
         del environ["EXPERIMENT_ID"]
         del environ["OPERATOR_ID"]
         del environ["RUN_ID"]
+
+    def test_delete_figure_deployment_id(self):
+        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
+        environ["MONITORING_ID"] = "testHtmlFigure"
+
+        result = delete_figures(run_id="latest")
+        self.assertFalse(isinstance(result, list))
