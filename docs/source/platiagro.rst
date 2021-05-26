@@ -121,7 +121,7 @@ Save metrics
   save_metrics(accuracy=0.7)
   save_metrics(reset=True, r2_score=-3.0)
 
-List and save figures
+List, save and delete figures
 ---------------------
 
 .. currentmodule:: platiagro
@@ -146,6 +146,14 @@ List and save figures
   data = np.random.rand(10, 12)
   plot = sns.heatmap(data)
   save_figure(figure=plot.figure)
+
+.. autofunction:: delete_figures
+
+.. code-block:: python
+
+  from platiagro import delete_figures
+
+  delete_figures()
 
 Get feature types
 -----------------

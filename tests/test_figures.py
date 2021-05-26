@@ -7,7 +7,7 @@ from uuid import uuid4
 import base64
 from minio.error import BucketAlreadyOwnedByYou
 
-from platiagro import list_figures, save_figure
+from platiagro import list_figures, save_figure, delete_figures
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 RUN_ID = str(uuid4())
@@ -115,3 +115,15 @@ class TestFigures(TestCase):
 
         del environ["DEPLOYMENT_ID"]
         del environ["MONITORING_ID"]
+
+    def test_delete_figure(self):
+        environ["EXPERIMENT_ID"] = "testHtmlFigure"
+        environ["OPERATOR_ID"] = "testHtmlFigure"
+        environ["RUN_ID"] = RUN_ID
+
+        result = delete_figures()
+        self.assertFalse(isinstance(result, list))
+
+        del environ["EXPERIMENT_ID"]
+        del environ["OPERATOR_ID"]
+        del environ["RUN_ID"]
