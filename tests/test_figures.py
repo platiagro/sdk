@@ -117,8 +117,8 @@ class TestFigures(TestCase):
         del environ["MONITORING_ID"]
 
     def test_delete_figure(self):
-        environ["EXPERIMENT_ID"] = "testHtmlFigure"
-        environ["OPERATOR_ID"] = "testHtmlFigure"
+        environ["EXPERIMENT_ID"] = "testFigure"
+        environ["OPERATOR_ID"] = "testFigure"
         environ["RUN_ID"] = RUN_ID
 
         result = delete_figures()
@@ -128,9 +128,18 @@ class TestFigures(TestCase):
         del environ["OPERATOR_ID"]
         del environ["RUN_ID"]
 
-    def test_delete_figure_deployment_id(self):
-        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
-        environ["MONITORING_ID"] = "testHtmlFigure"
+        result = delete_figures(experiment_id="testFigure", operator_id="testFigure")
+        self.assertFalse(isinstance(result, list))
 
-        result = delete_figures(run_id="latest")
+    def test_delete_figure_deployment_id(self):
+        environ["DEPLOYMENT_ID"] = "testFigure"
+        environ["MONITORING_ID"] = "testFigure"
+
+        result = delete_figures()
+        self.assertFalse(isinstance(result, list))
+
+        del environ["DEPLOYMENT_ID"]
+        del environ["MONITORING_ID"]
+
+        result = delete_figures(deployment_id="testFigure", monitoring_id="testFigure", run_id="latest")
         self.assertFalse(isinstance(result, list))
