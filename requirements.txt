@@ -12,4 +12,4 @@ requests>=2.23.0
 # Lib that contains OrdinalEncoder and OneHotEncoder
 category-encoders==2.2.2
 # OpenCV
-opencv-python==4.5.3
+opencv-python==4.5.3.56
