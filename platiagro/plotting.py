@@ -21,6 +21,10 @@ from sklearn.model_selection import train_test_split
 from scipy.stats import gaussian_kde
 from scipy.stats import probplot
 
+import colorsys
+import cv2
+from unidecode import unidecode
+
 warnings.filterwarnings("ignore")
 
 
@@ -1125,3 +1129,105 @@ def plot_model_coef_weight(coef: np.ndarray, columns: np.ndarray):
     )
 
     return fig
+
+def _get_bboxes_colors(max_class: int = 14*6) -> List:
+    """Get colors for each class.
+
+    Args:
+        max_class (int): max class to use.
+
+    Returns:
+        (list): list of colors tuple for each class.
+    """
+
+    hsv = [(x / max_class, 1.0, 1.0) for x in range(int(max_class * 1.2))]
+
+    colors = [colorsys.hsv_to_rgb(*x) for x in hsv]
+    colors = [(int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)) for x in colors]
+
+    bbox_colors = []
+    for i in range(max_class):
+        # 0 14 28 42 56 70 1 15 29 43 57 71 2 ...
+        bbox_colors.append(colors[14 * (i % 6) + (i // 6)])
+
+    return bbox_colors
+
+def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray, names: np.ndarray):
+    """Draw a list o bounding boxes in a copy of a given array image with its labels and probabilities
+
+    Args:
+        image (np.ndarray): image to be used for draw - Dim(height, width, channel)
+        bboxes (np.ndarray): array of bounding boxes (list, np.ndarray) -  Dim(-1, (x_min, y_min, x_max, y_max))
+        probs (np.ndarray): array of probabilities (float) - Dim(-1,)
+        names (np.ndarray): array of labels (string) - Dim(-1,)
+
+    Returns:
+        (np.ndarray): image with bounding boxes
+    """
+
+    # Define a max number of classes and get colors
+    max_class = 14*6
+    bbox_colors = _get_bboxes_colors(max_class=max_class)
+
+    # Get image parameters
+    height, width, _ = image.shape
+
+    # Make a copy of the image
+    image = np.copy(image)
+
+    # Get the unique class names
+    name_ids = np.unique(names)
+
+    # Draw bounding boxes
+    for bbox_id, bbox in enumerate(bboxes):
+        
+        left = int(bbox[0]) # x_min
+        top = int(bbox[1]) # y_min
+        right = int(bbox[2]) # x_max
+        bottom = int(bbox[3]) # y_max
+
+        font_size = 0.4
+        font_thickness = 1
+        
+        # find name id, prob and set color
+        name_id = np.where(np.array(name_ids) == names[bbox_id])[0][0]
+        prob = float(probs[bbox_id])
+        color = bbox_colors[name_id%max_class]
+
+        # Get text size
+        bbox_text = "{}: {:.1%}".format(names[bbox_id], prob)
+        t_w, t_h = cv2.getTextSize(bbox_text, 0, font_size, font_thickness)[0]
+        t_h += 3
+
+        # Draw box
+        if top < t_h:
+            top = t_h
+        if left < 1:
+            left = 1
+        if bottom >= height:
+            bottom = height - 1
+        if right >= width:
+            right = width - 1
+
+        cv2.rectangle(image, (left, top), (right, bottom), color, 1)
+
+        # Draw text box
+        cv2.rectangle(image, (left, top), (left + t_w, top - t_h), color, -1)
+
+        # Draw text
+        cv2.putText(
+            image,
+            unidecode(bbox_text), # OpenCV does not handle ~, ^, ´, etc..
+            (left, top - 2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_size,
+            (
+                255 - color[0],
+                255 - color[1],
+                255 - color[2],
+            ),
+            font_thickness,
+            lineType=cv2.LINE_AA,
+        )
+
+    return image
