@@ -41,6 +41,7 @@ from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_shap_classification_summary
 from platiagro.plotting import plot_residues
 from platiagro.plotting import plot_model_coef_weight
+from platiagro.plotting import draw_bboxes
 
 from .test_util import get_iris, get_boston
 
@@ -323,4 +324,14 @@ class TestPlotting(TestCase):
                                             feature_names=iris['features_columns'],
                                             label_encoder=iris['label_encoder'],
                                             non_numerical_indexes=np.array([]))
+
+    def test_draw_bboxes(self):
+        
+        image = np.full((256,256,3), 255).astype(np.uint8)
+
+        bboxes = np.array([[10,10,100,100],[20,20,30,50]])
+        probs = np.array([0.5,0.7])
+        labels = np.array(['Apple', 'Maçã'])
+
+        draw_bboxes(image, bboxes, probs, labels)
 
