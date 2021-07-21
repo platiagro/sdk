@@ -21,6 +21,8 @@ extras = {
         "plotly>=4.14.1",
         "ipykernel>=5.2.0",
         "notebook>=6.0.2",
+        "opencv-python==4.5.3.56",
+        "unidecode==1.2.0",
     ],
     "testing": [
         "pytest>=4.4.0",
