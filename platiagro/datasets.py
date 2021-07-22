@@ -257,7 +257,7 @@ def save_dataset(name: str,
         os.remove(temp_file.name)
     else:
         # uploads raw data to MinIO
-        buffer = BytesIO(data.read())
+        buffer = BytesIO(data.readline())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name=path.lstrip(f"{BUCKET_NAME}/"),
