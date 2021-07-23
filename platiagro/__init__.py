@@ -18,4 +18,4 @@ __all__ = ["client",
            "list_metrics", "save_metrics",
            "load_model", "save_model"]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
