@@ -28,9 +28,8 @@ class TestFigures(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except S3Error as err:
-            if err.code == "BucketAlreadyOwnedByYou":
-                pass
+        except S3Error:
+            pass
 
     def create_mock_figure(self):
         file = BytesIO(
