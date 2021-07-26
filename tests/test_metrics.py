@@ -90,6 +90,9 @@ class TestMetrics(TestCase):
         environ["OPERATOR_ID"] = OPERATOR_ID
         environ["RUN_ID"] = RUN_ID
 
+        with self.assertRaises(FileNotFoundError):
+            list_metrics()
+
         save_metrics(accuracy=0.75)
         metrics = list_metrics()
         self.assertTrue(isinstance(metrics, list))
