@@ -4,7 +4,7 @@ from typing import Optional
 
 from json import loads
 from minio import Minio
-from minio.error import BucketAlreadyOwnedByYou, NoSuchBucket, NoSuchKey
+from minio.error import S3Error
 from s3fs.core import S3FileSystem
 from typing import Dict
 
@@ -39,8 +39,9 @@ def make_bucket(name: str):
     """
     try:
         MINIO_CLIENT.make_bucket(name)
-    except BucketAlreadyOwnedByYou:
-        pass
+    except S3Error as err:
+        if err.code == "BucketAlreadyOwnedByYou":
+            pass
 
 
 def get_experiment_id(raise_for_none: bool = False, default: Optional[str] = None):
@@ -193,8 +194,9 @@ def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
         # decodes the metadata (which is in JSON format)
         metadata = loads(data.read())
 
-    except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("The specified metadata does not exist")
+    except S3Error as err:
+        if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+            raise FileNotFoundError("The specified metadata does not exist")
 
     return metadata
 
@@ -225,8 +227,9 @@ def metadata_exists(name: str, run_id: str = None, operator_id: str = None) -> b
             object_name=object_name,
         )
         return True
-    except (NoSuchBucket, NoSuchKey):
-        return False
+    except S3Error as err:
+        if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+            return False
 
 
 def operator_filepath(name: str,
