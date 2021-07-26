@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from minio.error import S3Error
+import logging
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
@@ -24,4 +25,4 @@ def download_artifact(name: str, path: str):
         )
     except S3Error as err:
         if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-            raise FileNotFoundError("The specified artifact does not exist")
+            logging.warning("The specified artifact does not exist")
