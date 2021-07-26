@@ -56,7 +56,7 @@ def list_metrics(experiment_id: Optional[str] = None,
         )
     except S3Error as err:
         if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-            logging.warning(f"No such file or directory: '{experiment_id}'")
+            raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
 
     return load(data)
 
