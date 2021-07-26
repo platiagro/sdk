@@ -3,7 +3,7 @@ import io
 import os
 from unittest import TestCase
 
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import S3Error
 
 from platiagro import download_artifact
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
@@ -30,8 +30,9 @@ class TestArtifacts(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except BucketAlreadyOwnedByYou:
-            pass
+        except S3Error as err:
+            if err.code == "BucketAlreadyOwnedByYou":
+                pass
 
     def test_download_artifact(self):
         with self.assertRaises(FileNotFoundError):

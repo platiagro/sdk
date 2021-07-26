@@ -8,7 +8,7 @@ from unittest import TestCase
 from uuid import uuid4
 from zipfile import ZipFile
 
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import S3Error
 import pandas as pd
 
 from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
@@ -42,7 +42,8 @@ class TestDatasets(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except BucketAlreadyOwnedByYou:
+        except S3Error as err:
+            if err.code == "BucketAlreadyOwnedByYou":
             pass
 
     def mock_columns(self, size=1e3):
