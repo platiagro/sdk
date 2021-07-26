@@ -5,7 +5,7 @@ from unittest import TestCase
 from uuid import uuid4
 
 from joblib import dump
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import S3Error
 
 from platiagro import load_model, save_model
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
@@ -29,8 +29,9 @@ class TestModels(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except BucketAlreadyOwnedByYou:
-            pass
+        except S3Error as err:
+            if err.code == "BucketAlreadyOwnedByYou":
+                pass
 
     def create_mock_model(self):
         model = {"model": MockModel()}

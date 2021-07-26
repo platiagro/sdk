@@ -44,7 +44,7 @@ class TestDatasets(TestCase):
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
         except S3Error as err:
             if err.code == "BucketAlreadyOwnedByYou":
-            pass
+                pass
 
     def mock_columns(self, size=1e3):
         return [f"col{i}" for i in range(int(size))]

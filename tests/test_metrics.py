@@ -6,7 +6,7 @@ from unittest import TestCase
 from uuid import uuid4
 
 import pandas as pd
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import S3Error
 from platiagro import list_metrics, save_metrics
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
@@ -25,8 +25,9 @@ class TestMetrics(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except BucketAlreadyOwnedByYou:
-            pass
+        except S3Error as err:
+            if err.code == "BucketAlreadyOwnedByYou":
+                pass
 
     def create_mock_metrics(self):
         metric = [{"accuracy": 1.0}]

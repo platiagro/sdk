@@ -5,7 +5,7 @@ from unittest import TestCase
 from uuid import uuid4
 
 import base64
-from minio.error import BucketAlreadyOwnedByYou
+from minio.error import S3Error
 
 from platiagro import list_figures, save_figure, delete_figures
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
@@ -28,8 +28,9 @@ class TestFigures(TestCase):
     def make_bucket(self):
         try:
             MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except BucketAlreadyOwnedByYou:
-            pass
+        except S3Error as err:
+            if err.code == "BucketAlreadyOwnedByYou":
+                pass
 
     def create_mock_figure(self):
         file = BytesIO(
