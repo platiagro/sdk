@@ -26,7 +26,7 @@ def list_datasets() -> List[str]:
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
+    objects = MINIO_CLIENT.list_objects(BUCKET_NAME, PREFIX + "/")
 
     for obj in objects:
         name = obj.object_name[len(PREFIX) + 1:-1]
