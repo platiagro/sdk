@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 from minio.error import S3Error
+import logging
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket, get_run_id, stat_metadata, operator_filepath
@@ -120,7 +121,7 @@ def save_metrics(experiment_id: Optional[str] = None,
         encoded_metrics = loads(data.read())
     except S3Error as err:
         if err.code == "NoSuchKey":
-            pass
+            logging.warning("Object does not exist")
 
     # appends new metrics
     encoded_metrics.extend(_encode_metrics(kwargs))

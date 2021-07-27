@@ -7,6 +7,7 @@ from minio import Minio
 from minio.error import S3Error
 from s3fs.core import S3FileSystem
 from typing import Dict
+import logging
 
 BUCKET_NAME = "anonymous"
 MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
@@ -41,7 +42,7 @@ def make_bucket(name: str):
         MINIO_CLIENT.make_bucket(name)
     except S3Error as err:
         if err.code == "BucketAlreadyOwnedByYou":
-            pass
+            logging.warning("The bucket already exists.")
 
 
 def get_experiment_id(raise_for_none: bool = False, default: Optional[str] = None):
