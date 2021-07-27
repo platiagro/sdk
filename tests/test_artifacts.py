@@ -33,6 +33,8 @@ class TestArtifacts(TestCase):
         except S3Error as err:
             if err.code == "BucketAlreadyOwnedByYou":
                 pass
+            if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+                raise FileNotFoundError("The specified artifact does not exist")
 
     def test_download_artifact(self):
         with self.assertRaises(FileNotFoundError):
