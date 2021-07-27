@@ -276,6 +276,11 @@ def save_dataset(name: str,
     )
 
 
+def raise_if_dataset_does_not_exist(err: str):
+    if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+        raise FileNotFoundError("The specified dataset does not exist")
+
+
 def stat_dataset(name: str,
                  run_id: Optional[str] = None,
                  operator_id: Optional[str] = None) -> Dict[str, str]:
@@ -337,8 +342,7 @@ def stat_dataset(name: str,
         metadata = loads(data.read())
 
     except S3Error as err:
-        if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-            raise FileNotFoundError("The specified dataset does not exist")
+        raise_if_dataset_does_not_exist(err)
 
     return metadata
 
