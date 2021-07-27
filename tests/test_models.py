@@ -58,8 +58,6 @@ class TestModels(TestCase):
         self.assertIsInstance(model, dict)
         self.assertIsInstance(model["model"], MockModel)
 
-        MINIO_CLIENT.remove_bucket(BUCKET_NAME)
-
     def test_save_model(self):
         with self.assertRaises(TypeError):
             model = MockModel()
