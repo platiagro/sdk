@@ -9,6 +9,7 @@ from uuid import uuid4
 from zipfile import ZipFile
 
 from minio.error import S3Error
+from minio.commonconfig import CopySource
 import pandas as pd
 
 from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
@@ -85,12 +86,12 @@ class TestDatasets(TestCase):
         MINIO_CLIENT.copy_object(
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/mock.csv/runs/{RUN_ID}/operators/{OPERATOR_ID}/mock.csv/mock.csv",
-            source=f"/{BUCKET_NAME}/datasets/mock.csv/mock.csv",
+            source=CopySource(BUCKET_NAME, "datasets/mock.csv/mock.csv")
         )
         MINIO_CLIENT.copy_object(
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/mock.csv/runs/{RUN_ID}/operators/{OPERATOR_ID}/mock.csv/mock.csv.metadata",
-            source=f"/{BUCKET_NAME}/datasets/mock.csv/mock.csv.metadata",
+            source=CopySource(BUCKET_NAME, "datasets/mock.csv/mock.csv.metadata")
         )
 
     def create_mock_dataset2(self):
