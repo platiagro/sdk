@@ -7,7 +7,6 @@ from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
 from minio.error import S3Error
-import logging
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
@@ -339,7 +338,7 @@ def stat_dataset(name: str,
 
     except S3Error as err:
         if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-            logging.warning("The specified dataset does not exist")
+            raise FileNotFoundError("The specified dataset does not exist")
 
     return metadata
 
