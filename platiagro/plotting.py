@@ -1153,6 +1153,137 @@ def _get_bboxes_colors(max_class: int = 14*6) -> List:
 
     return bbox_colors
 
+def _generate_uniques(names: np.ndarray = None) -> np.ndarray:
+    """Generate unique id's for each name.
+
+    Args:
+        names (list): list of names.
+
+    Returns:
+        (list): list of unique id's.
+    """
+
+    # Get the unique class names
+    if names is not None:
+        uniques = np.unique(names)
+    else:  
+        # Single unique
+        uniques = np.array([0])
+
+    return uniques
+
+# Recieve a list of unique ids, a list of names and a name index and return the unique id
+def _find_unique_id(uniques: np.ndarray, names: np.ndarray, name_index: int):
+    """Find unique id for a name whitin names.
+
+    Args:
+        uniques (list): list of unique ids.
+        names (list): list of names.
+        name_index (int): index of the name.
+
+    Returns:
+        (object): unique id.
+    """
+
+    # find name id
+    if names is not None:
+        unique_id = np.where(np.array(uniques) == names[name_index])[0][0]
+    else:
+        unique_id = uniques[0]
+
+    return unique_id
+
+def _get_bbox_text(names: np.ndarray, name_id: int, prob: float) -> str:
+    """Get the text for the bbox.
+
+    Args:
+        names (list): list of names.
+        name_id (int): unique id of the name.
+        prob (float): probability of the name.
+
+    Returns:
+        (str): the text for the bbox.
+    """
+
+    bbox_text = None
+
+    # has name and prob
+    if names is not None and prob is not None:
+        bbox_text = "{}: {:.1%}".format(names[name_id], prob)
+    # has only name
+    elif names is not None and prob is None:
+        bbox_text = "{}".format(names[name_id])
+    # has only prob
+    elif names is None and prob is not None:
+        bbox_text = "{:.1%}".format(prob)
+
+    return bbox_text
+
+def _add_bbox_to_image(image: np.ndarray, bbox: np.ndarray, bbox_text: str, color: tuple):
+    """Add a bbox to the image.
+
+    Args:
+        image (np.ndarray): image.
+        bbox (np.ndarray): bbox.
+        bbox_text (str): text for the bbox.
+        color (tuple): color for the bbox and text (255 - color[i]).
+    """
+
+    # Get image parameters
+    height, width, _ = image.shape
+
+    # Params
+    font_size = 0.4
+    font_thickness = 1
+
+    # Get coordinates
+    left = int(bbox[0]) # x_min
+    top = int(bbox[1]) # y_min
+    right = int(bbox[2]) # x_max
+    bottom = int(bbox[3]) # y_max
+
+    # Draw only bounding box
+    if bbox_text is None:
+        cv2.rectangle(image, (left, top), (right, bottom), color, 1)
+
+    # Iff has text
+    else:
+        t_w, t_h = cv2.getTextSize(bbox_text, 0, font_size, font_thickness)[0]
+        t_h += 3
+
+        # Draw box
+        if top < t_h:
+            top = t_h
+        if left < 1:
+            left = 1
+        if bottom >= height:
+            bottom = height - 1
+        if right >= width:
+            right = width - 1
+
+        # Draw bounding box
+        cv2.rectangle(image, (left, top), (right, bottom), color, 1)
+
+        # Draw text box
+        cv2.rectangle(image, (left, top), (left + t_w, top - t_h), color, -1)
+
+        # Draw text
+        cv2.putText(
+            image,
+            unidecode(bbox_text), # OpenCV does not handle ~, ^, ´, etc..
+            (left, top - 2),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_size,
+            (
+                255 - color[0],
+                255 - color[1],
+                255 - color[2],
+            ),
+            font_thickness,
+            lineType=cv2.LINE_AA,
+        )
+
+
 def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None):
     """Draw a list o bounding boxes in a copy of a given array image with its labels (optional) and probabilities (optional).
 
@@ -1170,97 +1301,29 @@ def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None,
     max_class = 14*6
     bbox_colors = _get_bboxes_colors(max_class=max_class)
 
-    # Get image parameters
-    height, width, _ = image.shape
-
     # Make a copy of the image
     image = np.copy(image)
 
     # Get the unique class names
-    if names is not None:
-        name_ids = np.unique(names)
-    else:  
-        # Single class color
-        name_ids = np.array([0])
+    name_ids = _generate_uniques(names)
 
     # Draw bounding boxes
     for bbox_id, bbox in enumerate(bboxes):
-        
-        left = int(bbox[0]) # x_min
-        top = int(bbox[1]) # y_min
-        right = int(bbox[2]) # x_max
-        bottom = int(bbox[3]) # y_max
 
-        font_size = 0.4
-        font_thickness = 1
-        
         # find name id
-        if names is not None:
-            name_id = np.where(np.array(name_ids) == names[bbox_id])[0][0]
-        else:
-            name_id = name_ids[0]
+        name_id = _find_unique_id(name_ids, names, bbox_id)
         
         # get prob
-        if probs is not None:
-            prob = float(probs[bbox_id])
-        else:
-            prob = None
+        prob = float(probs[bbox_id]) if probs is not None else None
 
         # get color
         color = bbox_colors[name_id%max_class]
         
-        bbox_text = None
-        # Build text
-        # has name and prob
-        if names is not None and prob is not None:
-            bbox_text = "{}: {:.1%}".format(names[bbox_id], prob)
-        # has only name
-        elif names is not None and prob is None:
-            bbox_text = "{}".format(names[bbox_id])
-        # has only prob
-        elif names is None and prob is not None:
-            bbox_text = "{:.1%}".format(prob)
-
-        # Draw bounding box
-        if bbox_text is None:
-            cv2.rectangle(image, (left, top), (right, bottom), color, 1)
-
-        # Iff has text
-        else:
-            t_w, t_h = cv2.getTextSize(bbox_text, 0, font_size, font_thickness)[0]
-            t_h += 3
-
-            # Draw box
-            if top < t_h:
-                top = t_h
-            if left < 1:
-                left = 1
-            if bottom >= height:
-                bottom = height - 1
-            if right >= width:
-                right = width - 1
-
-            # Draw bounding box
-            cv2.rectangle(image, (left, top), (right, bottom), color, 1)
-
-            # Draw text box
-            cv2.rectangle(image, (left, top), (left + t_w, top - t_h), color, -1)
-
-            # Draw text
-            cv2.putText(
-                image,
-                unidecode(bbox_text), # OpenCV does not handle ~, ^, ´, etc..
-                (left, top - 2),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                font_size,
-                (
-                    255 - color[0],
-                    255 - color[1],
-                    255 - color[2],
-                ),
-                font_thickness,
-                lineType=cv2.LINE_AA,
-            )
+        # build text
+        bbox_text = _get_bbox_text(names, bbox_id, prob)
+        
+        # add bbox to image
+        _add_bbox_to_image(image, bbox, bbox_text, color)    
 
     return image
 
