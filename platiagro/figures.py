@@ -59,7 +59,7 @@ def list_figures(experiment_id: Optional[str] = None,
     else:
         prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
 
-    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
+    objects = MINIO_CLIENT.list_objects(BUCKET_NAME, prefix)
 
     for obj in objects:
         data = MINIO_CLIENT.get_object(
@@ -204,7 +204,7 @@ def delete_figures(experiment_id: Optional[str] = None,
     else:
         prefix = operator_filepath('figure-', experiment_id, operator_id, run_id)
 
-    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, prefix)
+    objects = MINIO_CLIENT.list_objects(BUCKET_NAME, prefix)
 
     for obj in objects:
         MINIO_CLIENT.remove_object(

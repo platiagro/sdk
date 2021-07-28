@@ -6,7 +6,7 @@ from json import dumps, loads
 from typing import List, Dict, BinaryIO, Optional, Union
 
 import pandas as pd
-from minio.error import NoSuchBucket, NoSuchKey
+from minio.error import S3Error
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
@@ -26,7 +26,7 @@ def list_datasets() -> List[str]:
     # ensures MinIO bucket exists
     make_bucket(BUCKET_NAME)
 
-    objects = MINIO_CLIENT.list_objects_v2(BUCKET_NAME, PREFIX + "/")
+    objects = MINIO_CLIENT.list_objects(BUCKET_NAME, PREFIX + "/")
 
     for obj in objects:
         name = obj.object_name[len(PREFIX) + 1:-1]
@@ -257,12 +257,12 @@ def save_dataset(name: str,
         os.remove(temp_file.name)
     else:
         # uploads raw data to MinIO
-        buffer = BytesIO(data.read())
         MINIO_CLIENT.put_object(
             bucket_name=BUCKET_NAME,
             object_name=path.lstrip(f"{BUCKET_NAME}/"),
-            data=buffer,
-            length=buffer.getbuffer().nbytes,
+            data=data,
+            length=-1,
+            part_size=6000000,
         )
 
     object_name = _metadata_filepath(name, run_id, operator_id)
@@ -274,6 +274,11 @@ def save_dataset(name: str,
         data=buffer,
         length=buffer.getbuffer().nbytes,
     )
+
+
+def raise_if_dataset_does_not_exist(err: S3Error):
+    if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+        raise FileNotFoundError("The specified dataset does not exist")
 
 
 def stat_dataset(name: str,
@@ -336,8 +341,8 @@ def stat_dataset(name: str,
         # decodes the metadata (which is in JSON format)
         metadata = loads(data.read())
 
-    except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError("The specified dataset does not exist")
+    except S3Error as err:
+        raise_if_dataset_does_not_exist(err)
 
     return metadata
 

@@ -5,7 +5,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from minio.error import NoSuchBucket, NoSuchKey
+from minio.error import S3Error
+import logging
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket, get_run_id, stat_metadata, operator_filepath
@@ -53,8 +54,9 @@ def list_metrics(experiment_id: Optional[str] = None,
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
-    except (NoSuchBucket, NoSuchKey):
-        raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
+    except S3Error as err:
+        if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+            raise FileNotFoundError(f"No such file or directory: '{experiment_id}'")
 
     return load(data)
 
@@ -117,8 +119,9 @@ def save_metrics(experiment_id: Optional[str] = None,
             object_name=object_name,
         )
         encoded_metrics = loads(data.read())
-    except NoSuchKey:
-        pass
+    except S3Error as err:
+        if err.code == "NoSuchKey":
+            logging.warning("Object does not exist")
 
     # appends new metrics
     encoded_metrics.extend(_encode_metrics(kwargs))

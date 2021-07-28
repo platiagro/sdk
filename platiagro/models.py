@@ -4,7 +4,7 @@ from os import SEEK_SET
 from typing import Dict, Optional
 
 from joblib import dump, load
-from minio.error import NoSuchBucket, NoSuchKey
+from minio.error import S3Error
 
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, get_experiment_id, \
     get_operator_id, make_bucket
@@ -41,8 +41,9 @@ def load_model(experiment_id: Optional[str] = None,
             bucket_name=BUCKET_NAME,
             object_name=object_name,
         )
-    except (NoSuchBucket, NoSuchKey):
-        return {}
+    except S3Error as err:
+        if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
+            return {}
 
     buffer = BytesIO(data.read())
 
