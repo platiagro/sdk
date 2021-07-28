@@ -1,6 +1,8 @@
 from unittest import TestCase
 from uuid import uuid4
 
+from matplotlib.pyplot import plot
+
 import numpy as np
 import pandas as pd
 import shap
@@ -42,6 +44,7 @@ from platiagro.plotting import plot_shap_classification_summary
 from platiagro.plotting import plot_residues
 from platiagro.plotting import plot_model_coef_weight
 from platiagro.plotting import draw_bboxes
+from platiagro.plotting import plot_bboxes
 
 from .test_util import get_iris, get_boston
 
@@ -333,5 +336,22 @@ class TestPlotting(TestCase):
         probs = np.array([0.5,0.7])
         labels = np.array(['Apple', 'Maçã'])
 
-        draw_bboxes(image, bboxes, probs, labels)
+        draw_bboxes(image, bboxes, probs = probs, names = labels)
+        draw_bboxes(image, bboxes, probs = None, names = None)
+        draw_bboxes(image, bboxes, probs = None, names = labels)
+        draw_bboxes(image, bboxes, probs = probs, names = None)
+
+    def test_plot_bboxes(self):
+
+        image = np.full((256,256,3), 255).astype(np.uint8)
+
+        bboxes = np.array([[10,10,100,100],[20,20,30,50]])
+        probs = np.array([0.5,0.7])
+        labels = np.array(['Apple', 'Maçã'])
+
+        plot_bboxes(image, bboxes, probs = probs, names = labels)
+        plot_bboxes(image, bboxes, probs = None, names = None)
+        plot_bboxes(image, bboxes, probs = None, names = labels)
+        plot_bboxes(image, bboxes, probs = probs, names = None)
+
 
