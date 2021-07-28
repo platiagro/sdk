@@ -42,12 +42,3 @@ class TestArtifacts(TestCase):
 
         download_artifact("mock.txt", "./mock-dest.txt")
         self.assertTrue(os.path.exists("./mock-dest.txt"))
-
-        try:
-            MINIO_CLIENT.remove_object(
-                bucket_name=BUCKET_NAME,
-                object_name="artifacts/mock.txt",
-            )
-        except S3Error as err:
-            if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-                raise FileNotFoundError("The specified artifact does not exist")

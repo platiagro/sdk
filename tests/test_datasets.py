@@ -148,6 +148,9 @@ class TestDatasets(TestCase):
         with self.assertRaises(FileNotFoundError):
             load_dataset("UNK")
 
+        with self.assertRaises(KeyError):
+            load_dataset("UNK")
+
         # UnicodeDecodeError
         result = load_dataset("mock.zip")
         self.assertIsInstance(result, BytesIO)
