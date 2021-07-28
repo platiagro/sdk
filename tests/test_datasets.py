@@ -145,10 +145,10 @@ class TestDatasets(TestCase):
         self.assertTrue(isinstance(result, list))
 
     def test_load_dataset(self):
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(KeyError):
             load_dataset("UNK")
 
-        with self.assertRaises(KeyError):
+        with self.assertRaises(FileNotFoundError):
             load_dataset("UNK")
 
         # UnicodeDecodeError
