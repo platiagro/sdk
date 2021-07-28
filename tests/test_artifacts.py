@@ -51,5 +51,3 @@ class TestArtifacts(TestCase):
         except S3Error as err:
             if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
                 self.assertEqual(type(err.code), S3Error)
-        else:
-            self.fail("The specified artifact does not exist")
