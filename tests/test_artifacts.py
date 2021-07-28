@@ -44,7 +44,7 @@ class TestArtifacts(TestCase):
         self.assertTrue(os.path.exists("./mock-dest.txt"))
 
         err = S3Error.code
-        self.assertEqual(err, "NoSuchBucket")
+        self.assertFalse(err, "NoSuchBucket")
 
         try:
             MINIO_CLIENT.remove_object(
