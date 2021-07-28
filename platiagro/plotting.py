@@ -1174,7 +1174,7 @@ def _generate_uniques(names: np.ndarray = None) -> np.ndarray:
 
 # Recieve a list of unique ids, a list of names and a name index and return the unique id
 def _find_unique_id(uniques: np.ndarray, names: np.ndarray, name_index: int):
-    """Find unique id for a name whitin names.
+    """Find unique id for a name whitin names list.
 
     Args:
         uniques (list): list of unique ids.
@@ -1219,7 +1219,7 @@ def _get_bbox_text(names: np.ndarray, name_id: int, prob: float) -> str:
 
     return bbox_text
 
-def _add_bbox_to_image(image: np.ndarray, bbox: np.ndarray, bbox_text: str, color: tuple):
+def _add_bbox_to_image(image: np.ndarray, bbox: np.ndarray, bbox_text: str, color: Tuple):
     """Add a bbox to the image.
 
     Args:
@@ -1284,7 +1284,7 @@ def _add_bbox_to_image(image: np.ndarray, bbox: np.ndarray, bbox_text: str, colo
         )
 
 
-def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None):
+def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None) -> np.ndarray:
     """Draw a list o bounding boxes in a copy of a given array image with its labels (optional) and probabilities (optional).
 
     Args:
@@ -1327,7 +1327,7 @@ def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None,
 
     return image
 
-def plot_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None):
+def plot_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None) -> Image.Image:
     """Plot a image with the given bounding boxes, its labels (optional) and probabilities (optional).
 
     Args:
