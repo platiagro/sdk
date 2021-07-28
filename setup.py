@@ -23,6 +23,7 @@ extras = {
         "notebook>=6.0.2",
         "opencv-python==4.5.3.56",
         "unidecode==1.2.0",
+        "Pillow==8.3.1"
     ],
     "testing": [
         "pytest>=4.4.0",
