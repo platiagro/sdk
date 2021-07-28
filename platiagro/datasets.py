@@ -114,7 +114,6 @@ def load_dataset(name: str,
         # metadata file does not contains "columns" or "featuretypes"
         # ignore this error and return dataset without cast its type
         pass
-        raise
     except FileNotFoundError:
         raise FileNotFoundError("The specified dataset does not exist")
 
