@@ -37,6 +37,11 @@ class TestArtifacts(TestCase):
                 raise FileNotFoundError("The specified artifact does not exist")
 
     def test_download_artifact(self):
+        MINIO_CLIENT.remove_object(
+            bucket_name=BUCKET_NAME,
+            object_name="artifacts/mock.txt",
+        )
+
         with self.assertRaises(FileNotFoundError):
             download_artifact("unk.zip", "./unk.zip")
 
