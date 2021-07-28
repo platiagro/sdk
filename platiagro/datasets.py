@@ -276,7 +276,7 @@ def save_dataset(name: str,
     )
 
 
-def raise_if_dataset_does_not_exist(err: str):
+def raise_if_dataset_does_not_exist(err: S3Error):
     if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
         raise FileNotFoundError("The specified dataset does not exist")
 

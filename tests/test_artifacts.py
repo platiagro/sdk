@@ -43,9 +43,6 @@ class TestArtifacts(TestCase):
         download_artifact("mock.txt", "./mock-dest.txt")
         self.assertTrue(os.path.exists("./mock-dest.txt"))
 
-        err = S3Error.code
-        self.assertTrue(err, "NoSuchBucket")
-
         try:
             MINIO_CLIENT.remove_object(
                 bucket_name=BUCKET_NAME,
@@ -53,4 +50,4 @@ class TestArtifacts(TestCase):
             )
         except S3Error as err:
             err.code == "NoSuchBucket"
-            self.assertEqual(type(err.code), S3Error)
+            self.assertEqual(err.code, S3Error)
