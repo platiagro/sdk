@@ -24,6 +24,7 @@ from scipy.stats import probplot
 import colorsys
 import cv2
 from unidecode import unidecode
+from PIL import Image
 
 warnings.filterwarnings("ignore")
 
@@ -1152,14 +1153,14 @@ def _get_bboxes_colors(max_class: int = 14*6) -> List:
 
     return bbox_colors
 
-def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray, names: np.ndarray):
-    """Draw a list o bounding boxes in a copy of a given array image with its labels and probabilities
+def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None):
+    """Draw a list o bounding boxes in a copy of a given array image with its labels (optional) and probabilities (optional).
 
     Args:
         image (np.ndarray): image to be used for draw - Dim(height, width, channel)
         bboxes (np.ndarray): array of bounding boxes (list, np.ndarray) -  Dim(-1, (x_min, y_min, x_max, y_max))
-        probs (np.ndarray): array of probabilities (float) - Dim(-1,)
-        names (np.ndarray): array of labels (string) - Dim(-1,)
+        probs (np.ndarray): array of probabilities (float) - Dim(-1,) - Optional
+        names (np.ndarray): array of labels (string) - Dim(-1,) - Optional
 
     Returns:
         (np.ndarray): image with bounding boxes
@@ -1176,7 +1177,11 @@ def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray, names:
     image = np.copy(image)
 
     # Get the unique class names
-    name_ids = np.unique(names)
+    if names is not None:
+        name_ids = np.unique(names)
+    else:  
+        # Single class color
+        name_ids = np.array([0])
 
     # Draw bounding boxes
     for bbox_id, bbox in enumerate(bboxes):
@@ -1189,45 +1194,88 @@ def draw_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray, names:
         font_size = 0.4
         font_thickness = 1
         
-        # find name id, prob and set color
-        name_id = np.where(np.array(name_ids) == names[bbox_id])[0][0]
-        prob = float(probs[bbox_id])
+        # find name id
+        if names is not None:
+            name_id = np.where(np.array(name_ids) == names[bbox_id])[0][0]
+        else:
+            name_id = name_ids[0]
+        
+        # get prob
+        if probs is not None:
+            prob = float(probs[bbox_id])
+        else:
+            prob = None
+
+        # get color
         color = bbox_colors[name_id%max_class]
+        
+        bbox_text = None
+        # Build text
+        # has name and prob
+        if names is not None and prob is not None:
+            bbox_text = "{}: {:.1%}".format(names[bbox_id], prob)
+        # has only name
+        elif names is not None and prob is None:
+            bbox_text = "{}".format(names[bbox_id])
+        # has only prob
+        elif names is None and prob is not None:
+            bbox_text = "{:.1%}".format(prob)
 
-        # Get text size
-        bbox_text = "{}: {:.1%}".format(names[bbox_id], prob)
-        t_w, t_h = cv2.getTextSize(bbox_text, 0, font_size, font_thickness)[0]
-        t_h += 3
+        # Draw bounding box
+        if bbox_text is None:
+            cv2.rectangle(image, (left, top), (right, bottom), color, 1)
 
-        # Draw box
-        if top < t_h:
-            top = t_h
-        if left < 1:
-            left = 1
-        if bottom >= height:
-            bottom = height - 1
-        if right >= width:
-            right = width - 1
+        # Iff has text
+        else:
+            t_w, t_h = cv2.getTextSize(bbox_text, 0, font_size, font_thickness)[0]
+            t_h += 3
 
-        cv2.rectangle(image, (left, top), (right, bottom), color, 1)
+            # Draw box
+            if top < t_h:
+                top = t_h
+            if left < 1:
+                left = 1
+            if bottom >= height:
+                bottom = height - 1
+            if right >= width:
+                right = width - 1
 
-        # Draw text box
-        cv2.rectangle(image, (left, top), (left + t_w, top - t_h), color, -1)
+            # Draw bounding box
+            cv2.rectangle(image, (left, top), (right, bottom), color, 1)
 
-        # Draw text
-        cv2.putText(
-            image,
-            unidecode(bbox_text), # OpenCV does not handle ~, ^, ´, etc..
-            (left, top - 2),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            font_size,
-            (
-                255 - color[0],
-                255 - color[1],
-                255 - color[2],
-            ),
-            font_thickness,
-            lineType=cv2.LINE_AA,
-        )
+            # Draw text box
+            cv2.rectangle(image, (left, top), (left + t_w, top - t_h), color, -1)
+
+            # Draw text
+            cv2.putText(
+                image,
+                unidecode(bbox_text), # OpenCV does not handle ~, ^, ´, etc..
+                (left, top - 2),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                font_size,
+                (
+                    255 - color[0],
+                    255 - color[1],
+                    255 - color[2],
+                ),
+                font_thickness,
+                lineType=cv2.LINE_AA,
+            )
 
     return image
+
+def plot_bboxes(image: np.ndarray, bboxes: np.ndarray, probs: np.ndarray = None, names: np.ndarray = None):
+    """Plot a image with the given bounding boxes, its labels (optional) and probabilities (optional).
+
+    Args:
+        image (np.ndarray): image to be used for draw - Dim(height, width, channel)
+        bboxes (np.ndarray): array of bounding boxes (list, np.ndarray) -  Dim(-1, (x_min, y_min, x_max, y_max))
+        probs (np.ndarray): array of probabilities (float) - Dim(-1,) - Optional
+        names (np.ndarray): array of labels (string) - Dim(-1,) - Optional
+
+    Returns:
+        (PIL.Image.Image): the Pillow Image object.
+    """
+
+    img = draw_bboxes(image, bboxes, probs=probs, names=names)
+    return Image.fromarray(img)
