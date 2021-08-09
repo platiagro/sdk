@@ -20,6 +20,9 @@ from platiagro.metrics_nlp import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_
 # List Metrics
 from platiagro.metrics_nlp import get_metrics_data
 
+# Typing
+from typing import List, Tuple, Dict, Any, Union
+
 # Mock tokenizer
 class MockTokenizer(object):
     """A mock tokenizer for testing"""
