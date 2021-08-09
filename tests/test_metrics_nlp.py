@@ -74,7 +74,7 @@ class TestPlotting(TestCase):
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
-            if not metric_data[metric]['single_ref_only']:
+            if not metrics_data[metric]['single_ref_only']:
                 metric_value = metric_component(hypothesis=hypothesis, references=references_mult)
                 self.assertIsInstance(metric_value, float)
     
@@ -97,7 +97,7 @@ class TestPlotting(TestCase):
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
-            if not metric_data[metric]['single_ref_only']:
+            if not metrics_data[metric]['single_ref_only']:
                 metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_MULT)
                 self.assertIsInstance(metric_value, float)
 
