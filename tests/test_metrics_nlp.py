@@ -14,8 +14,8 @@ from platiagro.metrics_nlp import JaroWinkler, Jaro, EditDistance
 from platiagro.metrics_nlp import MetricsCalculator
 
 # Test values
-from platiagro.metrics_nlp import SAMPLE_HYPS, SAMPLE_REFS_SINGLE, SAMPLE_REFS_MULTI
-from platiagro.metrics_nlp import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_REFS_MULTI_TK
+from platiagro.metrics_nlp import SAMPLE_HYPS, SAMPLE_REFS_SINGLE, SAMPLE_REFS_MULT
+from platiagro.metrics_nlp import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_REFS_MULT_TK
 
 # List Metrics
 from platiagro.metrics_nlp import get_metrics_data
@@ -33,8 +33,8 @@ class MockTokenizer(object):
         if token_ids_batch == SAMPLE_REFS_SINGLE_TK:
             return SAMPLE_REFS_SINGLE
 
-        if token_ids_batch == SAMPLE_REFS_MULTI_TK:
-            return SAMPLE_REFS_MULTI
+        if token_ids_batch == SAMPLE_REFS_MULT_TK:
+            return SAMPLE_REFS_MULT
 
         raise ValueError('Unknown token_ids_batch')
  
