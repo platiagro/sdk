@@ -94,12 +94,12 @@ class TestPlotting(TestCase):
             # Call metric
 
             # Single reference
-            metric_value = metric_component.calculate(hypothesis=hypothesis, references=references_single)
+            metric_value = metric_component.calculate(batch_hypotheses=hypothesis, batch_references=references_single)
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
             if not metric_data[metric]['single_ref_only']:
-                metric_value = metric_component.calculate(hypothesis=hypothesis, references=references_mult)
+                metric_value = metric_component.calculate(batch_hypotheses=hypothesis, batch_references=references_mult)
                 self.assertIsInstance(metric_value, float)
 
     def test_metrics_wrapper(self):
