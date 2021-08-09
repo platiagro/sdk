@@ -162,7 +162,7 @@ class Bleu(BaseMetric):
         if isinstance(references, str):
             references = [references]
 
-        return sentence_bleu(references, hypothesis, weights, smoothing_function, auto_reweigh)
+        return float(sentence_bleu(references, hypothesis, weights, smoothing_function, auto_reweigh))
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -199,7 +199,7 @@ class Bleu(BaseMetric):
             score = self(hyp, ref, weights, smoothing_function, auto_reweigh)
             scores.append(score)
         
-        return np.mean(scores)
+        return float(np.mean(scores))
 
 ################
 ## GLEU CLASS ##
@@ -235,7 +235,7 @@ class Gleu(BaseMetric):
         if isinstance(references, str):
             references = [references]
 
-        return sentence_gleu(references, hypothesis, min_len, max_len)
+        return float(sentence_gleu(references, hypothesis, min_len, max_len))
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -268,7 +268,7 @@ class Gleu(BaseMetric):
             score = self(hyp, ref, min_len, max_len)
             scores.append(score)
         
-        return np.mean(scores)
+        return float(np.mean(scores))
 
 #################
 ## ROUGE CLASS ##
@@ -358,9 +358,9 @@ class Rouge(BaseMetric):
             all_scores.append(score)
         
         # Apply average func
-        score = float(average(all_scores))
+        score = average(all_scores)
 
-        return score
+        return float(score)
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -395,7 +395,7 @@ class Rouge(BaseMetric):
             score = self(hyp, ref, method, metric, average)
             scores.append(score)
         
-        return np.mean(scores)
+        return float(np.mean(scores))
 
 ##################
 ## BLEURT CLASS ##
@@ -416,7 +416,7 @@ class Bleurt(BaseMetric):
                  references: Union[List[str], str, List[List[str]]],
                  is_batch: bool = False,
                  average: Callable = np.max,
-                 **kwargs) -> Union[List[float], float]:
+                 **kwargs) -> float:
 
         '''Compute BLEURT score of a hypothesis and a reference.
            See more at: https://github.com/google-research/bleurt
@@ -430,7 +430,7 @@ class Bleurt(BaseMetric):
                 
 
             Returns:
-                BLEURT score (float) from a hypothesis and reference(s) or a list of BLEURT score(s) for a batch of hypothesis and references
+                BLEURT score (float) from a hypothesis and reference(s)
         '''
 
         if isinstance(references, list) and isinstance(references[0], str) and isinstance(hypothesis, str):
@@ -457,9 +457,9 @@ class Bleurt(BaseMetric):
             scores.append(score)
 
         if is_batch:
-            return scores
+            return float(average(scores))
         else:
-            return scores[0]
+            return float(scores[0])
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -528,7 +528,7 @@ class NLTKScore(BaseMetric):
 
         score = self.metric(test=hypothesis, reference=references, **kwargs)
 
-        return score
+        return float(score)
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -558,7 +558,7 @@ class NLTKScore(BaseMetric):
 
         score = self(batch_hypotheses, batch_references, **kwargs)
 
-        return score
+        return float(score)
 
 ####################
 ## ACCURACY CLASS ##
@@ -644,7 +644,7 @@ class JIWERScore(BaseMetric):
                             truth_transform=self.truth_transform,
                             hypothesis_transform=self.hypothesis_transform)
 
-        return score
+        return float(score)
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -674,7 +674,7 @@ class JIWERScore(BaseMetric):
 
         score = self(batch_hypotheses, batch_references, **kwargs)
 
-        return score
+        return float(score)
 
 ###############
 ## WER CLASS ##
@@ -769,7 +769,7 @@ class NLTKDistance(BaseMetric):
 
         score = self.metric(s1=hypothesis, s2=references, **kwargs)
 
-        return score
+        return float(score)
 
     def calculate(self,
                   batch_hypotheses: List[str],
@@ -801,7 +801,7 @@ class NLTKDistance(BaseMetric):
 
             scores.append(self(hyp, ref, **kwargs))
 
-        return np.mean(scores)
+        return float(np.mean(scores))
 
 ###################################
 ## JARO WINKLER SIMILARITY CLASS ##
