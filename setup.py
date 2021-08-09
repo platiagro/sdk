@@ -29,7 +29,7 @@ extras = {
         "nltk>=3.6.0",
         "rouge>=1.0.1",
         "datasets>=1.11.0",
-        "git+https://github.com/google-research/bleurt.git",
+        "bleurt @ git+https://github.com/google-research/bleurt.git",
         "jiwer>=2.2.0"
     ],
     "testing": [
