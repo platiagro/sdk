@@ -27,24 +27,28 @@ from typing import List, Tuple, Dict, Any, Union
 class MockTokenizer(object):
     """A mock tokenizer for testing"""
 
-    def decode(self, token_ids_batch: List[List[int]]) -> List[str]:
+    def decode(self, token_ids: List[List[int]]) -> List[str]:
         """Decodes list of token_ids to list of strings"""
 
-        if token_ids_batch == SAMPLE_HYPS_TK:
-            return SAMPLE_HYPS
+        for i, sample_hyp_tk in enumerate(SAMPLE_HYPS_TK):
+            if token_ids == sample_hyp_tk:
+                return SAMPLE_HYPS[i]
         
-        if token_ids_batch == SAMPLE_REFS_SINGLE_TK:
-            return SAMPLE_REFS_SINGLE
+        for i, sample_ref_single_tk in enumerate(SAMPLE_REFS_SINGLE_TK):
+            if token_ids == sample_ref_single_tk:
+                return SAMPLE_REFS_SINGLE[i]
 
-        if token_ids_batch == SAMPLE_REFS_MULT_TK:
-            return SAMPLE_REFS_MULT
+        for i, sample_ref_mult_tk in enumerate(SAMPLE_REFS_MULT_TK):
+            for j, sample_ref_tk in enumerate(sample_ref_mult_tk):
+                if token_ids == SAMPLE_REFS_MULT_TK[i][j]:
+                    return SAMPLE_REFS_MULT[i][j]
 
         raise ValueError('Unknown token_ids_batch')
  
 RUN_ID = str(uuid4())
 
 
-class TestPlotting(TestCase):
+class TestMetricsNLP(TestCase):
 
     def setUp(self):
         """Don't need a setup"""
@@ -120,7 +124,7 @@ class TestPlotting(TestCase):
         self.assertEqual(len(values), len(metrics_name))
 
         # All, single reference, tokens
-        values = wrapper_all.calculate_from_tokens(hypothesis=SAMPLE_HYPS_TK, references=SAMPLE_REFS_SINGLE_TK, tokenizer=MockTokenizer())
+        values = wrapper_all.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_SINGLE_TK, tokenizer=MockTokenizer())
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
@@ -130,7 +134,7 @@ class TestPlotting(TestCase):
         self.assertEqual(len(values), len(mult_metrics_name))
 
         # Mult, multiple reference, token
-        values = wrapper_mult.calculate_from_tokens(hypothesis=SAMPLE_HYPS_TK, references=SAMPLE_REFS_MULT_TK, tokenizer=MockTokenizer())
+        values = wrapper_mult.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_MULT_TK, tokenizer=MockTokenizer())
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(mult_metrics_name))
 
