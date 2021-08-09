@@ -25,6 +25,13 @@ extras = {
         "unidecode==1.2.0",
         "Pillow==8.3.1"
     ],
+    "metrics_nlp": [
+        "nltk>=3.6.0",
+        "rouge>=1.0.1",
+        "datasets>=1.11.0",
+        "git+https://github.com/google-research/bleurt.git",
+        "jiwer>=2.2.0"
+    ],
     "testing": [
         "pytest>=4.4.0",
         "pytest-xdist==1.31.0",
