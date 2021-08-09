@@ -81,6 +81,7 @@ jobs:
         pip install -r requirements.txt
         pip install .[plotting]
         pip install .[testing]
+        pip install .[metrics_nlp]
     - name: Test with pytest
       run: |
         pip install pytest pytest-cov
