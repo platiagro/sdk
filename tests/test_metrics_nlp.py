@@ -5,11 +5,6 @@ from uuid import uuid4
 # Math/Alg. Lin.
 import numpy as np
 
-# Metrics
-from platiagro.metrics_nlp import Bleu, Gleu, Rouge, BertScore, Bleurt, Meteor, Accuracy
-from platiagro.metrics_nlp import FScore, Precision, Recall, WER, MER, WIP, WIL
-from platiagro.metrics_nlp import JaroWinkler, Jaro, EditDistance
-
 # Wrapper
 from platiagro.metrics_nlp import MetricsCalculator
 
