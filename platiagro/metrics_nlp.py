@@ -20,9 +20,6 @@ import numpy as np
 # Class
 from abc import ABC, abstractmethod
 
-# Hugging Face Metrics
-from datasets import load_metric
-
 # Bleurt (pip install git+https://github.com/google-research/bleurt.git)
 from bleurt.score import BleurtScorer
 
@@ -400,100 +397,6 @@ class Rouge(BaseMetric):
         
         return np.mean(scores)
 
-######################
-## BERT_SCORE CLASS ##
-######################
-
-class BertScore(BaseMetric):
-    """BERT_SCORE metric class"""
-
-    def __init__(self):
-        
-        self.bert_score = load_metric("bertscore")
-
-        self._health_validation(hypothesis=SAMPLE_HYPS[0], references=SAMPLE_REFS_MULT[0])
-        self._health_validation(hypothesis=SAMPLE_HYPS[0], references=SAMPLE_REFS_SINGLE[0])
-
-    def __call__(self,
-                 hypothesis: Union[List[str], str], 
-                 references: Union[List[str], str, List[List[str]]],
-                 lang: str = 'en', 
-                 metric: str = 'f1',
-                 is_batch: bool = False,
-                 **kwargs) -> Union[List[float], float]:
-
-        '''Compute BERT_SCORE score of a hypothesis and a reference.
-           See more at: https://github.com/Tiiiger/bert_score
-
-            Params:
-                hypothesis (list[str] or str): list of hypothesis sentence or a hypothesis sentence
-                reference (list[list[str]] or list[str] or str): list of reference sentences or a reference sentence
-                lang (str): 'en' or 'en-sci' or 'zh' or 'tr' or 'others'
-                metric (str): 'f1' or 'precision' or 'recall'
-                is_batch (bool): whether or not to return BERT_SCORE score for a batch of hypothesis and references or a single value
-                kwargs: see complete list at: https://github.com/Tiiiger/bert_score/blob/master/bert_score/scorer.py#L29
-                
-
-            Returns:
-                BERT_SCORE score (float) from a hypothesis and reference(s) or a list of BERT_SCORE score(s) for a batch of hypothesis and references
-        '''
-
-        # Validate lang and metric BERT_SCORE params
-        _bert_score_validator(lang, metric)
-
-        if isinstance(references, list) and isinstance(references[0], str) and isinstance(hypothesis, str):
-            references = [references]
-
-        if isinstance(references, str):
-            references = [[references]]
-        
-        if isinstance(hypothesis, str):
-            hypothesis = [hypothesis]
-
-        scores = self.bert_score.compute(references=references, predictions=hypothesis, lang=lang, **kwargs)
-
-        # Get score
-        score = scores[metric]
-
-        if is_batch:
-            return score
-        else:
-            return score[0]
-
-    def calculate(self,
-                  batch_hypotheses: List[str],
-                  batch_references: List[Union[List[str], str]],
-                  lang: str = 'en', 
-                  metric: str = 'f1',
-                  **kwargs) -> float:
-
-        '''Compute BERT_SCORE score of a batch of hypothesis and references.
-
-            Params:
-                batch_hypotheses (list[str]): list of hypothesis sentences
-                batch_references (list[list[str] or str]): list of list of reference sentences or a list of reference sentence
-                lang (str): 'en' or 'en-sci' or 'zh' or 'tr' or 'others'
-                metric (str): 'f1' or 'precision' or 'recall'
-                kwargs: see complete list at: https://github.com/Tiiiger/bert_score/blob/master/bert_score/scorer.py#L29
-                
-
-            Returns:
-                Mean BERT_SCORE score (float) from a batch_hypotheses and batch_references
-        '''
-
-        scores = []
-
-        # Validates hypothesis and references
-        for hyp, ref in zip(batch_hypotheses, batch_references):
-            
-            # Typo validations
-            _hyp_typo_validator(hyp)
-            _ref_typo_validator(ref)
-
-        scores = self(batch_hypotheses, batch_references, lang, metric, is_batch=True, **kwargs)
-
-        return np.mean(scores)
-
 ##################
 ## BLEURT CLASS ##
 ##################
@@ -589,89 +492,6 @@ class Bleurt(BaseMetric):
         scores = self(batch_hypotheses, batch_references, is_batch=True, average=average, **kwargs)
 
         return np.mean(scores)
-    
-##################
-## METEOR CLASS ##
-##################
-
-class Meteor(BaseMetric):
-    """METEOR metric class"""
-
-    def __init__(self):
-        
-        self.meteor = load_metric("meteor")
-
-        self._health_validation(hypothesis=SAMPLE_HYPS[0], references=SAMPLE_REFS_SINGLE[0])
-
-    def __call__(self,
-                 hypothesis: Union[List[str], str], 
-                 references: Union[List[str], str],
-                 alpha: float = 0.9,
-                 beta: float = 3,
-                 gamma: float = 0.5) -> Union[List[float], float]:
-
-        '''Compute METEOR score of a hypothesis and a reference.
-           See more at: https://huggingface.co/metrics/meteor
-
-            Params:
-                hypothesis (list[str] or str): list of hypothesis sentence or a hypothesis sentence
-                reference (or list[str] or str): list of reference sentences or a reference sentence
-                alpha (float): Parameter for controlling relative weights of precision and recall
-                beta (float): Parameter for controlling shape of penalty as a function of fragmentation
-                gamma (float): Relative weight assigned to fragmentation penalty
-                
-
-            Returns:
-                METEOR score (float) from a hypothesis and reference(s) or a list of METEOR score(s) for a batch of hypothesis and references
-        '''
-
-        if isinstance(references, str):
-            references = [references]
-        
-        if isinstance(hypothesis, str):
-            hypothesis = [hypothesis]
-
-        score = self.meteor.compute(references=references, 
-                                    predictions=hypothesis, 
-                                    alpha=alpha,
-                                    beta=beta,
-                                    gamma=gamma)['meteor']
-
-        return score
-
-    def calculate(self,
-                  batch_hypotheses: List[str],
-                  batch_references: List[str],
-                  alpha: float = 0.9,
-                  beta: float = 3,
-                  gamma: float = 0.5) -> float:
-
-        '''Compute BLEURT score of a batch of hypothesis and references.
-
-            Params:
-                batch_hypotheses (list[str]): list of hypothesis sentences
-                batch_references (list[str]): list of reference sentence
-                alpha (float): Parameter for controlling relative weights of precision and recall
-                beta (float): Parameter for controlling shape of penalty as a function of fragmentation
-                gamma (float): Relative weight assigned to fragmentation penalty
-                
-
-            Returns:
-                METEOR score (float) from a batch_hypotheses and batch_references
-        '''
-
-        assert not _mult_references_validator(batch_references), _MULT_REF_ERROR_MSG
-
-        # Validates hypothesis and references
-        for hyp, ref in zip(batch_hypotheses, batch_references):
-            
-            # Typo validations
-            _hyp_typo_validator(hyp)
-            _ref_typo_validator(ref)
-
-        score = self(batch_hypotheses, batch_references, alpha=alpha, beta=beta, gamma=gamma)
-
-        return score
 
 ##################################
 ## NLTK SCORES CLASS (TEMPLATE) ##
@@ -1039,17 +859,9 @@ _METRICS = {
         'component': Rouge,
         'single_ref_only': False,
     },
-    'bertscore': {
-        'component': BertScore,
-        'single_ref_only': False,
-    },
     'bleurt': {
         'component': Bleurt,
         'single_ref_only': False,
-    },
-    'meteor': {
-        'component': Meteor,
-        'single_ref_only': True,
     },
     'accuracy': {
         'component': Accuracy,
