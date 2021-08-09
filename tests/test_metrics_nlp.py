@@ -58,9 +58,11 @@ class TestPlotting(TestCase):
 
         # Check metrics
         for metric in metrics_name:
-
+            
+            # Initialize metric component
             metric_component = metrics_data[metric]['component']()
 
+            # Get test sample
             hypothesis = SAMPLE_HYPS[0]
             references_single = SAMPLE_REFS_SINGLE[0]
             references_mult = SAMPLE_REFS_MULT[0]
@@ -84,22 +86,19 @@ class TestPlotting(TestCase):
 
         # Check metrics
         for metric in metrics_name:
-
+            
+            # Initialize metric component
             metric_component = metrics_data[metric]['component']()
-
-            hypothesis = SAMPLE_HYPS_TK
-            references_single = SAMPLE_REFS_SINGLE
-            references_mult = SAMPLE_REFS_MULT
 
             # Call metric
 
             # Single reference
-            metric_value = metric_component.calculate(batch_hypotheses=hypothesis, batch_references=references_single)
+            metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_SINGLE)
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
             if not metric_data[metric]['single_ref_only']:
-                metric_value = metric_component.calculate(batch_hypotheses=hypothesis, batch_references=references_mult)
+                metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_MULT)
                 self.assertIsInstance(metric_value, float)
 
     def test_metrics_wrapper(self):
@@ -126,7 +125,7 @@ class TestPlotting(TestCase):
         self.assertEqual(len(values), len(metrics_name))
 
         # Mult, multiple reference, text
-        values = wrapper_mult.calculate_from_tokens(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_MULT)
+        values = wrapper_mult.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_MULT)
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(mult_metrics_name))
 
