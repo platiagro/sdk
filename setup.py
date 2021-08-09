@@ -28,10 +28,8 @@ extras = {
     "metrics_nlp": [
         "nltk>=3.6.0",
         "rouge>=1.0.1",
-        "datasets>=1.11.0",
         "bleurt @ git+https://github.com/google-research/bleurt.git",
         "jiwer>=2.2.0",
-        "bert-score>=0.3.10"
     ],
     "testing": [
         "pytest>=4.4.0",
