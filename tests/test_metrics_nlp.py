@@ -193,35 +193,3 @@ class TestMetricsNLP(TestCase):
             # Invalid rouge metric
             with self.assertRaises(ValueError):
                 metrics_data['rouge']['component'](metric = '')
-
-    def test_metrics_empty_string(self):
-
-        # Get metrics data
-        metrics_data = get_metrics_data()
-        metrics_name = list(metrics_data.keys())
-
-        # Check metrics
-        for metric in metrics_name:
-            
-            # Initialize metric component
-            metric_component = metrics_data[metric]['component']()
-
-            # Call metric
-            value = metric_component(hypothesis='', references='')
-            self.assertIsInstance(value, float)
-            
-            value = metric_component(hypothesis='a', references='')
-            self.assertIsInstance(value, float)
-
-            value = metric_component(hypothesis['', references='a')
-            self.assertIsInstance(value, float)
-
-    def test_base_class(self):
-
-        base_class = BaseMetric()
-
-        # Base methods
-        methods = ['__call__', 'calculate', '_health_validation']
-
-        for method in methods:
-            self.assertEqual(callable(getattr(base_class, method, None)), True)
