@@ -74,7 +74,7 @@ class Gleu(BaseMetric):
         scores = []
 
         for hyp, ref in zip(batch_hypotheses, batch_references):
-            
+
             # Typo validations
             _hyp_typo_validator(hyp)
             _ref_typo_validator(ref)
@@ -82,5 +82,5 @@ class Gleu(BaseMetric):
             # Calculate score
             score = self(hyp, ref, min_len, max_len)
             scores.append(score)
-        
+
         return float(np.mean(scores))
