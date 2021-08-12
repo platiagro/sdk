@@ -1,6 +1,4 @@
-###########
 ## UTILS ##
-###########
 
 # typing
 from typing import Union, List, Callable, Dict, Any

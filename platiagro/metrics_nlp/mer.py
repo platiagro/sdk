@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # Jiwer (pip install jiwer)
 import jiwer.transforms as tr
@@ -15,9 +13,7 @@ from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE
 # base class
 from platiagro.metrics_nlp.base import JIWERScore
 
-###############
 ## MER CLASS ##
-###############
 
 class MER(JIWERScore):
     """MER metric class: inherits from JIWERScore class"""

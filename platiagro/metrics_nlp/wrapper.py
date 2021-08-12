@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # typing
 from typing import Union, List, Callable, Dict, Any
@@ -11,9 +9,7 @@ from platiagro.metrics_nlp.metrics import get_metrics_names, get_metrics_data
 _NAMES = get_metrics_names()
 _METRICS = get_metrics_data()
 
-###################
 # METRICS WRAPPER #
-###################
 
 class MetricsCalculator():
     '''Metrics Calculator Wrapper'''

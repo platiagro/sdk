@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # NLTK
 from nltk.translate.gleu_score import sentence_gleu
@@ -18,9 +16,7 @@ from platiagro.metrics_nlp.base import BaseMetric
 # numpy
 import numpy as np
 
-################
 ## GLEU CLASS ##
-################
 
 class Gleu(BaseMetric):
     """GLEU metric class"""

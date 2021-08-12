@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # Bleurt (pip install git+https://github.com/google-research/bleurt.git)
 from bleurt.score import BleurtScorer
@@ -18,9 +16,7 @@ from platiagro.metrics_nlp.base import BaseMetric
 # numpy
 import numpy as np
 
-##################
 ## BLEURT CLASS ##
-##################
 
 class Bleurt(BaseMetric):
     """BLEURT metric class"""

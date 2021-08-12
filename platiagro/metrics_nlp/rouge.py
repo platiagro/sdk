@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # ROUGE
 from rouge import Rouge as RougeRaw
@@ -31,9 +29,7 @@ def _rouge_validator(rouge_method: str, rouge_metric: str):
     except AssertionError:
         raise ValueError(f'"{rouge_metric}" not implemented. Metric must be "f1", "precision" or "recall"')
 
-#################
 ## ROUGE CLASS ##
-#################
 
 class Rouge(BaseMetric):
     """Rouge metric class"""

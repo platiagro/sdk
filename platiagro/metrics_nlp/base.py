@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # Class
 from abc import ABC, abstractmethod
@@ -15,9 +13,7 @@ from platiagro.metrics_nlp.utils import _hyp_typo_validator, _ref_typo_validator
 # numpy
 import numpy as np
 
-###########################
 ## BASE CLASS (TEMPLATE) ##
-###########################
 
 class BaseMetric(ABC):
     """Abstract Model class that is inherited to all NLP metrics"""
@@ -36,9 +32,7 @@ class BaseMetric(ABC):
         _ = self(**kwargs)
 
 
-##################################
 ## NLTK SCORES CLASS (TEMPLATE) ##
-##################################
 
 class NLTKScore(BaseMetric):
     """NLTKScore template metric class"""
@@ -103,9 +97,7 @@ class NLTKScore(BaseMetric):
 
         return float(score)
 
-###################################
 ## JIWER SCORES CLASS (TEMPLATE) ##
-###################################
 
 class JIWERScore(BaseMetric):
     """JIWERScore template metric class"""
@@ -163,9 +155,7 @@ class JIWERScore(BaseMetric):
 
         return float(score)
 
-####################################
 ## NLTK DISTANCE CLASS (TEMPLATE) ##
-####################################
 
 class NLTKDistance(BaseMetric):
     """NLTKDistance template metric class"""

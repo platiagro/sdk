@@ -1,6 +1,4 @@
-#######################
 ## AVAILABLE METRICS ##
-#######################
 
 from platiagro.metrics_nlp.accuracy import Accuracy
 from platiagro.metrics_nlp.precision import Precision

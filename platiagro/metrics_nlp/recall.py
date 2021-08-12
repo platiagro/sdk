@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # NLTK score
 from nltk.metrics.scores import recall
@@ -14,9 +12,7 @@ from platiagro.metrics_nlp.base import NLTKScore
 # typing
 from typing import Union, List, Callable, Dict, Any
 
-##################
 ## RECALL CLASS ##
-##################
 
 class Recall(NLTKScore):
     """RECALL metric class: inherits from NLTKScore class"""

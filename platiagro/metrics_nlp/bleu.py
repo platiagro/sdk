@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # NLTK
 from nltk.translate.bleu_score import sentence_bleu
@@ -18,9 +16,7 @@ from platiagro.metrics_nlp.base import BaseMetric
 # numpy
 import numpy as np
 
-################
 ## BLEU CLASS ##
-################
 
 class Bleu(BaseMetric):
     """BLEU metric class"""

@@ -1,6 +1,4 @@
-#############
 ## IMPORTS ##
-#############
 
 # NLTK score
 from nltk.metrics.scores import precision
@@ -14,9 +12,7 @@ from platiagro.metrics_nlp.base import NLTKScore
 # typing
 from typing import Union, List, Callable, Dict, Any
 
-#####################
 ## PRECISION CLASS ##
-#####################
 
 class Precision(NLTKScore):
     """PRECISION metric class: inherits from NLTKScore class"""
