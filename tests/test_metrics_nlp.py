@@ -6,14 +6,14 @@ from uuid import uuid4
 import numpy as np
 
 # Wrapper
-from platiagro.metrics_nlp import MetricsCalculator
+from platiagro.metrics_nlp.wrapper import MetricsCalculator
 
 # Test values
-from platiagro.metrics_nlp import SAMPLE_HYPS, SAMPLE_REFS_SINGLE, SAMPLE_REFS_MULT
-from platiagro.metrics_nlp import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_REFS_MULT_TK
+from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE, SAMPLE_REFS_MULT
+from platiagro.metrics_nlp.utils import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_REFS_MULT_TK
 
 # List Metrics
-from platiagro.metrics_nlp import get_metrics_data
+from platiagro.metrics_nlp.metrics import get_metrics_data
 
 # Typing
 from typing import List, Tuple, Dict, Any, Union
