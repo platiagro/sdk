@@ -15,6 +15,9 @@ from platiagro.metrics_nlp.utils import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, S
 # List Metrics
 from platiagro.metrics_nlp.metrics import get_metrics_data
 
+# Base Class
+from platiagro.metrics_nlp.base import BaseMetric
+
 # Typing
 from typing import List, Tuple, Dict, Any, Union
 
@@ -100,16 +103,19 @@ class TestMetricsNLP(TestCase):
                 metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_MULT)
                 self.assertIsInstance(metric_value, float)
 
-    def test_metrics_wrapper(self):
+    def test_metrics_wrapper_all(self):
 
         # Get metrics data
         metrics_data = get_metrics_data()
         metrics_name = list(metrics_data.keys())
-        mult_metrics_name = [metric for metric in metrics_name if not metrics_data[metric]['single_ref_only']]
 
         # Initializate wrappers
-        wrapper_all = MetricsCalculator(metrics=metrics_name)
-        wrapper_mult = MetricsCalculator(metrics=mult_metrics_name)
+        wrapper_all = MetricsCalculator() # default == all metrics
+        wrapper_all_params = MetricsCalculator(metric_params = {'gleu': {'min_len': 1,'max_len': 3}}) # default == all metrics
+
+        # Check documentation
+        self.assertIsInstance(wrapper_all.__str__, str)
+        self.assertIsInstance(wrapper_all_params.__str__, str)
 
         # Check wrappers #
 
@@ -123,6 +129,31 @@ class TestMetricsNLP(TestCase):
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
+        # All, single reference, text
+        values = wrapper_all_params.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_SINGLE)
+        self.assertIsInstance(values, dict)
+        self.assertEqual(len(values), len(metrics_name))
+
+        # All, single reference, tokens
+        values = wrapper_all_params.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_SINGLE_TK, tokenizer=MockTokenizer())
+        self.assertIsInstance(values, dict)
+        self.assertEqual(len(values), len(metrics_name))
+
+    def test_metrics_wrapper_mult(self):
+
+        # Get metrics data
+        metrics_data = get_metrics_data()
+        metrics_name = list(metrics_data.keys())
+        mult_metrics_name = [metric for metric in metrics_name if not metrics_data[metric]['single_ref_only']]
+
+        # Initializate wrappers
+        wrapper_mult = MetricsCalculator(metrics=mult_metrics_name)
+
+        # Check documentation
+        self.assertIsInstance(wrapper_mult.__str__, str)
+
+        # Check wrappers #
+
         # Mult, multiple reference, text
         values = wrapper_mult.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_MULT)
         self.assertIsInstance(values, dict)
@@ -133,10 +164,64 @@ class TestMetricsNLP(TestCase):
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(mult_metrics_name))
 
+    def test_metrics_invalid(self):
 
+        # Get metrics data
+        metrics_data = get_metrics_data()
+        metrics_name = list(metrics_data.keys())
 
-        
+        # Check metrics
+        for metric in metrics_name:
+            
+            # Initialize metric component
+            metric_component = metrics_data[metric]['component']()
 
+            # Call metric
 
+            with self.assertRaises(ValueError):
+                metric_component.calculate(batch_hypotheses=[''], batch_references=[0])
+            
+            with self.assertRaises(ValueError):
+                metric_component.calculate(batch_hypotheses=[0], batch_references=[''])
 
+        if 'rouge' in metrics_name:
 
+            # Invalid rouge method
+            with self.assertRaises(ValueError):
+                metrics_data['rouge']['component'](method = '')
+
+            # Invalid rouge metric
+            with self.assertRaises(ValueError):
+                metrics_data['rouge']['component'](metric = '')
+
+    def test_metrics_empty_string(self):
+
+        # Get metrics data
+        metrics_data = get_metrics_data()
+        metrics_name = list(metrics_data.keys())
+
+        # Check metrics
+        for metric in metrics_name:
+            
+            # Initialize metric component
+            metric_component = metrics_data[metric]['component']()
+
+            # Call metric
+            value = metric_component(hypothesis='', references='')
+            self.assertIsInstance(value, float)
+            
+            value = metric_component(hypothesis='a', references='')
+            self.assertIsInstance(value, float)
+
+            value = metric_component(hypothesis['', references='a')
+            self.assertIsInstance(value, float)
+
+    def test_base_class(self):
+
+        base_class = BaseMetric()
+
+        # Base methods
+        methods = ['__call__', 'calculate', '_health_validation']
+
+        for method in methods:
+            self.assertEqual(callable(getattr(base_class, method, None)), True)
