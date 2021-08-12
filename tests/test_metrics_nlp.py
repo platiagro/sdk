@@ -114,8 +114,8 @@ class TestMetricsNLP(TestCase):
         wrapper_all_params = MetricsCalculator(metric_params = {'gleu': {'min_len': 1,'max_len': 3}}) # default == all metrics
 
         # Check documentation
-        self.assertIsInstance(wrapper_all.__str__, str)
-        self.assertIsInstance(wrapper_all_params.__str__, str)
+        self.assertIsInstance(wrapper_all.__str__(), str)
+        self.assertIsInstance(wrapper_all_params.__str__(), str)
 
         # Check wrappers #
 
@@ -150,7 +150,7 @@ class TestMetricsNLP(TestCase):
         wrapper_mult = MetricsCalculator(metrics=mult_metrics_name)
 
         # Check documentation
-        self.assertIsInstance(wrapper_mult.__str__, str)
+        self.assertIsInstance(wrapper_mult.__str__(), str)
 
         # Check wrappers #
 
@@ -185,11 +185,35 @@ class TestMetricsNLP(TestCase):
                 metric_component.calculate(batch_hypotheses=[0], batch_references=[''])
 
         if 'rouge' in metrics_name:
-
-            # Invalid rouge method
-            with self.assertRaises(ValueError):
-                metrics_data['rouge']['component'](method = '')
+            
+            rouge = metrics_data['rouge']['component']()
 
             # Invalid rouge metric
             with self.assertRaises(ValueError):
-                metrics_data['rouge']['component'](metric = '')
+                rouge('a', 'b', metric = '')
+                
+            # Invalid rouge method
+            with self.assertRaises(ValueError):
+                rouge('a', 'b', method = '')
+
+    def test_metrics_empty_string(self):
+
+    # Get metrics data
+    metrics_data = get_metrics_data()
+    metrics_name = list(metrics_data.keys())
+
+    # Check metrics
+    for metric in metrics_name:
+        
+        # Initialize metric component
+        metric_component = metrics_data[metric]['component']()
+
+        # Call metric
+        value = metric_component(hypothesis='', references='')
+        self.assertIsInstance(value, float)
+        
+        value = metric_component(hypothesis='a', references='')
+        self.assertIsInstance(value, float)
+
+        value = metric_component(hypothesis='', references='a')
+        self.assertIsInstance(value, float)
