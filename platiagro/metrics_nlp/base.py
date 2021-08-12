@@ -8,7 +8,7 @@ from typing import Union, List, Callable, Dict, Any
 
 # samples and validators
 from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_MULT, SAMPLE_REFS_SINGLE
-from platiagro.metrics_nlp.utils import _hyp_typo_validator, _ref_typo_validator, _mult_references_validator
+from platiagro.metrics_nlp.utils import _hyp_typo_validator, _ref_typo_validator, _mult_references_validator, _empty_values_score
 
 # numpy
 import numpy as np
@@ -117,6 +117,17 @@ class JIWERScore(BaseMetric):
             Returns:
                 JIWERScore score (float) from a hypothesis and a reference
         '''
+
+        if hypothesis == '' or references == '':
+
+            if self.metric.__name__ == 'wip':
+                max_val = 0.0
+                min_val = 1.0
+            else:
+                max_val = 1.0
+                min_val = 0.0
+
+            return _empty_values_score(hypothesis, references, min_val=max_val, max_val=min_val)
 
         score = self.metric(truth=references, 
                             hypothesis=hypothesis,
