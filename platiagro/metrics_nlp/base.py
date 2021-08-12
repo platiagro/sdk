@@ -1,44 +1,48 @@
-## IMPORTS ##
+# IMPORTS #
+
 
 # Class
 from abc import ABC, abstractmethod
 
 # typing
-from typing import Union, List, Callable, Dict, Any
+from typing import Union, List
 
 # samples and validators
-from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_MULT, SAMPLE_REFS_SINGLE
-from platiagro.metrics_nlp.utils import _hyp_typo_validator, _ref_typo_validator, _mult_references_validator, _empty_values_score
+from platiagro.metrics_nlp.utils import _MULT_REF_ERROR_MSG
+from platiagro.metrics_nlp.utils import _hyp_typo_validator, _ref_typo_validator
+from platiagro.metrics_nlp.utils import _mult_references_validator, _empty_values_score
 
 # numpy
 import numpy as np
 
-## BASE CLASS (TEMPLATE) ##
+# BASE CLASS (TEMPLATE) #
+
 
 class BaseMetric(ABC):
     """Abstract Model class that is inherited to all NLP metrics"""
 
     @abstractmethod
-    def __call__(self,**kwargs):
+    def __call__(self, **kwargs):
         pass
 
     @abstractmethod
-    def calculate(self,**kwargs):
+    def calculate(self, **kwargs):
         pass
 
     def _health_validation(self, **kwargs):
         '''Validates health of metric'''
 
-        _ = self(**kwargs)
+        self(**kwargs)
 
 
-## NLTK SCORES CLASS (TEMPLATE) ##
+# NLTK SCORES CLASS (TEMPLATE) #
+
 
 class NLTKScore(BaseMetric):
     """NLTKScore template metric class"""
 
     def __call__(self,
-                 hypothesis: Union[str, List[str]], 
+                 hypothesis: Union[str, List[str]],
                  references: Union[str,  List[str]],
                  **kwargs) -> float:
 
@@ -56,7 +60,7 @@ class NLTKScore(BaseMetric):
         if isinstance(hypothesis, str):
             hypothesis = {hypothesis}
             references = {references}
-        
+
         else:
             hypothesis = set(hypothesis)
             references = set(references)
@@ -78,7 +82,7 @@ class NLTKScore(BaseMetric):
                 batch_hypotheses (list[str]): list of hypothesis sentences
                 batch_references (list[str]): list of reference sentence
                 kwargs: see complete list at: https://www.nltk.org/_modules/nltk/metrics/scores.html
-                
+
 
             Returns:
                 NLTKScore score (float) from a batch_hypotheses and batch_references
@@ -88,7 +92,7 @@ class NLTKScore(BaseMetric):
 
         # Validates hypothesis and references
         for hyp, ref in zip(batch_hypotheses, batch_references):
-            
+
             # Typo validations
             _hyp_typo_validator(hyp)
             _ref_typo_validator(ref)
@@ -97,13 +101,14 @@ class NLTKScore(BaseMetric):
 
         return float(score)
 
-## JIWER SCORES CLASS (TEMPLATE) ##
+# JIWER SCORES CLASS (TEMPLATE) #
+
 
 class JIWERScore(BaseMetric):
     """JIWERScore template metric class"""
 
     def __call__(self,
-                 hypothesis: Union[str, List[str]], 
+                 hypothesis: Union[str, List[str]],
                  references: Union[str,  List[str]],
                  **kwargs) -> float:
 
@@ -112,7 +117,8 @@ class JIWERScore(BaseMetric):
             Params:
                 hypothesis (str): a hypothesis sentence or a list of hypothesis sentences
                 reference (str): a reference sentence or a list of reference sentences
-                kwargs: see complete list at: https://github.com/jitsi/jiwer/blob/1fd2a161fd21296640c655da0786e94ea0f5df77/jiwer/measures.py#L65
+                kwargs: see complete list at:
+                    https://github.com/jitsi/jiwer/blob/1fd2a161fd21296640c655da0786e94ea0f5df77/jiwer/measures.py#L65
 
             Returns:
                 JIWERScore score (float) from a hypothesis and a reference
@@ -129,7 +135,7 @@ class JIWERScore(BaseMetric):
 
             return _empty_values_score(hypothesis, references, min_val=max_val, max_val=min_val)
 
-        score = self.metric(truth=references, 
+        score = self.metric(truth=references,
                             hypothesis=hypothesis,
                             truth_transform=self.truth_transform,
                             hypothesis_transform=self.hypothesis_transform)
@@ -146,8 +152,9 @@ class JIWERScore(BaseMetric):
             Params:
                 batch_hypotheses (list[str]): list of hypothesis sentences
                 batch_references (list[str]): list of reference sentence
-                kwargs: see complete list at: https://github.com/jitsi/jiwer/blob/1fd2a161fd21296640c655da0786e94ea0f5df77/jiwer/measures.py#L65
-                
+                kwargs: see complete list at:
+                    https://github.com/jitsi/jiwer/blob/1fd2a161fd21296640c655da0786e94ea0f5df77/jiwer/measures.py#L65
+
 
             Returns:
                 JIWERScore score (float) from a batch_hypotheses and batch_references
@@ -157,7 +164,7 @@ class JIWERScore(BaseMetric):
 
         # Validates hypothesis and references
         for hyp, ref in zip(batch_hypotheses, batch_references):
-            
+
             # Typo validations
             _hyp_typo_validator(hyp)
             _ref_typo_validator(ref)
@@ -166,13 +173,14 @@ class JIWERScore(BaseMetric):
 
         return float(score)
 
-## NLTK DISTANCE CLASS (TEMPLATE) ##
+# NLTK DISTANCE CLASS (TEMPLATE) #
+
 
 class NLTKDistance(BaseMetric):
     """NLTKDistance template metric class"""
 
     def __call__(self,
-                 hypothesis: str, 
+                 hypothesis: str,
                  references: str,
                  **kwargs) -> float:
 
@@ -202,7 +210,7 @@ class NLTKDistance(BaseMetric):
                 batch_hypotheses (list[str]): list of hypothesis sentences
                 batch_references (list[str]): list of reference sentence
                 kwargs: see complete list at: https://www.nltk.org/api/nltk.metrics.html
-                
+
 
             Returns:
                 Mean NLTKDistance score (float) from a batch_hypotheses and batch_references
@@ -214,7 +222,7 @@ class NLTKDistance(BaseMetric):
 
         # Validates hypothesis and references
         for hyp, ref in zip(batch_hypotheses, batch_references):
-            
+
             # Typo validations
             _hyp_typo_validator(hyp)
             _ref_typo_validator(ref)

@@ -1,10 +1,8 @@
-## IMPORTS ##
+# IMPORTS #
+
 
 # NLTK
 from nltk.metrics.distance import edit_distance
-
-# typing
-from typing import Union, List, Callable, Dict, Any
 
 # samples and validators
 from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE
@@ -12,7 +10,8 @@ from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE
 # base class
 from platiagro.metrics_nlp.base import NLTKDistance
 
-## EDIT DISTANCE CLASS ##
+# EDIT DISTANCE CLASS #
+
 
 class EditDistance(NLTKDistance):
     """EDIT_DISTANCE metric class: inherits from NLTKDistance class"""

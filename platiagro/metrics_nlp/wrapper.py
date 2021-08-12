@@ -1,7 +1,8 @@
-## IMPORTS ##
+# IMPORTS #
+
 
 # typing
-from typing import Union, List, Callable, Dict, Any
+from typing import Union, List, Dict, Any
 
 # metrics
 from platiagro.metrics_nlp.metrics import get_metrics_names, get_metrics_data
@@ -10,6 +11,7 @@ _NAMES = get_metrics_names()
 _METRICS = get_metrics_data()
 
 # METRICS WRAPPER #
+
 
 class MetricsCalculator():
     '''Metrics Calculator Wrapper'''
@@ -34,10 +36,10 @@ class MetricsCalculator():
         description += ">>> scores = metrics_calculator.compute_metrics(hypothesis, references)\n"
         description += ">>> print(scores)\n"
         description += "{'gleu': 0.919247009148487, 'wer': 0.375}"
-        
+
         return description
 
-    def __init__(self, 
+    def __init__(self,
                  metrics: List[str] = None,
                  metric_params: Dict[str, Any] = None):
         '''
@@ -47,16 +49,15 @@ class MetricsCalculator():
                 Example:
                     metric_params = {
                         'gleu': {
-                            'min_len': 1, 
+                            'min_len': 1,
                             'max_len': 4
                             }
                         }
-                            
         '''
-        
+
         if metrics is None:
             self.metrics_names = _NAMES
-        
+
         else:
             # Verify if metrics are valid
             assert all(metric in _NAMES for metric in metrics), f"Invalid metric. All the available metrics: {_NAMES}"
@@ -66,7 +67,8 @@ class MetricsCalculator():
             self.metric_params = {}
         else:
             # Verify if metrics are valid
-            assert all(metric in _NAMES for metric in metric_params.keys()), f"Invalid metric for metric params. All the available metrics: {_NAMES}"
+            assert all(metric in _NAMES for metric in metric_params.keys()), \
+                f"Invalid metric for metric params. All the available metrics: {_NAMES}"
             self.metric_params = metric_params
 
         self.loaded = False
@@ -74,16 +76,16 @@ class MetricsCalculator():
 
     def _load_metrics(self):
         '''Loads all metrics from the metrics module'''
-        
+
         self.metrics = []
         for metric in self.metrics_names:
             self.metrics.append(_METRICS[metric]['component']())
 
         self.loaded = True
 
-    def calculate_from_texts(self, 
-                             hypothesis: List[str], 
-                             references: Union[List[List[str]], List[str]], 
+    def calculate_from_texts(self,
+                             hypothesis: List[str],
+                             references: Union[List[List[str]], List[str]],
                              **kwargs) -> Dict[str, float]:
         '''Compute metrics from hypothesis and references texts.
 
@@ -107,15 +109,16 @@ class MetricsCalculator():
                 metric_params = self.metric_params.get(metric_name, {})
 
             # Compute metric
-            scores[metric_name] = metric_class.calculate(batch_hypotheses=hypothesis, batch_references=references, **metric_params)
+            scores[metric_name] = metric_class.calculate(batch_hypotheses=hypothesis,
+                                                         batch_references=references, **metric_params)
 
         return scores
 
-    def calculate_from_tokens(self, 
-                             hypothesis_tokens: List[Any], 
-                             references_tokens: Union[List[List[Any]], List[Any]],
-                             tokenizer: Any = None, 
-                             **kwargs) -> Dict[str, float]:
+    def calculate_from_tokens(self,
+                              hypothesis_tokens: List[Any],
+                              references_tokens: Union[List[List[Any]], List[Any]],
+                              tokenizer: Any = None,
+                              **kwargs) -> Dict[str, float]:
         '''Compute metrics from hypothesis and references texts.
 
             Params:

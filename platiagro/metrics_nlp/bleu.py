@@ -1,10 +1,11 @@
-## IMPORTS ##
+# IMPORTS #
+
 
 # NLTK
 from nltk.translate.bleu_score import sentence_bleu
 
 # typing
-from typing import Union, List, Callable, Dict, Any
+from typing import Union, List, Callable
 
 # samples and validators
 from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_MULT, SAMPLE_REFS_SINGLE
@@ -16,7 +17,8 @@ from platiagro.metrics_nlp.base import BaseMetric
 # numpy
 import numpy as np
 
-## BLEU CLASS ##
+# BLEU CLASS #
+
 
 class Bleu(BaseMetric):
     """BLEU metric class"""
@@ -27,7 +29,7 @@ class Bleu(BaseMetric):
         self._health_validation(hypothesis=SAMPLE_HYPS[0], references=SAMPLE_REFS_SINGLE[0])
 
     def __call__(self,
-                 hypothesis: str, 
+                 hypothesis: str,
                  references: Union[List[str], str],
                  weights: List[float] = [0.25, 0.25, 0.25, 0.25],
                  smoothing_function: Callable = None,
@@ -43,7 +45,7 @@ class Bleu(BaseMetric):
                     function used to smooth/weight the scores of sub-sequences.
                     Default: SmoothingFunction().
                 auto_reweigh (bool): option to re-normalize the weights uniformly
-                
+
 
             Returns:
                 BLEU score (float) from a hypothesis and reference(s)
@@ -71,7 +73,7 @@ class Bleu(BaseMetric):
                     function used to smooth/weight the scores of sub-sequences.
                     Default: SmoothingFunction().
                 auto_reweigh (bool): option to re-normalize the weights uniformly
-                
+
 
             Returns:
                 Mean BLEU score (float) from a batch_hypotheses and batch_references
@@ -80,7 +82,7 @@ class Bleu(BaseMetric):
         scores = []
 
         for hyp, ref in zip(batch_hypotheses, batch_references):
-            
+
             # Typo validations
             _hyp_typo_validator(hyp)
             _ref_typo_validator(ref)
@@ -88,5 +90,5 @@ class Bleu(BaseMetric):
             # Calculate score
             score = self(hyp, ref, weights, smoothing_function, auto_reweigh)
             scores.append(score)
-        
+
         return float(np.mean(scores))

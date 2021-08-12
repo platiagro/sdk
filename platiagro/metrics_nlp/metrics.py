@@ -1,4 +1,4 @@
-## AVAILABLE METRICS ##
+# AVAILABLE METRICS #
 
 from platiagro.metrics_nlp.accuracy import Accuracy
 from platiagro.metrics_nlp.precision import Precision
@@ -84,14 +84,16 @@ _METRICS = {
 
 _NAMES = list(_METRICS.keys())
 
+
 def get_metrics_names():
     """Get metrics names"""
     return _NAMES
 
+
 def get_metrics_data():
     """Get metrics data
-    
+
         Returns:
-            metrics_data (dict): metrics data (eg. {'bleu': {'component': object, 'single_ref_only': bool}, ...}) 
+            metrics_data (dict): metrics data (eg. {'bleu': {'component': object, 'single_ref_only': bool}, ...})
         """
     return _METRICS

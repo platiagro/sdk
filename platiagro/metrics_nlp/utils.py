@@ -1,7 +1,7 @@
-## UTILS ##
+# UTILS #
 
 # typing
-from typing import Union, List, Callable, Dict, Any
+from typing import Union, List
 
 # Samples
 
@@ -20,14 +20,17 @@ _MULT_REF_ERROR_MSG = "The metric operates only with single reference."
 
 # Validators
 
+
 def _hyp_typo_validator(hyp: str):
     '''Validates hypothesis string'''
 
     is_valid = isinstance(hyp, str)
 
-    try: assert is_valid
+    try:
+        assert is_valid
     except AssertionError:
         raise ValueError("Hypothesis must be a string")
+
 
 def _ref_typo_validator(ref: Union[List[str], str]):
     '''Validates references string'''
@@ -37,27 +40,30 @@ def _ref_typo_validator(ref: Union[List[str], str]):
     if isinstance(ref, str):
         # If it's a string
         is_valid = True
-    
+
     elif isinstance(ref, list):
         # If it's a list and all elements are strings
         is_valid = all(isinstance(r, str) for r in ref)
 
     else:
         is_valid = False
-    
-    try: assert is_valid
+
+    try:
+        assert is_valid
     except AssertionError:
         raise ValueError("References must be a list of strings or a string")
+
 
 def _mult_references_validator(refs: Union[List[List[str]], List[str], str]):
     '''Validates if it's multiple references'''
 
     return isinstance(refs, list) and all(isinstance(r, list) for r in refs)
 
+
 def _empty_values_score(hyp: str, refs: str, min_val: float = 0.0, max_val: float = 1.0) -> float:
     '''Returns max_val if both hyp and refs are empty, otherwise returns min_val'''
-    
+
     if hyp == '' and refs == '':
         return max_val
-    
+
     return min_val

@@ -1,11 +1,12 @@
-## IMPORTS ##
+# IMPORTS #
+
 
 # Jiwer (pip install jiwer)
 import jiwer.transforms as tr
 import jiwer
 
 # typing
-from typing import Union, List, Callable, Dict, Any
+from typing import Union
 
 # samples and validators
 from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE
@@ -13,7 +14,8 @@ from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE
 # base class
 from platiagro.metrics_nlp.base import JIWERScore
 
-## WER CLASS ##
+# WER CLASS #
+
 
 class WER(JIWERScore):
     """WER metric class: inherits from JIWERScore class"""
