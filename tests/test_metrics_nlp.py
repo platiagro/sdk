@@ -198,22 +198,22 @@ class TestMetricsNLP(TestCase):
 
     def test_metrics_empty_string(self):
 
-    # Get metrics data
-    metrics_data = get_metrics_data()
-    metrics_name = list(metrics_data.keys())
+        # Get metrics data
+        metrics_data = get_metrics_data()
+        metrics_name = list(metrics_data.keys())
 
-    # Check metrics
-    for metric in metrics_name:
-        
-        # Initialize metric component
-        metric_component = metrics_data[metric]['component']()
+        # Check metrics
+        for metric in metrics_name:
+            
+            # Initialize metric component
+            metric_component = metrics_data[metric]['component']()
 
-        # Call metric
-        value = metric_component(hypothesis='', references='')
-        self.assertIsInstance(value, float)
-        
-        value = metric_component(hypothesis='a', references='')
-        self.assertIsInstance(value, float)
+            # Call metric
+            value = metric_component(hypothesis='', references='')
+            self.assertIsInstance(value, float)
+            
+            value = metric_component(hypothesis='a', references='')
+            self.assertIsInstance(value, float)
 
-        value = metric_component(hypothesis='', references='a')
-        self.assertIsInstance(value, float)
+            value = metric_component(hypothesis='', references='a')
+            self.assertIsInstance(value, float)
