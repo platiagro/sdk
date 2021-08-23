@@ -122,6 +122,20 @@ def get_run_id(raise_for_none: bool = False, default: Optional[str] = None):
 
     return default
 
+def get_run_id_by_metadata(name: str, run_id: Optional[str] = None):
+    from platiagro import stat_dataset
+    
+    if run_id is None:
+        return get_run_id()
+
+    if run_id == "latest":
+        metadata = stat_dataset(name)
+        return metadata.get("run_id")
+        
+    return run_id     
+        
+
+
 
 def get_deployment_id(raise_for_none: bool = False, default: Optional[str] = None):
     """Looks for an run id in env variable "DEPLOYMENT_ID".

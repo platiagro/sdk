@@ -10,7 +10,7 @@ from minio.error import S3Error
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
-    get_operator_id, get_run_id, metadata_exists
+    get_operator_id, get_run_id, metadata_exists, get_run_id_by_metadata
 
 PREFIX = "datasets"
 
@@ -118,6 +118,53 @@ def load_dataset(name: str,
         raise FileNotFoundError("The specified dataset does not exist")
 
     return dataset
+
+def get_dataset(name: str,
+                 run_id: Optional[str] = None,
+                 operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
+    """Retrieves the contents of a dataset.
+
+    If run_id exists, then loads the dataset from the specified run.
+    If the dataset does not exist for given run_id/operator_id return the
+    'original' dataset
+
+    Args:
+        name (str): the dataset name.
+        run_id (str, optional): the run id of training pipeline. Defaults to None.
+        operator_id (str, optional): the operator uuid. Defaults to None.
+
+    Returns:
+        The contents of a dataset. Either a `pandas.DataFrame` or an `BinaryIO` buffer.
+
+    Raises:
+        FileNotFoundError: If dataset does not exist in the object storage.
+    """
+
+    run_id = get_run_id_by_metadata(run_id)
+
+    # Makes a generator to perform lazy evaluation
+    
+    # when the dataset does not exist for given run_id/operator_id
+    # must return the 'original' dataset
+    # unset run_id so data_filepath points to the 'original' dataset
+    if run_id and not operator_id:
+        try:
+            run_metadata = stat_dataset(name, run_id)
+            operator_id = run_metadata.get("operator_id")
+        except FileNotFoundError:
+            run_id = None
+
+    # builds the path to the dataset file
+    path = _data_filepath(name, run_id, operator_id)
+
+    # reads the raw file
+    data = MINIO_CLIENT.get_object(
+        bucket_name=BUCKET_NAME,
+        object_name=path.lstrip(f"{BUCKET_NAME}/"),
+         )
+
+
+    return data
 
 
 def save_dataset(name: str,

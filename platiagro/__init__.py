@@ -1,7 +1,7 @@
 from platiagro import client
 from platiagro.artifacts import download_artifact
 from platiagro.datasets import list_datasets, load_dataset, save_dataset, \
-    stat_dataset, download_dataset, update_dataset_metadata
+    stat_dataset, download_dataset, update_dataset_metadata, get_dataset
 from platiagro.featuretypes import infer_featuretypes, validate_featuretypes, \
     DATETIME, CATEGORICAL, NUMERICAL
 from platiagro.figures import list_figures, save_figure, delete_figures
