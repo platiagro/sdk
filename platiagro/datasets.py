@@ -478,8 +478,7 @@ def _metadata_filepath(name: str,
     return path
 
 def handle_run_id(name: str, run_id: Optional[str] = None):
-    """ Handles cases where handle ID is None or 'latest'. Will return the run_id if neither of this cases or
-    None if get_run_id() doesn't find any run_id env var    
+    """ Check cases where handle ID is None or 'latest', returning proper value of those cases.    
 
     Args:
         name (str): the dataset name.
