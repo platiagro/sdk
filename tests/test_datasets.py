@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-
 from base64 import b64decode
 from io import BytesIO
 from json import dumps
@@ -8,13 +7,13 @@ from unittest import TestCase
 from uuid import uuid4
 from zipfile import ZipFile
 
-from minio.error import S3Error
-from minio.commonconfig import CopySource
 import pandas as pd
+from minio.commonconfig import CopySource
+from minio.error import S3Error
 
-from platiagro import list_datasets, load_dataset, get_dataset, save_dataset, stat_dataset, \
-    download_dataset, update_dataset_metadata, \
-    DATETIME, CATEGORICAL, NUMERICAL
+from platiagro import (CATEGORICAL, DATETIME, NUMERICAL, download_dataset,
+                       get_dataset, list_datasets, load_dataset, save_dataset,
+                       stat_dataset, update_dataset_metadata)
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 RUN_ID = str(uuid4())

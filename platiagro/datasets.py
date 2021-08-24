@@ -3,14 +3,14 @@ import os
 import tempfile
 from io import BytesIO
 from json import dumps, loads
-from typing import List, Dict, BinaryIO, Optional, Union
+from typing import BinaryIO, Dict, List, Optional, Union
 
 import pandas as pd
 from minio.error import S3Error
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
-from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
-    get_operator_id, get_run_id, metadata_exists
+from platiagro.util import (BUCKET_NAME, MINIO_CLIENT, S3FS, get_operator_id,
+                            get_run_id, make_bucket, metadata_exists)
 
 PREFIX = "datasets"
 
