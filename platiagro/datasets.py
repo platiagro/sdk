@@ -119,6 +119,7 @@ def load_dataset(name: str,
 
     return dataset
 
+
 def get_dataset(name: str,
                 run_id: Optional[str] = None,
                 operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
@@ -134,7 +135,7 @@ def get_dataset(name: str,
         operator_id (str, optional): the operator uuid. Defaults to None.
 
     Returns:
-        urllib3.response.HTTPResponse object  
+        urllib3.response.HTTPResponse object
 
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
@@ -143,7 +144,6 @@ def get_dataset(name: str,
     # this function serves to cover None and 'latest' cases
     run_id = handle_run_id(name, run_id)
 
-   
     # when the dataset does not exist for given run_id/operator_id
     # must return the 'original' dataset
     # unset run_id so data_filepath points to the 'original' dataset
@@ -477,8 +477,9 @@ def _metadata_filepath(name: str,
 
     return path
 
+
 def handle_run_id(name: str, run_id: Optional[str] = None):
-    """ Check cases where handle ID is None or 'latest', returning proper value of those cases.    
+    """ Check cases where handle ID is None or 'latest', returning proper value of those cases.
 
     Args:
         name (str): the dataset name.
@@ -492,5 +493,5 @@ def handle_run_id(name: str, run_id: Optional[str] = None):
     if run_id == "latest":
         metadata = stat_dataset(name)
         return metadata.get("run_id")
-        
-    return run_id 
+
+    return run_id
