@@ -10,7 +10,7 @@ from minio.error import S3Error
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS, make_bucket, \
-    get_operator_id, get_run_id, metadata_exists, get_run_id_by_metadata
+    get_operator_id, get_run_id, metadata_exists
 
 PREFIX = "datasets"
 
@@ -122,9 +122,9 @@ def load_dataset(name: str,
 def get_dataset(name: str,
                  run_id: Optional[str] = None,
                  operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
-    """Retrieves the contents of a dataset.
+    """Retrieves dataset response object from minio.
 
-    If run_id exists, then loads the dataset from the specified run.
+    If run_id exists, then gets the dataset from the specified run.
     If the dataset does not exist for given run_id/operator_id return the
     'original' dataset
 
@@ -134,16 +134,16 @@ def get_dataset(name: str,
         operator_id (str, optional): the operator uuid. Defaults to None.
 
     Returns:
-        The contents of a dataset. Either a `pandas.DataFrame` or an `BinaryIO` buffer.
+        urllib3.response.HTTPResponse object  
 
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
 
-    run_id = get_run_id_by_metadata(run_id)
+    # this function serves to cover None and 'latest' cases
+    run_id = handle_run_id(name, run_id)
 
-    # Makes a generator to perform lazy evaluation
-    
+   
     # when the dataset does not exist for given run_id/operator_id
     # must return the 'original' dataset
     # unset run_id so data_filepath points to the 'original' dataset
@@ -157,14 +157,13 @@ def get_dataset(name: str,
     # builds the path to the dataset file
     path = _data_filepath(name, run_id, operator_id)
 
-    # reads the raw file
-    data = MINIO_CLIENT.get_object(
+    # gets the minio object
+    response = MINIO_CLIENT.get_object(
         bucket_name=BUCKET_NAME,
         object_name=path.lstrip(f"{BUCKET_NAME}/"),
          )
 
-
-    return data
+    return response
 
 
 def save_dataset(name: str,
@@ -477,3 +476,22 @@ def _metadata_filepath(name: str,
     path = f"{path}.metadata"
 
     return path
+
+def handle_run_id(name: str, run_id: Optional[str] = None):
+    """ Handles cases where handle ID is None or 'latest'. Will return the run_id if neither of this cases or
+    None if get_run_id() doesn't find any run_id env var    
+
+    Args:
+        name (str): the dataset name.
+        run_id (str, optional): the run id. Defaults to None.
+    Returns:
+        str: the run uuid.
+    """
+    if run_id is None:
+        return get_run_id()
+
+    if run_id == "latest":
+        metadata = stat_dataset(name)
+        return metadata.get("run_id")
+        
+    return run_id 

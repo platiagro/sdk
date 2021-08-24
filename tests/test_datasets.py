@@ -170,13 +170,50 @@ class TestDatasets(TestCase):
         )
         self.assertTrue(result.equals(expected))
 
-        result = get_dataset("mock.csv", run_id="latest", operator_id=OPERATOR_ID)
+        result = load_dataset("mock.csv", run_id="latest", operator_id=OPERATOR_ID)
         expected = pd.DataFrame(
             data=[self.mock_values() for x in range(int(1e2))],
             columns=self.mock_columns(),
         )
-        print(result)
-       # self.assertTrue(result.equals(expected))
+        self.assertTrue(result.equals(expected))
+ 
+
+    def test_get_dataset(self):
+
+        # case where run_id and operator_id exists but the file doesn't  
+        s3_error_raised = False
+        try:
+            result = get_dataset("no-existent-file.csv", run_id=RUN_ID, operator_id=None)
+        except S3Error:
+            s3_error_raised = True
+
+        # ensuring that S3Error was raised
+        self.assertTrue(s3_error_raised)   
+
+        # case where run_id and operator_id exists
+        result = get_dataset("mock.csv", run_id=RUN_ID, operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result,'read'))
+
+        # case where run_id is None and operator_id exists
+        result = get_dataset("mock.csv", run_id=None, operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result,'read'))
+
+        # case where run_id exists and operator_id is None 
+        result = get_dataset("mock.csv", run_id=RUN_ID, operator_id=None)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result,'read'))
+
+        # case where run_id and operator_id is None 
+        result = get_dataset("mock.csv", run_id=None, operator_id=None)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result,'read'))
+
+        # case where run_id and operator_id exists but run_id = 'latest'
+        result = get_dataset("mock.csv", run_id="latest", operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result,'read'))
 
     def test_save_dataset(self):
         data = BytesIO(MOCK_IMAGE)
