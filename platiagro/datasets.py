@@ -120,8 +120,8 @@ def load_dataset(name: str,
     return dataset
 
 def get_dataset(name: str,
-                 run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
+                run_id: Optional[str] = None,
+                operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
     """Retrieves dataset response object from minio.
 
     If run_id exists, then gets the dataset from the specified run.
