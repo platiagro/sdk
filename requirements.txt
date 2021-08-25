@@ -12,6 +12,6 @@ requests>=2.23.0
 # Lib that contains OrdinalEncoder and OneHotEncoder
 category-encoders==2.2.2
 # Fundamental package for scientific computing in Python 
-numpy==1.21.2
+numpy==1.19.5
 
 
