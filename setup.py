@@ -16,7 +16,7 @@ with open("requirements.txt") as f:
 
 extras = {
     "plotting": [
-        "shap==0.38.1",
+        "shap>=0.37.0",
         "seaborn>=0.10.0",
         "plotly>=4.14.1",
         "ipykernel>=5.2.0",
