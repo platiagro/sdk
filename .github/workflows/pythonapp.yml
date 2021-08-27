@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [ '3.8' ]
+        python-version: [ "3.8" ]
 
     steps:
     - name: Code review tips
@@ -55,7 +55,7 @@ jobs:
           ### Build Github actions COM SUCESSO
 
           ### Python
-          - Usar Python 3.7
+          - Usar Python 3.8
           - Remover `print`.
           - Não deixar código-fonte comentado.
           - f-string `f'text-{variable}'` é melhor que `'text-{}'.format(variable)` e `'text-' + variable`
