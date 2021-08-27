@@ -15,6 +15,17 @@ List, load and save datasets
   list_datasets()
   ['iris', 'boston', 'imdb']
 
+.. autofunction:: get_dataset
+
+.. code-block:: python
+
+  from platiagro import get_dataset
+
+  dataset = "iris"
+
+  get_dataset(dataset)
+  <urllib3.response.HTTPResponse object at 0x7f9c4711f2e0>
+
 .. autofunction:: load_dataset
 
 .. code-block:: python
@@ -196,4 +207,3 @@ Download artifact
   from platiagro import download_artifact
 
   download_artifact(name="glove_s100.zip", path="/tmp/glove_s100.zip")
-  
