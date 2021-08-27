@@ -5,9 +5,6 @@ from matplotlib.pyplot import plot
 
 import numpy as np
 import pandas as pd
-import shap
-from shap.plots._labels import labels
-        
 
 from category_encoders.ordinal import OrdinalEncoder
 from category_encoders.one_hot import OneHotEncoder

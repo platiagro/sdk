@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os
-
 from base64 import b64decode
 from io import BytesIO
 from json import dumps
@@ -8,13 +7,13 @@ from unittest import TestCase
 from uuid import uuid4
 from zipfile import ZipFile
 
-from minio.error import S3Error
-from minio.commonconfig import CopySource
 import pandas as pd
+from minio.commonconfig import CopySource
+from minio.error import S3Error
 
-from platiagro import list_datasets, load_dataset, save_dataset, stat_dataset, \
-    download_dataset, update_dataset_metadata, \
-    DATETIME, CATEGORICAL, NUMERICAL
+from platiagro import (CATEGORICAL, DATETIME, NUMERICAL, download_dataset,
+                       get_dataset, list_datasets, load_dataset, save_dataset,
+                       stat_dataset, update_dataset_metadata)
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 RUN_ID = str(uuid4())
@@ -176,6 +175,38 @@ class TestDatasets(TestCase):
             columns=self.mock_columns(),
         )
         self.assertTrue(result.equals(expected))
+
+    def test_get_dataset(self):
+
+        # case where run_id and operator_id exists but the file doesn't
+        # ensuring that S3Error was raised
+        with self.assertRaises(FileNotFoundError):
+            get_dataset("no-existent-file.csv", run_id=RUN_ID, operator_id=None)
+
+        # case where run_id and operator_id exists
+        result = get_dataset("mock.csv", run_id=RUN_ID, operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result, 'read'))
+
+        # case where run_id is None and operator_id exists
+        result = get_dataset("mock.csv", run_id=None, operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result, 'read'))
+
+        # case where run_id exists and operator_id is None
+        result = get_dataset("mock.csv", run_id=RUN_ID, operator_id=None)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result, 'read'))
+
+        # case where run_id and operator_id is None
+        result = get_dataset("mock.csv", run_id=None, operator_id=None)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result, 'read'))
+
+        # case where run_id and operator_id exists but run_id = 'latest'
+        result = get_dataset("mock.csv", run_id="latest", operator_id=OPERATOR_ID)
+        # file-like objects should have attr 'read'
+        self.assertTrue(hasattr(result, 'read'))
 
     def test_save_dataset(self):
         data = BytesIO(MOCK_IMAGE)

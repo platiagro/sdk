@@ -11,3 +11,5 @@ s3fs>=0.3.0
 requests>=2.23.0
 # Lib that contains OrdinalEncoder and OneHotEncoder
 category-encoders==2.2.2
+# package for array computing with Python
+numpy~=1.19.5

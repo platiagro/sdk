@@ -8,7 +8,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-import shap
+from shap import KernelExplainer, initjs, summary_plot
 import plotly.express as px
 
 import sklearn
@@ -1048,18 +1048,18 @@ def plot_shap_classification_summary(pipeline,
 
     if len(non_numerical_indexes) == 0:
 
-        explainer = shap.KernelExplainer(pipeline.predict_proba, X)
+        explainer = KernelExplainer(pipeline.predict_proba, X)
         shap_values = explainer.shap_values(X)
 
         for i in range(len(explainer.expected_value)):
-            shap.initjs()
+            initjs()
             cmap = sns.color_palette("Spectral_r", as_cmap=True)
             plt.figure()
             if label_encoder:
                 plt.title(label_encoder.inverse_transform([i])[0])
             else:
                 plt.title(f"class_{i}")
-            shap.summary_plot(shap_values[i], X, feature_names=feature_names, show=False)
+            summary_plot(shap_values[i], X, feature_names=feature_names, show=False)
             # Change the colormap of the artists
 
             for fc in plt.gcf().get_children():
