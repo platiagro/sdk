@@ -11,7 +11,7 @@ from platiagro.models import load_model, save_model
 __all__ = ["client",
            "download_artifact",
            "list_datasets", "load_dataset", "save_dataset", "stat_dataset",
-           "download_dataset", "update_dataset_metadata",
+           "download_dataset", "update_dataset_metadata", "get_dataset",
            "infer_featuretypes", "validate_featuretypes",
            "DATETIME", "CATEGORICAL", "NUMERICAL",
            "list_figures", "save_figure", "delete_figures",
