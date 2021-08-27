@@ -158,10 +158,13 @@ def get_dataset(name: str,
     path = _data_filepath(name, run_id, operator_id)
 
     # gets the minio object
-    response = MINIO_CLIENT.get_object(
-        bucket_name=BUCKET_NAME,
-        object_name=path.lstrip(f"{BUCKET_NAME}/"),
-         )
+    try:
+        response = MINIO_CLIENT.get_object(
+            bucket_name=BUCKET_NAME,
+            object_name=path.lstrip(f"{BUCKET_NAME}/"),
+        )
+    except S3Error as err:
+        raise_if_dataset_does_not_exist(err)
 
     return response
 
