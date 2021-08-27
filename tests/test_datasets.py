@@ -179,14 +179,9 @@ class TestDatasets(TestCase):
     def test_get_dataset(self):
 
         # case where run_id and operator_id exists but the file doesn't
-        s3_error_raised = False
-        try:
-            result = get_dataset("no-existent-file.csv", run_id=RUN_ID, operator_id=None)
-        except S3Error:
-            s3_error_raised = True
-
         # ensuring that S3Error was raised
-        self.assertTrue(s3_error_raised)
+        with self.assertRaises(FileNotFoundError):
+            get_dataset("no-existent-file.csv", run_id=RUN_ID, operator_id=None)
 
         # case where run_id and operator_id exists
         result = get_dataset("mock.csv", run_id=RUN_ID, operator_id=OPERATOR_ID)
