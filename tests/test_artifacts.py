@@ -9,19 +9,14 @@ from minio.error import S3Error
 import platiagro
 from platiagro.util import MINIO_CLIENT
 
+import tests.util as util
+
 
 class TestArtifacts(unittest.TestCase):
     @mock.patch.object(
         MINIO_CLIENT,
         "fget_object",
-        side_effect=S3Error(
-            code="NoSuchKey",
-            message="",
-            resource=None,
-            request_id=None,
-            host_id=None,
-            response=None,
-        ),
+        side_effect=util.NO_SUCH_KEY_ERROR,
     )
     def test_download_artifact_not_found(self, mock_fget_object):
         """
