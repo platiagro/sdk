@@ -1,0 +1,35 @@
+{
+	"folders": [
+			{
+					"path": "."
+			}
+	],
+	"settings": {
+			"editor.rulers": [80, 120],
+			"editor.insertSpaces": true,
+			"editor.tabSize": 4,
+			"editor.formatOnSave": true,
+			"editor.formatOnSaveMode": "file",
+			"editor.defaultFormatter": "ms-python.python",
+			"files.watcherExclude": {
+					"**/venv/**": true,
+					"**/build/**": true,
+					"**/dist/**": true,
+					"**/coverage/**": true
+			},
+			"editor.codeActionsOnSave": {
+					"source.fixAll": true
+			},
+			"python.formatting.provider": "black",
+			"python.testing.pytestEnabled": true,
+			"[python]": {
+					"editor.defaultFormatter": "ms-python.python"
+			}
+	},
+	"extensions": {
+			"recommendations": [
+					"ms-python.python",
+					"sonarsource.sonarlint-vscode"
+			]
+	}
+}
