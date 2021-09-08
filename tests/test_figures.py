@@ -1,146 +1,270 @@
 # -*- coding: utf-8 -*-
-from io import BytesIO
-from os import environ
-from unittest import TestCase
-from uuid import uuid4
+import os
+import unittest
+import unittest.mock as mock
 
-import base64
-from minio.error import S3Error
+from minio.datatypes import Object
 
-from platiagro import list_figures, save_figure, delete_figures
+import platiagro
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
-RUN_ID = str(uuid4())
+import tests.util as util
 
 
-class TestFigures(TestCase):
-
-    def setUp(self):
-        """Prepares a figure for tests."""
-        self.make_bucket()
-        self.empty_bucket()
-        self.create_mock_figure()
-
-    def empty_bucket(self):
-        for obj in MINIO_CLIENT.list_objects(BUCKET_NAME, prefix="", recursive=True):
-            MINIO_CLIENT.remove_object(BUCKET_NAME, obj.object_name)
-
-    def make_bucket(self):
-        try:
-            MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except S3Error as err:
-            if err.code == "BucketAlreadyOwnedByYou":
-                pass
-
-    def create_mock_figure(self):
-        file = BytesIO(
-            b'<svg viewBox=\'0 0 125 80\' xmlns=\'http://www.w3.org/2000/svg\'>\n'
-            b'<text y="75" font-size="100" font-family="serif"><![CDATA[10]]></text>\n'
-            b'</svg>\n'
+class TestFigures(unittest.TestCase):
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "list_objects",
+        return_value=[
+            Object(
+                bucket_name=BUCKET_NAME,
+                object_name=f"experiments/None/operators/None/None/figure.png",
             )
-        MINIO_CLIENT.put_object(
+        ],
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_list_figures_success(
+        self, mock_get_object, mock_list_objects, mock_make_bucket
+    ):
+        """
+        Should list a single figure.
+        """
+        result = platiagro.list_figures()
+
+        self.assertTrue(isinstance(result, list))
+        self.assertEqual(result, [f"data:image/png;base64,iVBORw0K"])
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "list_objects",
+        return_value=[
+            Object(
+                bucket_name=BUCKET_NAME,
+                object_name=f"experiments/UNK/operators/UNK/UNK/figure.png",
+            )
+        ],
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_list_figures_with_env_variables_success(
+        self, mock_get_object, mock_list_objects, mock_make_bucket
+    ):
+        """
+        Should list a single figure using env variables in path.
+        """
+        os.environ["EXPERIMENT_ID"] = "UNK"
+        os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "UNK"
+
+        result = platiagro.list_figures()
+
+        self.assertTrue(isinstance(result, list))
+        self.assertEqual(result, [f"data:image/png;base64,iVBORw0K"])
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_figure_with_base64_success(
+        self, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .put_object passing a base64 string.
+        """
+        figure = util.FIGURE_SVG_BASE64
+        extension = "svg"
+
+        platiagro.save_figure(figure=figure, extension=extension)
+
+        # I wish we could assert object_name value, but it has a timestamp... :(
+        mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
-            object_name="experiments/test/operators/test/figure-123456.svg",
-            data=file,
-            length=file.getbuffer().nbytes,
+            object_name=mock.ANY,
+            data=mock.ANY,
+            length=mock.ANY,
         )
 
-    def test_list_figures(self):
-        environ["EXPERIMENT_ID"] = "test"
-        result = list_figures()
-        self.assertTrue(isinstance(result, list))
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_figure_with_base64_and_env_variables_success(
+        self, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .put_object passing a base64 string, and using env variables in path.
+        """
+        figure = util.FIGURE_SVG_BASE64
+        extension = "svg"
+        os.environ["EXPERIMENT_ID"] = "UNK"
+        os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "UNK"
 
-        environ["OPERATOR_ID"] = "test"
-        result = list_figures()
-        self.assertTrue(isinstance(result, list))
+        platiagro.save_figure(figure=figure, extension=extension)
 
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=mock.ANY,
+            data=mock.ANY,
+            length=mock.ANY,
+        )
 
-        result = list_figures(experiment_id="test", operator_id="test")
-        self.assertTrue(isinstance(result, list))
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_figure_with_html_success(
+        self, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .put_object passing a string containing an html.
+        """
+        figure = util.FIGURE_HTML
+        extension = "html"
 
-    def test_list_figures_run_id(self):
-        environ["EXPERIMENT_ID"] = "test"
-        environ["OPERATOR_ID"] = "test"
-        environ["RUN_ID"] = RUN_ID
-        result = list_figures()
-        self.assertTrue(isinstance(result, list))
+        platiagro.save_figure(figure=figure, extension=extension)
 
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
-        del environ["RUN_ID"]
+        # I wish we could assert object_name value, but it has a timestamp... :(
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=mock.ANY,
+            data=mock.ANY,
+            length=mock.ANY,
+        )
 
-        result = list_figures(experiment_id="test", operator_id="test", run_id=RUN_ID)
-        self.assertTrue(isinstance(result, list))
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_figure_with_env_monitoring_success(
+        self, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .put_object passing a string containing an html, and using env variables in path.
+        """
+        figure = util.FIGURE_HTML_BASE64
+        extension = "html"
+        os.environ["DEPLOYMENT_ID"] = "UNK"
+        os.environ["MONITORING_ID"] = "UNK"
 
-        result = list_figures(experiment_id="test", operator_id="test", run_id="latest")
-        self.assertTrue(isinstance(result, list))
+        platiagro.save_figure(figure=figure, extension=extension)
 
-    def test_save_figure_base64(self):
-        with open("./tests/figure.png", "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-            environ["EXPERIMENT_ID"] = "testFigureBase64"
-            environ["OPERATOR_ID"] = "testFigureBase64"
-            environ["RUN_ID"] = RUN_ID
-            save_figure(figure=encoded_string.decode('utf-8'), extension='png')
-            save_figure(figure=encoded_string.decode('utf-8'), extension='svg', run_id="latest")
+        # I wish we could assert object_name value, but it has a timestamp... :(
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=mock.ANY,
+            data=mock.ANY,
+            length=mock.ANY,
+        )
 
-        result = list_figures()
-        self.assertTrue(len(result) == 2)
-        result = list_figures(run_id="latest")
-        self.assertTrue(len(result) == 2)
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "list_objects",
+        return_value=[
+            Object(
+                bucket_name=BUCKET_NAME,
+                object_name=f"experiments/UNK/operators/UNK/UNK/figure.png",
+            )
+        ],
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "remove_object",
+    )
+    def test_delete_figure_success(
+        self, mock_remove_object, mock_get_object, mock_list_objects, mock_make_bucket
+    ):
+        """
+        Should call .remove_object.
+        """
+        os.environ["EXPERIMENT_ID"] = "UNK"
+        os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "UNK"
 
-    def test_save_html_figure(self):
-        environ["EXPERIMENT_ID"] = "testHtmlFigure"
-        environ["OPERATOR_ID"] = "testHtmlFigure"
-        environ["RUN_ID"] = RUN_ID
-        html_figure = '<html><body></body></html>'
-        save_figure(figure=html_figure, extension='html')
+        platiagro.delete_figures()
 
-        expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
-        self.assertEqual(expected, list_figures())
+        # I wish we could assert object_name value, but it has a timestamp... :(
+        mock_remove_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=mock.ANY,
+        )
 
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
-        del environ["RUN_ID"]
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "list_objects",
+        return_value=[
+            Object(
+                bucket_name=BUCKET_NAME,
+                object_name=f"deployments/UNK/monitorings/UNK/figure.png",
+            )
+        ],
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "remove_object",
+    )
+    def test_delete_figure_with_env_monitoring_success(
+        self, mock_remove_object, mock_get_object, mock_list_objects, mock_make_bucket
+    ):
+        """
+        Should call .remove_object.
+        """
+        os.environ["DEPLOYMENT_ID"] = "UNK"
+        os.environ["MONITORING_ID"] = "UNK"
 
-    def test_save_html_figure_deploy_monit_id(self):
-        environ["DEPLOYMENT_ID"] = "testHtmlFigure"
-        environ["MONITORING_ID"] = "testHtmlFigure"
-        html_figure = '<html><body></body></html>'
-        save_figure(figure=html_figure, extension='html')
+        platiagro.delete_figures()
 
-        expected = ['data:text/html;base64,PGh0bWw+PGJvZHk+PC9ib2R5PjwvaHRtbD4=']
-        self.assertEqual(expected, list_figures())
-
-        del environ["DEPLOYMENT_ID"]
-        del environ["MONITORING_ID"]
-
-    def test_delete_figure(self):
-        environ["EXPERIMENT_ID"] = "testFigure"
-        environ["OPERATOR_ID"] = "testFigure"
-        environ["RUN_ID"] = RUN_ID
-
-        result = delete_figures()
-        self.assertFalse(isinstance(result, list))
-
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
-        del environ["RUN_ID"]
-
-        result = delete_figures(experiment_id="testFigure", operator_id="testFigure")
-        self.assertFalse(isinstance(result, list))
-
-    def test_delete_figure_deployment_id(self):
-        environ["DEPLOYMENT_ID"] = "testFigure"
-        environ["MONITORING_ID"] = "testFigure"
-
-        result = delete_figures()
-        self.assertFalse(isinstance(result, list))
-
-        del environ["DEPLOYMENT_ID"]
-        del environ["MONITORING_ID"]
-
-        result = delete_figures(deployment_id="testFigure", monitoring_id="testFigure", run_id="latest")
-        self.assertFalse(isinstance(result, list))
+        # I wish we could assert object_name value, but it has a timestamp... :(
+        mock_remove_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=mock.ANY,
+        )

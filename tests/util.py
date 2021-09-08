@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import io
 from typing import Any
 
@@ -13,6 +14,7 @@ CSV_DATA = (
     "4.7,3.2,1.3,0.2,Iris-setosa\n"
     "4.6,3.1,1.5,0.2,Iris-setosa\n"
 ).encode()
+
 BINARY_DATA = b"\x89PNG\r\n"
 
 NO_SUCH_KEY_ERROR = S3Error(
@@ -23,6 +25,16 @@ NO_SUCH_KEY_ERROR = S3Error(
     host_id=None,
     response=None,
 )
+
+FIGURE_SVG = (
+    "<svg viewBox='0 0 125 80' xmlns='http://www.w3.org/2000/svg'>\n"
+    '<text y="75" font-size="100" font-family="serif"><![CDATA[10]]></text>\n'
+    "</svg>\n"
+)
+FIGURE_SVG_BASE64 = base64.b64encode(FIGURE_SVG.encode()).decode()
+
+FIGURE_HTML = "<html><body>HELLO!</body></html>"
+FIGURE_HTML_BASE64 = base64.b64encode(FIGURE_HTML.encode()).decode()
 
 
 def get_object_side_effect(bucket_name: str, object_name: str, **kwargs):
