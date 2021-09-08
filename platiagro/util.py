@@ -10,10 +10,12 @@ from typing import Dict
 import logging
 
 BUCKET_NAME = "anonymous"
-MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.kubeflow:9000")
+MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.platiagro:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
-JUPYTER_ENDPOINT = getenv("JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server")
+JUPYTER_ENDPOINT = getenv(
+    "JUPYTER_ENDPOINT", "http://server.anonymous:80/notebook/anonymous/server"
+)
 
 MINIO_CLIENT = Minio(
     endpoint=MINIO_ENDPOINT,
@@ -185,7 +187,7 @@ def stat_metadata(experiment_id: str, operator_id: str) -> Dict[str, str]:
         FileNotFoundError: If metadata does not exist in the object storage.
     """
     metadata = {}
-    object_name = f'experiments/{experiment_id}/operators/{operator_id}/.metadata'
+    object_name = f"experiments/{experiment_id}/operators/{operator_id}/.metadata"
     try:
         # reads the .metadata file
         data = MINIO_CLIENT.get_object(
@@ -215,11 +217,11 @@ def metadata_exists(name: str, run_id: str = None, operator_id: str = None) -> b
         bool: True if metadata path exists in the obeject storage, otherwise, False.
     """
     if run_id and operator_id:
-        object_name = f'datasets/{name}/runs/{run_id}/operators/{operator_id}/{name}/{name}.metadata'
+        object_name = f"datasets/{name}/runs/{run_id}/operators/{operator_id}/{name}/{name}.metadata"
     elif run_id:
-        object_name = f'datasets/{name}/runs/{run_id}/{run_id}.metadata'
+        object_name = f"datasets/{name}/runs/{run_id}/{run_id}.metadata"
     else:
-        object_name = f'datasets/{name}/{name}.metadata'
+        object_name = f"datasets/{name}/{name}.metadata"
 
     try:
         # reads the .metadata file
@@ -233,10 +235,12 @@ def metadata_exists(name: str, run_id: str = None, operator_id: str = None) -> b
             return False
 
 
-def operator_filepath(name: str,
-                      experiment_id: Optional[str] = None,
-                      operator_id: Optional[str] = None,
-                      run_id: Optional[str] = None) -> str:
+def operator_filepath(
+    name: str,
+    experiment_id: Optional[str] = None,
+    operator_id: Optional[str] = None,
+    run_id: Optional[str] = None,
+) -> str:
     """Builds the filepath of a given operator.
     Args:
         name (str): the file name.
@@ -247,7 +251,7 @@ def operator_filepath(name: str,
         str: The object name.
     """
     if run_id:
-        path = f'experiments/{experiment_id}/operators/{operator_id}/{run_id}/{name}'
+        path = f"experiments/{experiment_id}/operators/{operator_id}/{run_id}/{name}"
     else:
-        path = f'experiments/{experiment_id}/operators/{operator_id}/{name}'
+        path = f"experiments/{experiment_id}/operators/{operator_id}/{name}"
     return path
