@@ -9,8 +9,15 @@ import pandas as pd
 from minio.error import S3Error
 
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
-from platiagro.util import (BUCKET_NAME, MINIO_CLIENT, S3FS, get_operator_id,
-                            get_run_id, make_bucket, metadata_exists)
+from platiagro.util import (
+    BUCKET_NAME,
+    MINIO_CLIENT,
+    S3FS,
+    get_operator_id,
+    get_run_id,
+    make_bucket,
+    metadata_exists,
+)
 
 PREFIX = "datasets"
 
@@ -29,17 +36,19 @@ def list_datasets() -> List[str]:
     objects = MINIO_CLIENT.list_objects(BUCKET_NAME, PREFIX + "/")
 
     for obj in objects:
-        name = obj.object_name[len(PREFIX) + 1:-1]
+        name = obj.object_name[len(PREFIX) + 1 : -1]
         datasets.append(name)
 
     return datasets
 
 
-def load_dataset(name: str,
-                 run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None,
-                 page: Optional[int] = None,
-                 page_size: Optional[int] = None) -> Union[pd.DataFrame, BinaryIO]:
+def load_dataset(
+    name: str,
+    run_id: Optional[str] = None,
+    operator_id: Optional[str] = None,
+    page: Optional[int] = None,
+    page_size: Optional[int] = None,
+) -> Union[pd.DataFrame, BinaryIO]:
     """Retrieves the contents of a dataset.
 
     If run_id exists, then loads the dataset from the specified run.
@@ -95,11 +104,15 @@ def load_dataset(name: str,
 
     try:
         metadata = stat_dataset(name, run_id, operator_id)
-        dataset = pd.read_csv(S3FS.open(path), header=0, index_col=False, nrows=nrows, skiprows=skiprows)
+        dataset = pd.read_csv(
+            S3FS.open(path), header=0, index_col=False, nrows=nrows, skiprows=skiprows
+        )
 
         dtypes = dict(
             (column, "object")
-            for column, ftype in zip(metadata["columns"], metadata["featuretypes"])
+            for column, ftype in zip(
+                metadata.get("columns", []), metadata.get("featuretypes", [])
+            )
             if ftype in [CATEGORICAL, DATETIME]
         )
         dataset = dataset.astype(dtypes)
@@ -120,9 +133,9 @@ def load_dataset(name: str,
     return dataset
 
 
-def get_dataset(name: str,
-                run_id: Optional[str] = None,
-                operator_id: Optional[str] = None) -> Union[pd.DataFrame, BinaryIO]:
+def get_dataset(
+    name: str, run_id: Optional[str] = None, operator_id: Optional[str] = None
+) -> Union[pd.DataFrame, BinaryIO]:
     """Retrieves dataset response object from minio.
 
     If run_id exists, then gets the dataset from the specified run.
@@ -169,12 +182,14 @@ def get_dataset(name: str,
     return response
 
 
-def save_dataset(name: str,
-                 data: Union[pd.DataFrame, BinaryIO] = None,
-                 df: pd.DataFrame = None,
-                 metadata: Optional[Dict[str, str]] = None,
-                 run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None):
+def save_dataset(
+    name: str,
+    data: Union[pd.DataFrame, BinaryIO] = None,
+    df: pd.DataFrame = None,
+    metadata: Optional[Dict[str, str]] = None,
+    run_id: Optional[str] = None,
+    operator_id: Optional[str] = None,
+):
     """Saves a dataset and its metadata to the object storage.
 
     Args:
@@ -244,16 +259,18 @@ def save_dataset(name: str,
     # search for changes and then update current featuretypes to be even with columns
     if metadata_should_be_updated:
         previous_metadata = stat_dataset(name, run_id)
-        previous_columns = previous_metadata["columns"]
-        previous_featuretypes = previous_metadata["featuretypes"]
+        previous_columns = previous_metadata.get("columns", [])
+        previous_featuretypes = previous_metadata.get("featuretypes", [])
         column_to_type = dict(zip(previous_columns, previous_featuretypes))
 
         new_featuretypes = []
-        for new_column in metadata["columns"]:
+        for new_column in metadata.get("columns"):
             if new_column in column_to_type:
                 new_featuretypes.append(column_to_type[new_column])
             else:
-                new_featuretypes.append(infer_featuretypes(pd.DataFrame(data[new_column]))[0])
+                new_featuretypes.append(
+                    infer_featuretypes(pd.DataFrame(data[new_column]))[0]
+                )
 
         metadata["featuretypes"] = new_featuretypes
 
@@ -295,12 +312,12 @@ def save_dataset(name: str,
 
     if isinstance(data, pd.DataFrame):
         # uploads dataframe to MinIO as a .csv file
-        temp_file = tempfile.NamedTemporaryFile(dir='.', delete=False)
+        temp_file = tempfile.NamedTemporaryFile(dir=".", delete=False)
         data.to_csv(temp_file.name, header=True, index=False)
         MINIO_CLIENT.fput_object(
             bucket_name=BUCKET_NAME,
             object_name=path.lstrip(f"{BUCKET_NAME}/"),
-            file_path=temp_file.name
+            file_path=temp_file.name,
         )
         temp_file.close()
         os.remove(temp_file.name)
@@ -330,9 +347,9 @@ def raise_if_dataset_does_not_exist(err: S3Error):
         raise FileNotFoundError("The specified dataset does not exist")
 
 
-def stat_dataset(name: str,
-                 run_id: Optional[str] = None,
-                 operator_id: Optional[str] = None) -> Dict[str, str]:
+def stat_dataset(
+    name: str, run_id: Optional[str] = None, operator_id: Optional[str] = None
+) -> Dict[str, str]:
     """Retrieves the metadata of a dataset.
 
     Args:
@@ -408,15 +425,17 @@ def download_dataset(name: str, path: str):
     if isinstance(dataset, pd.DataFrame):
         dataset.to_csv(path, index=False)
     else:
-        f = open(path, 'wb')
+        f = open(path, "wb")
         f.write(dataset.getvalue())
         f.close()
 
 
-def update_dataset_metadata(name: str,
-                            metadata: Dict[str, str],
-                            run_id: Optional[str] = None,
-                            operator_id: Optional[str] = None):
+def update_dataset_metadata(
+    name: str,
+    metadata: Dict[str, str],
+    run_id: Optional[str] = None,
+    operator_id: Optional[str] = None,
+):
     """Update the metadata of a dataset.
     Args:
         name (str): the dataset name.
@@ -437,9 +456,9 @@ def update_dataset_metadata(name: str,
     )
 
 
-def _data_filepath(name: str,
-                   run_id: Optional[str] = None,
-                   operator_id: Optional[str] = None) -> str:
+def _data_filepath(
+    name: str, run_id: Optional[str] = None, operator_id: Optional[str] = None
+) -> str:
     """Builds the filepath of a given dataset.
 
     Args:
@@ -462,9 +481,9 @@ def _data_filepath(name: str,
     return path
 
 
-def _metadata_filepath(name: str,
-                       run_id: Optional[str] = None,
-                       operator_id: Optional[str] = None) -> str:
+def _metadata_filepath(
+    name: str, run_id: Optional[str] = None, operator_id: Optional[str] = None
+) -> str:
     """Builds the filepath of metadata of a given dataset.
 
     Args:
@@ -482,7 +501,7 @@ def _metadata_filepath(name: str,
 
 
 def handle_run_id(name: str, run_id: Optional[str] = None):
-    """ Check cases where handle ID is None or 'latest', returning proper value of those cases.
+    """Check cases where handle ID is None or 'latest', returning proper value of those cases.
 
     Args:
         name (str): the dataset name.
