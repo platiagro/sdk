@@ -6,8 +6,6 @@ import unittest.mock as mock
 
 import pandas as pd
 from minio.datatypes import Object
-from minio.error import S3Error
-from urllib3.response import HTTPResponse
 
 import platiagro
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS
