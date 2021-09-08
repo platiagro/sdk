@@ -378,6 +378,9 @@ class TestDatasets(unittest.TestCase):
     def test_update_dataset_metadata(
         self, mock_put_object, mock_get_object, mock_make_bucket
     ):
+        """
+        Should call .put_object passing using .metadata as object_name.
+        """
         dataset_name = "unk.csv"
         metadata = {
             "featuretypes": [

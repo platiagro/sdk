@@ -218,7 +218,7 @@ class TestFigures(unittest.TestCase):
         self, mock_remove_object, mock_get_object, mock_list_objects, mock_make_bucket
     ):
         """
-        Should call .remove_object.
+        Should call .remove_object using env variables in object_name.
         """
         os.environ["EXPERIMENT_ID"] = "UNK"
         os.environ["OPERATOR_ID"] = "UNK"
@@ -256,7 +256,7 @@ class TestFigures(unittest.TestCase):
         self, mock_remove_object, mock_get_object, mock_list_objects, mock_make_bucket
     ):
         """
-        Should call .remove_object.
+        Should call .remove_object using env variables in object_name.
         """
         os.environ["DEPLOYMENT_ID"] = "UNK"
         os.environ["MONITORING_ID"] = "UNK"
