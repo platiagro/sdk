@@ -123,7 +123,7 @@ class TestMetrics(unittest.TestCase):
 
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
-            object_name=f"experiments/UNK/operators/UNK/metrics.json",
+            object_name=f"experiments/UNK/operators/UNK/UNK/metrics.json",
             data=mock.ANY,
             length=mock.ANY,
         )
