@@ -111,10 +111,14 @@ class TestMetrics(unittest.TestCase):
         """
         experiment_id = "UNK"
         operator_id = "UNK"
+        run_id = "UNK"
         accuracy = 0.5
 
         platiagro.save_metrics(
-            accuracy=accuracy, experiment_id=experiment_id, operator_id=operator_id
+            accuracy=accuracy,
+            experiment_id=experiment_id,
+            operator_id=operator_id,
+            run_id=run_id,
         )
 
         mock_put_object.assert_any_call(
@@ -139,10 +143,11 @@ class TestMetrics(unittest.TestCase):
         self, mock_put_object, mock_get_object, mock_make_bucket
     ):
         """
-        Should raise TypeError when metric is an invalid object type.
+        Should save metrics sucessfully.
         """
         os.environ["EXPERIMENT_ID"] = "UNK"
         os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "UNK"
         accuracy = 0.5
         scores = pd.Series([1.0, 0.5, 0.1])
         r2_score = -3.0
@@ -150,37 +155,6 @@ class TestMetrics(unittest.TestCase):
         platiagro.save_metrics(accuracy=accuracy)
         platiagro.save_metrics(scores=scores)
         platiagro.save_metrics(r2_score=r2_score)
-
-        mock_put_object.assert_any_call(
-            bucket_name=BUCKET_NAME,
-            object_name=f"experiments/UNK/operators/UNK/metrics.json",
-            data=mock.ANY,
-            length=mock.ANY,
-        )
-
-    @mock.patch.object(MINIO_CLIENT, "make_bucket")
-    @mock.patch.object(
-        MINIO_CLIENT,
-        "get_object",
-        side_effect=util.get_object_side_effect,
-    )
-    @mock.patch.object(
-        MINIO_CLIENT,
-        "put_object",
-        side_effect=util.put_object_side_effect,
-    )
-    def test_save_metrics_with_env_variable_run_id_success(
-        self, mock_put_object, mock_get_object, mock_make_bucket
-    ):
-        """
-        Should raise TypeError when metric is an invalid object type.
-        """
-        os.environ["EXPERIMENT_ID"] = "UNK"
-        os.environ["OPERATOR_ID"] = "UNK"
-        os.environ["RUN_ID"] = "UNK"
-        accuracy = 0.5
-
-        platiagro.save_metrics(accuracy=accuracy)
 
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
