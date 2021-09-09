@@ -10,7 +10,7 @@ from typing import Dict
 import logging
 
 BUCKET_NAME = "anonymous"
-MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio-service.platiagro:9000")
+MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio.platiagro:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
 
