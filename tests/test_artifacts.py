@@ -3,9 +3,6 @@ import os
 import unittest
 import unittest.mock as mock
 
-from minio import Minio
-from minio.error import S3Error
-
 import platiagro
 from platiagro.util import MINIO_CLIENT
 
