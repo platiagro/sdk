@@ -2,6 +2,7 @@
 import base64
 import io
 import joblib
+import json
 import os
 from typing import Any
 
@@ -66,6 +67,8 @@ def get_object_side_effect(bucket_name: str, object_name: str, **kwargs):
         body = f'{{"filename": "{filename}"}}'.encode()
     elif object_name.endswith(".csv"):
         body = CSV_DATA
+    elif object_name.endswith("metrics.json"):
+        body = json.dumps([{"accuracy": 1.0}]).encode()
     elif object_name.endswith("model.joblib"):
         buffer = io.BytesIO()
         joblib.dump({"model": MODEL}, buffer)
