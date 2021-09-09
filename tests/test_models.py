@@ -1,81 +1,117 @@
 # -*- coding: utf-8 -*-
-from io import BytesIO
-from os import SEEK_SET, environ
-from unittest import TestCase
-from uuid import uuid4
+import os
+import unittest
+import unittest.mock as mock
+import uuid
 
-from joblib import dump
-from minio.error import S3Error
-
-from platiagro import load_model, save_model
+import platiagro
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
-EXPERIMENT_ID = str(uuid4())
-OPERATOR_ID = str(uuid4())
+import tests.util as util
+
+EXPERIMENT_ID = str(uuid.uuid4())
+OPERATOR_ID = str(uuid.uuid4())
 
 
-class MockModel:
-    def predict(self, x):
-        return True
-
-
-class TestModels(TestCase):
-
-    def setUp(self):
-        """Prepares a model for tests."""
-        self.make_bucket()
-        self.create_mock_model()
-
-    def make_bucket(self):
-        try:
-            MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except S3Error as err:
-            if err.code == "BucketAlreadyOwnedByYou":
-                pass
-
-    def create_mock_model(self):
-        model = {"model": MockModel()}
-        buffer = BytesIO()
-        dump(model, buffer)
-        buffer.seek(0, SEEK_SET)
-        MINIO_CLIENT.put_object(
-            bucket_name=BUCKET_NAME,
-            object_name=f"experiments/{EXPERIMENT_ID}/operators/{OPERATOR_ID}/model.joblib",
-            data=buffer,
-            length=buffer.getbuffer().nbytes,
+class TestModels(unittest.TestCase):
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_load_model_success(self, mock_get_object, mock_make_bucket):
+        """
+        Should return a MockModel object when experiment_id and operator_id exist.
+        """
+        model = platiagro.load_model(
+            experiment_id=EXPERIMENT_ID, operator_id=OPERATOR_ID
         )
 
-    def test_load_model(self):
-        environ["EXPERIMENT_ID"] = EXPERIMENT_ID
-        environ["OPERATOR_ID"] = OPERATOR_ID
-        model = load_model()
         self.assertIsInstance(model, dict)
-        self.assertIsInstance(model["model"], MockModel)
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
+        self.assertIsInstance(model["model"], util.MockModel)
 
-        model = load_model(experiment_id=EXPERIMENT_ID, operator_id=OPERATOR_ID)
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_load_model_with_env_variables_success(
+        self, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should return a MockModel object when experiment_id and operator_id exist.
+        """
+        os.environ["EXPERIMENT_ID"] = EXPERIMENT_ID
+        os.environ["OPERATOR_ID"] = OPERATOR_ID
+
+        model = platiagro.load_model()
+
         self.assertIsInstance(model, dict)
-        self.assertIsInstance(model["model"], MockModel)
+        self.assertIsInstance(model["model"], util.MockModel)
 
-    def test_save_model(self):
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_model_type_error(self, mock_put_object, mock_make_bucket):
+        """
+        Should raise an exception when given an invalid object type.
+        """
+        model = util.MockModel()
+
         with self.assertRaises(TypeError):
-            model = MockModel()
-            save_model(model)
+            platiagro.save_model(model)
 
-        environ["EXPERIMENT_ID"] = "test"
-        environ["OPERATOR_ID"] = "test"
-        model = MockModel()
-        save_model()
-        del environ["EXPERIMENT_ID"]
-        del environ["OPERATOR_ID"]
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_model_success(self, mock_put_object, mock_make_bucket):
+        """
+        Should call .put_object using given variables.
+        """
+        experiment_id = "UNK"
+        operator_id = "UNK"
+        model = util.MockModel()
 
-        model = MockModel()
-        save_model(experiment_id="test",
-                   operator_id="test",
-                   model=model)
+        platiagro.save_model(
+            experiment_id=experiment_id, operator_id=operator_id, model=model
+        )
 
-        model = MockModel()
-        save_model(experiment_id="test",
-                   operator_id="test",
-                   model=model)
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{experiment_id}/operators/{operator_id}/model.joblib",
+            data=mock.ANY,
+            length=mock.ANY,
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    def test_save_model_with_env_variable_success(
+        self, mock_put_object, mock_make_bucket
+    ):
+        """
+        Should call .put_object using given variables.
+        """
+        os.environ["EXPERIMENT_ID"] = "UNK"
+        os.environ["OPERATOR_ID"] = "UNK"
+        model = util.MockModel()
+
+        platiagro.save_model(model=model)
+
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{os.environ['EXPERIMENT_ID']}/operators/{os.environ['OPERATOR_ID']}/model.joblib",
+            data=mock.ANY,
+            length=mock.ANY,
+        )

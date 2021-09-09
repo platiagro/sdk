@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import base64
 import io
+import joblib
+import os
 from typing import Any
 
 from minio.error import S3Error
@@ -37,6 +39,14 @@ FIGURE_HTML = "<html><body>HELLO!</body></html>"
 FIGURE_HTML_BASE64 = base64.b64encode(FIGURE_HTML.encode()).decode()
 
 
+class MockModel:
+    def predict(self, x):
+        return True
+
+
+MODEL = MockModel()
+
+
 def get_object_side_effect(bucket_name: str, object_name: str, **kwargs):
     """
     Returns a mock object when accessing bucket objects.
@@ -56,6 +66,11 @@ def get_object_side_effect(bucket_name: str, object_name: str, **kwargs):
         body = f'{{"filename": "{filename}"}}'.encode()
     elif object_name.endswith(".csv"):
         body = CSV_DATA
+    elif object_name.endswith("model.joblib"):
+        buffer = io.BytesIO()
+        joblib.dump({"model": MODEL}, buffer)
+        buffer.seek(0, os.SEEK_SET)
+        body = buffer.read()
     else:
         body = BINARY_DATA
 
