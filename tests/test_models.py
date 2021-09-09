@@ -2,15 +2,11 @@
 import os
 import unittest
 import unittest.mock as mock
-import uuid
 
 import platiagro
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 import tests.util as util
-
-EXPERIMENT_ID = str(uuid.uuid4())
-OPERATOR_ID = str(uuid.uuid4())
 
 
 class TestModels(unittest.TestCase):
@@ -24,8 +20,11 @@ class TestModels(unittest.TestCase):
         """
         Should return a MockModel object when experiment_id and operator_id exist.
         """
+        experiment_id = "UNK"
+        operator_id = "UNK"
+
         model = platiagro.load_model(
-            experiment_id=EXPERIMENT_ID, operator_id=OPERATOR_ID
+            experiment_id=experiment_id, operator_id=operator_id
         )
 
         self.assertIsInstance(model, dict)
@@ -43,8 +42,8 @@ class TestModels(unittest.TestCase):
         """
         Should return a MockModel object when experiment_id and operator_id exist.
         """
-        os.environ["EXPERIMENT_ID"] = EXPERIMENT_ID
-        os.environ["OPERATOR_ID"] = OPERATOR_ID
+        os.environ["EXPERIMENT_ID"] = "UNK"
+        os.environ["OPERATOR_ID"] = "UNK"
 
         model = platiagro.load_model()
 
