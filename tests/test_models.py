@@ -10,13 +10,12 @@ import tests.util as util
 
 
 class TestModels(unittest.TestCase):
-    @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    def test_load_model_success(self, mock_get_object, mock_make_bucket):
+    def test_load_model_success(self, mock_get_object):
         """
         Should return a MockModel object when experiment_id and operator_id exist.
         """
@@ -30,33 +29,39 @@ class TestModels(unittest.TestCase):
         self.assertIsInstance(model, dict)
         self.assertIsInstance(model["model"], util.MockModel)
 
-    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{experiment_id}/operators/{operator_id}/model.joblib",
+        )
+
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    def test_load_model_with_env_variables_success(
-        self, mock_get_object, mock_make_bucket
-    ):
+    def test_load_model_with_env_variables_success(self, mock_get_object):
         """
         Should return a MockModel object when experiment_id and operator_id exist.
         """
         os.environ["EXPERIMENT_ID"] = "UNK"
         os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "latest"
 
         model = platiagro.load_model()
 
         self.assertIsInstance(model, dict)
         self.assertIsInstance(model["model"], util.MockModel)
 
-    @mock.patch.object(MINIO_CLIENT, "make_bucket")
-    @mock.patch.object(
-        MINIO_CLIENT,
-        "put_object",
-        side_effect=util.put_object_side_effect,
-    )
-    def test_save_model_type_error(self, mock_put_object, mock_make_bucket):
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{os.environ['EXPERIMENT_ID']}/operators/{os.environ['OPERATOR_ID']}/model.joblib",
+        )
+
+        del os.environ["EXPERIMENT_ID"]
+        del os.environ["OPERATOR_ID"]
+        del os.environ["RUN_ID"]
+
+    def test_save_model_type_error(self):
         """
         Should raise an exception when given an invalid object type.
         """
@@ -83,6 +88,8 @@ class TestModels(unittest.TestCase):
             experiment_id=experiment_id, operator_id=operator_id, model=model
         )
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
             object_name=f"experiments/{experiment_id}/operators/{operator_id}/model.joblib",
@@ -104,9 +111,12 @@ class TestModels(unittest.TestCase):
         """
         os.environ["EXPERIMENT_ID"] = "UNK"
         os.environ["OPERATOR_ID"] = "UNK"
+        os.environ["RUN_ID"] = "latest"
         model = util.MockModel()
 
         platiagro.save_model(model=model)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
 
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
@@ -114,3 +124,7 @@ class TestModels(unittest.TestCase):
             data=mock.ANY,
             length=mock.ANY,
         )
+
+        del os.environ["EXPERIMENT_ID"]
+        del os.environ["OPERATOR_ID"]
+        del os.environ["RUN_ID"]

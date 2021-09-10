@@ -4,7 +4,7 @@ import unittest
 import unittest.mock as mock
 
 import platiagro
-from platiagro.util import MINIO_CLIENT
+from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
 import tests.util as util
 
@@ -25,6 +25,12 @@ class TestArtifacts(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             platiagro.download_artifact(name=bad_artifact_name, path=local_path)
 
+        mock_fget_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"artifacts/{bad_artifact_name}",
+            file_path=local_path,
+        )
+
     @mock.patch.object(
         MINIO_CLIENT,
         "fget_object",
@@ -39,3 +45,9 @@ class TestArtifacts(unittest.TestCase):
 
         platiagro.download_artifact(name=artifact_name, path=local_path)
         self.assertTrue(os.path.exists(local_path))
+
+        mock_fget_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"artifacts/{artifact_name}",
+            file_path=local_path,
+        )

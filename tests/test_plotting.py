@@ -1,23 +1,9 @@
 from unittest import TestCase
 from uuid import uuid4
 
-from matplotlib.pyplot import plot
-
 import numpy as np
 import pandas as pd
 
-from category_encoders.ordinal import OrdinalEncoder
-from category_encoders.one_hot import OneHotEncoder
-from sklearn.cluster import KMeans
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.feature_selection import RFECV
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from sklearn.linear_model import LinearRegression
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix
 
 from platiagro.plotting import plot_roc_curve
@@ -35,7 +21,6 @@ from platiagro.plotting import plot_clustering_data
 from platiagro.plotting import plot_data_table
 from platiagro.plotting import plot_line_graphs_overlayed
 from platiagro.plotting import plot_line_subgraphs_alongisde
-from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_simple_line_graph
 from platiagro.plotting import plot_shap_classification_summary
 from platiagro.plotting import plot_residues

@@ -1,9 +1,6 @@
 import io
 import os
 import requests
-import shutil
-import zipfile
-
 
 import numpy as np
 import pandas as pd

@@ -2,9 +2,6 @@
 from unittest import TestCase
 from uuid import uuid4
 
-# Math/Alg. Lin.
-import numpy as np
-
 # Wrapper
 from platiagro.metrics_nlp.wrapper import MetricsCalculator
 
@@ -23,11 +20,9 @@ from platiagro.metrics_nlp.utils import (
 # List Metrics
 from platiagro.metrics_nlp.metrics import get_metrics_data
 
-# Base Class
-from platiagro.metrics_nlp.base import BaseMetric
-
 # Typing
-from typing import List, Tuple, Dict, Any, Union
+from typing import List
+
 
 # Mock tokenizer
 class MockTokenizer(object):

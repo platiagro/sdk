@@ -44,7 +44,7 @@ class TestDatasets(unittest.TestCase):
         "get_object",
         side_effect=util.NO_SUCH_KEY_ERROR,
     )
-    def test_load_dataset_not_found(self, mock_list_objects, mock_make_bucket):
+    def test_load_dataset_not_found(self, mock_get_object, mock_make_bucket):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
@@ -55,7 +55,7 @@ class TestDatasets(unittest.TestCase):
 
         mock_make_bucket.assert_any_call(BUCKET_NAME)
 
-        mock_list_objects.assert_any_call(
+        mock_get_object.assert_any_call(
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/{bad_dataset_name}/{bad_dataset_name}.metadata",
         )
@@ -149,7 +149,7 @@ class TestDatasets(unittest.TestCase):
         Should return a pandas DataFrame object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "latest"
+        run_id = "UNK"
         operator_id = "UNK"
 
         result = platiagro.load_dataset(
@@ -225,7 +225,7 @@ class TestDatasets(unittest.TestCase):
         Should return a readable object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "latest"
+        run_id = "UNK"
         operator_id = "UNK"
 
         result = platiagro.get_dataset(
@@ -390,7 +390,7 @@ class TestDatasets(unittest.TestCase):
         Should return a dict object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "latest"
+        run_id = "UNK"
         operator_id = "UNK"
 
         result = platiagro.stat_dataset(

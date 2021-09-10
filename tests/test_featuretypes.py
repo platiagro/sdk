@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
 import unittest
-import unittest.mock as mock
 
 import pandas as pd
 
