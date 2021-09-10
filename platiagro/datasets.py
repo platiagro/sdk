@@ -11,6 +11,7 @@ from minio.error import S3Error
 from platiagro.featuretypes import CATEGORICAL, DATETIME, infer_featuretypes
 from platiagro.util import (
     BUCKET_NAME,
+    DEFAULT_PART_SIZE,
     MINIO_CLIENT,
     S3FS,
     get_operator_id,
@@ -328,7 +329,7 @@ def save_dataset(
             object_name=path.lstrip(f"{BUCKET_NAME}/"),
             data=data,
             length=-1,
-            part_size=6000000,
+            part_size=DEFAULT_PART_SIZE,
         )
 
     object_name = _metadata_filepath(name, run_id, operator_id)

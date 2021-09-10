@@ -13,6 +13,7 @@ BUCKET_NAME = "anonymous"
 MINIO_ENDPOINT = getenv("MINIO_ENDPOINT", "minio.platiagro:9000")
 MINIO_ACCESS_KEY = getenv("MINIO_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = getenv("MINIO_SECRET_KEY", "minio123")
+DEFAULT_PART_SIZE = 6000000  # 6MB
 
 MINIO_CLIENT = Minio(
     endpoint=MINIO_ENDPOINT,
