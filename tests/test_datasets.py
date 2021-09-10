@@ -395,7 +395,7 @@ class TestDatasets(unittest.TestCase):
         self, mock_fput_object, mock_put_object, mock_get_object, mock_make_bucket
     ):
         """
-        Should call .put_object twice: passing data, and passing metadata.
+        Should call .fputobject (passing data) and .put_object (passing metadata).
         """
         dataset_name = util.CSV_DATASET_NAME
         data = pd.DataFrame({"col0": []})
@@ -418,6 +418,119 @@ class TestDatasets(unittest.TestCase):
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+            data=mock.ANY,
+            length=mock.ANY,
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "fput_object",
+        side_effect=util.fput_object_side_effect,
+    )
+    def test_save_dataset_dataframe_with_run_id_success(
+        self, mock_fput_object, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .fputobject (passing data) and .put_object twice (.metadata and runs .metadata).
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        data = pd.DataFrame({"col0": []})
+        run_id = "UNK"
+
+        platiagro.save_dataset(name=dataset_name, data=data, run_id=run_id)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
+        mock_fput_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/{run_id}",
+            file_path=mock.ANY,
+        )
+
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+            data=mock.ANY,
+            length=mock.ANY,
+        )
+
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/{run_id}.metadata",
+            data=mock.ANY,
+            length=mock.ANY,
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "put_object",
+        side_effect=util.put_object_side_effect,
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "fput_object",
+        side_effect=util.fput_object_side_effect,
+    )
+    def test_save_dataset_dataframe_with_run_id_and_operator_id_success(
+        self, mock_fput_object, mock_put_object, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should call .fputobject (passing data) and .put_object twice (.metadata and runs .metadata).
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        data = pd.DataFrame({"col0": []})
+        run_id = "UNK"
+        operator_id = "UNK"
+
+        platiagro.save_dataset(
+            name=dataset_name, data=data, run_id=run_id, operator_id=operator_id
+        )
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
+        mock_fput_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}",
+            file_path=mock.ANY,
+        )
+
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+            data=mock.ANY,
+            length=mock.ANY,
+        )
+
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}.metadata",
             data=mock.ANY,
             length=mock.ANY,
         )
@@ -481,10 +594,13 @@ class TestDatasets(unittest.TestCase):
         dataset_name = util.CSV_DATASET_NAME
         run_id = "UNK"
 
-        platiagro.stat_dataset(
+        result = platiagro.stat_dataset(
             name=dataset_name,
             run_id=run_id,
         )
+
+        expected = {"filename": dataset_name}
+        self.assertDictEqual(result, expected)
 
         mock_make_bucket.assert_any_call(BUCKET_NAME)
 
@@ -522,6 +638,65 @@ class TestDatasets(unittest.TestCase):
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}.metadata",
         )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_stat_dataset_with_env_variables_run_id_and_operator_id_success(
+        self, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should return a dict object when env variables RUN_ID and OPERATOR_ID exist.
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        operator_id = "UNK"
+        os.environ["RUN_ID"] = "UNK"
+
+        result = platiagro.stat_dataset(name=dataset_name, operator_id=operator_id)
+
+        expected = {"filename": dataset_name}
+        self.assertDictEqual(result, expected)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{os.environ['RUN_ID']}/operators/{operator_id}/{dataset_name}/{dataset_name}.metadata",
+        )
+
+        del os.environ["RUN_ID"]
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    def test_stat_dataset_with_env_variable_run_id_success(
+        self, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should return a dict object when env variables RUN_ID exists.
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        os.environ["RUN_ID"] = "UNK"
+
+        result = platiagro.stat_dataset(name=dataset_name)
+
+        expected = {"filename": dataset_name}
+        self.assertDictEqual(result, expected)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{os.environ['RUN_ID']}/{os.environ['RUN_ID']}.metadata",
+        )
+
+        del os.environ["RUN_ID"]
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -590,7 +765,7 @@ class TestDatasets(unittest.TestCase):
     @mock.patch.object(
         S3FS,
         "open",
-        return_value=io.BytesIO(util.CSV_DATA),
+        return_value=io.BytesIO(util.BINARY_DATA),
     )
     def test_download_dataset_file_like_success(
         self, mock_s3fs_open, mock_get_object, mock_make_bucket

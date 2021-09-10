@@ -76,7 +76,7 @@ def get_object_side_effect(bucket_name: str, object_name: str, **kwargs):
     HTTPResponse
     """
     if object_name.endswith(".metadata"):
-        filename = object_name[: -len(".metadata")].split("/")[-1]
+        filename = object_name.split("/")[1]
         body = f'{{"filename": "{filename}"}}'.encode()
     elif object_name.endswith(".csv"):
         body = CSV_DATA

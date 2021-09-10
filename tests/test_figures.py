@@ -15,6 +15,33 @@ class TestFigures(unittest.TestCase):
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
+        "get_object",
+        side_effect=util.NO_SUCH_KEY_ERROR,
+    )
+    def test_list_figures_empty(self, mock_get_object, mock_make_bucket):
+        """
+        Should return an empty list.
+        """
+        experiment_id = "UNK"
+        operator_id = "UNK"
+        run_id = "latest"
+
+        result = platiagro.list_figures(
+            experiment_id=experiment_id, operator_id=operator_id, run_id=run_id
+        )
+
+        self.assertEqual(result, [])
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{experiment_id}/operators/{operator_id}/.metadata",
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
         "list_objects",
         return_value=[
             Object(
@@ -182,6 +209,11 @@ class TestFigures(unittest.TestCase):
         )
 
         mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"experiments/{experiment_id}/operators/{operator_id}/.metadata",
+        )
 
         # I wish we could assert object_name value, but it has a timestamp... :(
         mock_put_object.assert_any_call(
