@@ -10,6 +10,8 @@ from minio.error import S3Error
 from minio.helpers import ObjectWriteResult
 from urllib3.response import HTTPResponse
 
+CSV_DATASET_NAME = "unk.csv"
+
 CSV_DATA = (
     "SepalLengthCm,SepalWidthCm,PetalLengthCm,PetalWidthCm,Species\n"
     "5.1,3.5,1.4,0.2,Iris-setosa\n"
@@ -17,6 +19,8 @@ CSV_DATA = (
     "4.7,3.2,1.3,0.2,Iris-setosa\n"
     "4.6,3.1,1.5,0.2,Iris-setosa\n"
 ).encode()
+
+BINARY_DATASET_NAME = "unk.zip"
 
 BINARY_DATA = b"\x89PNG\r\n"
 

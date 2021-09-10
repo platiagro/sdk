@@ -50,7 +50,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should list a single dataset name "unk.zip".
         """
-        dataset_name = "unk.zip"
+        dataset_name = util.BINARY_DATASET_NAME
 
         result = platiagro.list_datasets()
 
@@ -71,7 +71,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
-        bad_dataset_name = "unk.zip"
+        bad_dataset_name = util.BINARY_DATASET_NAME
 
         with self.assertRaises(FileNotFoundError):
             platiagro.load_dataset(name=bad_dataset_name)
@@ -100,7 +100,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a readable object successfully.
         """
-        dataset_name = "unk.zip"
+        dataset_name = util.BINARY_DATASET_NAME
 
         result = platiagro.load_dataset(name=dataset_name)
         self.assertTrue(hasattr(result, "read"))
@@ -138,7 +138,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a pandas DataFrame object successfully.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
 
         result = platiagro.load_dataset(name=dataset_name)
         self.assertIsInstance(result, pd.DataFrame)
@@ -163,6 +163,74 @@ class TestDatasets(unittest.TestCase):
     @mock.patch.object(
         S3FS,
         "open",
+        return_value=io.StringIO(util.CSV_DATA.decode()),
+    )
+    def test_load_dataset_dataframe_with_run_id_latest_success(
+        self, mock_s3fs_open, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should return a pandas DataFrame object successfully.
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        run_id = "latest"
+
+        result = platiagro.load_dataset(name=dataset_name, run_id=run_id)
+        self.assertIsInstance(result, pd.DataFrame)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        S3FS,
+        "open",
+        return_value=io.BytesIO(util.CSV_DATA),
+    )
+    def test_load_dataset_with_run_id_success(
+        self, mock_s3fs_open, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should return a pandas DataFrame object when run_id exists.
+        """
+        dataset_name = util.CSV_DATASET_NAME
+        run_id = "UNK"
+
+        result = platiagro.load_dataset(name=dataset_name, run_id=run_id)
+        self.assertIsInstance(result, pd.DataFrame)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/runs/{run_id}/{run_id}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/{run_id}.metadata",
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        S3FS,
+        "open",
         return_value=io.BytesIO(util.CSV_DATA),
     )
     def test_load_dataset_with_run_id_and_operator_id_success(
@@ -171,7 +239,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a pandas DataFrame object when run_id and operator_id exist.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         run_id = "UNK"
         operator_id = "UNK"
 
@@ -201,7 +269,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
 
         with self.assertRaises(FileNotFoundError):
             platiagro.get_dataset(name=dataset_name)
@@ -223,7 +291,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a readable object successfully.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
 
         result = platiagro.get_dataset(name=dataset_name)
         self.assertTrue(hasattr(result, "read"))
@@ -247,7 +315,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a readable object when run_id and operator_id exist.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         run_id = "UNK"
         operator_id = "UNK"
 
@@ -280,7 +348,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should call .put_object twice: passing data, and passing metadata.
         """
-        dataset_name = "unk.zip"
+        dataset_name = util.BINARY_DATASET_NAME
         data = io.BytesIO(util.BINARY_DATA)
 
         platiagro.save_dataset(name=dataset_name, data=data)
@@ -329,7 +397,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should call .put_object twice: passing data, and passing metadata.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         data = pd.DataFrame({"col0": []})
 
         platiagro.save_dataset(name=dataset_name, data=data)
@@ -364,7 +432,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
 
         with self.assertRaises(FileNotFoundError):
             platiagro.stat_dataset(name=dataset_name)
@@ -386,7 +454,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a dict object successfully.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
 
         result = platiagro.stat_dataset(name=dataset_name)
 
@@ -410,7 +478,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a dict object when run_id exists.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         run_id = "UNK"
 
         platiagro.stat_dataset(
@@ -437,7 +505,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should return a dict object when run_id and operator_id exist.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         run_id = "UNK"
         operator_id = "UNK"
 
@@ -465,7 +533,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
-        bad_dataset_name = "unk.zip"
+        bad_dataset_name = util.BINARY_DATASET_NAME
         path = "./unk.csv"
 
         with self.assertRaises(FileNotFoundError):
@@ -495,7 +563,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should download a structured dataset to a given local path.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         path = "./unk.csv"
 
         platiagro.download_dataset(name=dataset_name, path=path)
@@ -530,8 +598,8 @@ class TestDatasets(unittest.TestCase):
         """
         Should download a binary dataset to a given local path.
         """
-        dataset_name = "./unk.zip"
-        path = "./unk.zip"
+        dataset_name = util.BINARY_DATASET_NAME
+        path = util.BINARY_DATASET_NAME
 
         platiagro.download_dataset(name=dataset_name, path=path)
 
@@ -558,7 +626,7 @@ class TestDatasets(unittest.TestCase):
         """
         Should call .put_object passing using .metadata as object_name.
         """
-        dataset_name = "unk.csv"
+        dataset_name = util.CSV_DATASET_NAME
         metadata = {
             "featuretypes": [
                 "Categorical",
