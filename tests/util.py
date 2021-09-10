@@ -29,6 +29,15 @@ NO_SUCH_KEY_ERROR = S3Error(
     response=None,
 )
 
+BUCKET_ALREADY_OWNED_BY_YOU = S3Error(
+    code="BucketAlreadyOwnedByYou",
+    message="",
+    resource=None,
+    request_id=None,
+    host_id=None,
+    response=None,
+)
+
 FIGURE_SVG = (
     "<svg viewBox='0 0 125 80' xmlns='http://www.w3.org/2000/svg'>\n"
     '<text y="75" font-size="100" font-family="serif"><![CDATA[10]]></text>\n'

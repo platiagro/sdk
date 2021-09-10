@@ -15,6 +15,29 @@ import tests.util as util
 
 
 class TestDatasets(unittest.TestCase):
+    @mock.patch.object(
+        MINIO_CLIENT, "make_bucket", side_effect=util.BUCKET_ALREADY_OWNED_BY_YOU
+    )
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "list_objects",
+        return_value=[],
+    )
+    def test_list_datasets_with_existing_bucket_success(
+        self, mock_list_objects, mock_make_bucket
+    ):
+        """
+        Should list an empty list.
+        """
+        result = platiagro.list_datasets()
+
+        self.assertTrue(isinstance(result, list))
+        self.assertEqual(result, [])
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_list_objects.assert_any_call(BUCKET_NAME, f"{PREFIX}/")
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
@@ -383,6 +406,31 @@ class TestDatasets(unittest.TestCase):
         "get_object",
         side_effect=util.get_object_side_effect,
     )
+    def test_stat_dataset_with_run_id_success(self, mock_get_object, mock_make_bucket):
+        """
+        Should return a dict object when run_id exists.
+        """
+        dataset_name = "unk.csv"
+        run_id = "UNK"
+
+        platiagro.stat_dataset(
+            name=dataset_name,
+            run_id=run_id,
+        )
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/{run_id}.metadata",
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
     def test_stat_dataset_with_run_id_and_operator_id_success(
         self, mock_get_object, mock_make_bucket
     ):
@@ -441,14 +489,49 @@ class TestDatasets(unittest.TestCase):
         "open",
         return_value=io.BytesIO(util.CSV_DATA),
     )
-    def test_download_dataset_success(
+    def test_download_dataset_dataframe_success(
         self, mock_s3fs_open, mock_get_object, mock_make_bucket
     ):
         """
-        Should download a dataset to a given local path.
+        Should download a structured dataset to a given local path.
         """
         dataset_name = "unk.csv"
         path = "./unk.csv"
+
+        platiagro.download_dataset(name=dataset_name, path=path)
+
+        self.assertTrue(os.path.exists(path))
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
+    @mock.patch.object(MINIO_CLIENT, "make_bucket")
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "get_object",
+        side_effect=util.get_object_side_effect,
+    )
+    @mock.patch.object(
+        S3FS,
+        "open",
+        return_value=io.BytesIO(util.CSV_DATA),
+    )
+    def test_download_dataset_file_like_success(
+        self, mock_s3fs_open, mock_get_object, mock_make_bucket
+    ):
+        """
+        Should download a binary dataset to a given local path.
+        """
+        dataset_name = "./unk.zip"
+        path = "./unk.zip"
 
         platiagro.download_dataset(name=dataset_name, path=path)
 
