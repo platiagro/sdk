@@ -42,7 +42,7 @@ def make_bucket(name: str):
         MINIO_CLIENT.make_bucket(name)
     except S3Error as err:
         if err.code == "BucketAlreadyOwnedByYou":
-            logging.warning("The bucket already exists.")
+            logging.debug("The bucket already exists.")
 
 
 def get_experiment_id(raise_for_none: bool = False, default: Optional[str] = None):
