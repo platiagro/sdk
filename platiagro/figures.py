@@ -66,7 +66,7 @@ def list_figures(
     figures = []
 
     if deployment_id is not None:
-        prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/"
+        prefix = f"deployments/{deployment_id}/monitorings/{monitoring_id}/figure-"
     else:
         prefix = operator_filepath("figure-", experiment_id, operator_id, run_id)
 
