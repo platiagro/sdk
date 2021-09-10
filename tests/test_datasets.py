@@ -8,7 +8,7 @@ import pandas as pd
 from minio.datatypes import Object
 
 import platiagro
-from platiagro.util import BUCKET_NAME, MINIO_CLIENT, S3FS
+from platiagro.util import BUCKET_NAME, DEFAULT_PART_SIZE, MINIO_CLIENT, S3FS
 
 import tests.util as util
 
@@ -209,13 +209,13 @@ class TestDatasets(unittest.TestCase):
             length=mock.ANY,
         )
 
-        # BUG not sure why this assert fails...
-        # mock_put_object.assert_any_call(
-        #     bucket_name=BUCKET_NAME,
-        #     object_name=f"datasets/{dataset_name}/{dataset_name}",
-        #     data=mock.ANY,
-        #     length=mock.ANY,
-        # )
+        mock_put_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}",
+            data=mock.ANY,
+            length=mock.ANY,
+            part_size=DEFAULT_PART_SIZE,
+        )
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
