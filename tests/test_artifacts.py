@@ -1,53 +1,53 @@
 # -*- coding: utf-8 -*-
-import io
 import os
-from unittest import TestCase
+import unittest
+import unittest.mock as mock
 
-from minio.error import S3Error
-
-from platiagro import download_artifact
+import platiagro
 from platiagro.util import BUCKET_NAME, MINIO_CLIENT
 
+import tests.util as util
 
-class TestArtifacts(TestCase):
 
-    def setUp(self):
-        self.make_bucket()
-        buffer = io.BytesIO(b"mock")
-        MINIO_CLIENT.put_object(
-            bucket_name=BUCKET_NAME,
-            object_name="artifacts/mock.txt",
-            data=buffer,
-            length=buffer.getbuffer().nbytes,
-        )
+class TestArtifacts(unittest.TestCase):
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "fget_object",
+        side_effect=util.NO_SUCH_KEY_ERROR,
+    )
+    def test_download_artifact_not_found(self, mock_fget_object):
+        """
+        Should raise an exception when given an artifact name that does not exist.
+        """
+        bad_artifact_name = "unk.zip"
+        local_path = "./unk.zip"
 
-    def tearDown(self):
-        MINIO_CLIENT.remove_object(
-            bucket_name=BUCKET_NAME,
-            object_name="artifacts/mock.txt",
-        )
-
-    def make_bucket(self):
-        try:
-            MINIO_CLIENT.make_bucket(BUCKET_NAME)
-        except S3Error as err:
-            if err.code == "BucketAlreadyOwnedByYou":
-                pass
-            if err.code == "NoSuchBucket" or err.code == "NoSuchKey":
-                raise FileNotFoundError("The specified artifact does not exist")
-
-    def test_download_artifact(self):
         with self.assertRaises(FileNotFoundError):
-            download_artifact("unk.zip", "./unk.zip")
+            platiagro.download_artifact(name=bad_artifact_name, path=local_path)
 
-        download_artifact("mock.txt", "./mock-dest.txt")
-        self.assertTrue(os.path.exists("./mock-dest.txt"))
+        mock_fget_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"artifacts/{bad_artifact_name}",
+            file_path=local_path,
+        )
 
-        try:
-            MINIO_CLIENT.remove_object(
-                bucket_name=BUCKET_NAME,
-                object_name="artifacts/mock.txt",
-            )
-        except S3Error as err:
-            err.code == "NoSuchBucket"
-            self.assertEqual(err.code, S3Error)
+    @mock.patch.object(
+        MINIO_CLIENT,
+        "fget_object",
+        side_effect=lambda **kwargs: open("unk.zip", "w").close(),
+    )
+    def test_download_artifact_success(self, mock_fget_object):
+        """
+        Should download an artifact to a given local path.
+        """
+        artifact_name = "unk.zip"
+        local_path = "./unk.zip"
+
+        platiagro.download_artifact(name=artifact_name, path=local_path)
+        self.assertTrue(os.path.exists(local_path))
+
+        mock_fget_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"artifacts/{artifact_name}",
+            file_path=local_path,
+        )

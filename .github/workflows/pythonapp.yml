@@ -19,73 +19,24 @@ jobs:
         python-version: [ "3.8" ]
 
     steps:
-    - name: Code review tips
-      uses: unsplash/comment-on-pr@master
-      if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        msg: |
-          ## Dicas para revisão de código
-
-          ### Commits
-          - Título (1a linha do commit): apresentar resumo do que foi alterado/adicionado/removido.
-            ex: adiciona action que salva parametros no backend; exibe rótulo no componente de selecao de dataset;
-          - Descrição (outras linhas): dar mais detalhes de cada alteração:
-            - motivos das alterações
-              ex: havia um bug que causava...; nova funcionalidade que faz isso...; código foi movido para...;
-            - bibliotecas adicionadas e versões (requirements.txt)
-              ex: atualiza para minio 6.0.0;
-            - testes unitários criados/alterados
-              ex: adiciona testes para o método stat_dataset;
-            - alterações do `docs/source/platiagro.rst`
-              ex: adiciona documentação para save_metrics
-          - Mensagens auto-explicativas! Quem revisa o código deve entender o que foi feito (e porque foi feito) **sem perguntar para quem fez o commit**.
-          - Não devem ter conflitos. Solicitar que sejam resolvidas as ocorrências de "This branch has conflicts that must be resolved".
-
-          ### SonarCloud Quality Gate
-          - Coverage > 80.0%, e sempre que possível = 100%
-          - 0 Bugs, 0 Code Smells, 0 Vulnerabilities
-          - São permitidos os seguintes Security Hotspots:
-            - Make sure this permissive CORS policy is safe here.
-            - Make sure publicly writable directories are used safely here.
-            - Using http protocol is insecure. Use https instead.
-            - Make sure disabling CSRF protection is safe here.
-
-          ### Build Github actions COM SUCESSO
-
-          ### Python
-          - Usar Python 3.8
-          - Remover `print`.
-          - Não deixar código-fonte comentado.
-          - f-string `f'text-{variable}'` é melhor que `'text-{}'.format(variable)` e `'text-' + variable`
-          - Métodos que são chamados de outros arquivos `.py` **DEVEM TER Docstring**.
-          - Usar Google Style Python Docstring: https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
-          - Verificar se código-fonte e `docs/source/platiagro.rst` estão "compatíveis".
-          - TODOS OS MÉTODOS EM `platiagro/__init__.py` **DEVEM ESTAR ATUALIZADOS NOS DOCS**.
-          - Usar sempre import absoluto.
-            ex: `from platiagro.featuretypes import CATEGORICAL` (BOM), `from .featuretypes import CATEGORICAL` (RUIM)
-
     - name: Checkout 🛎️
       uses: actions/checkout@v2
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
 
+    - name: Code review tips
+      uses: machine-learning-apps/pr-comment@master
+      if: ${{ github.event_name == 'pull_request' && github.event.action == 'opened' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        path: CODE-REVIEW.md
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Run MinIO image
-      run: |
-        docker run -d -p 9000:9000 \
-        -e "MINIO_ACCESS_KEY=$MINIO_ACCESS_KEY" \
-        -e "MINIO_SECRET_KEY=$MINIO_SECRET_KEY" \
-        minio/minio:RELEASE.2018-02-09T22-40-05Z server /data
-      env:
-        MINIO_ACCESS_KEY: minio
-        MINIO_SECRET_KEY: minio123
 
     - name: Install dependencies
       run: |
@@ -98,10 +49,6 @@ jobs:
         coverage erase
         coverage run --branch --source=platiagro -m pytest
         coverage xml -i
-      env:
-        MINIO_ENDPOINT: localhost:9000
-        MINIO_ACCESS_KEY: minio
-        MINIO_SECRET_KEY: minio123
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master

@@ -1,24 +1,19 @@
-from unittest import TestCase
-from uuid import uuid4
+# -*- coding: utf-8 -*-
+import unittest
 
 import numpy as np
 
-from platiagro.pipeline import GuaranteeType
+import platiagro.pipeline
 
 
-RUN_ID = str(uuid4())
-
-
-class TestPipeline(TestCase):
-
-    def setUp(self):
-        pass
-
+class TestPipeline(unittest.TestCase):
     def test_guarantee(self):
+        """
+        Should cast str to float.
+        """
+        x = np.array(["1", "2", "3", "4", "5"])
 
-        x = np.array([1, 2, 3, 4, 5])
-
-        gt = GuaranteeType()
+        gt = platiagro.pipeline.GuaranteeType()
 
         assert gt.fit(x).dtype == float
         assert gt.transform(x).dtype == float

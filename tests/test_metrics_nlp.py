@@ -2,24 +2,27 @@
 from unittest import TestCase
 from uuid import uuid4
 
-# Math/Alg. Lin.
-import numpy as np
-
 # Wrapper
 from platiagro.metrics_nlp.wrapper import MetricsCalculator
 
 # Test values
-from platiagro.metrics_nlp.utils import SAMPLE_HYPS, SAMPLE_REFS_SINGLE, SAMPLE_REFS_MULT
-from platiagro.metrics_nlp.utils import SAMPLE_HYPS_TK, SAMPLE_REFS_SINGLE_TK, SAMPLE_REFS_MULT_TK
+from platiagro.metrics_nlp.utils import (
+    SAMPLE_HYPS,
+    SAMPLE_REFS_SINGLE,
+    SAMPLE_REFS_MULT,
+)
+from platiagro.metrics_nlp.utils import (
+    SAMPLE_HYPS_TK,
+    SAMPLE_REFS_SINGLE_TK,
+    SAMPLE_REFS_MULT_TK,
+)
 
 # List Metrics
 from platiagro.metrics_nlp.metrics import get_metrics_data
 
-# Base Class
-from platiagro.metrics_nlp.base import BaseMetric
-
 # Typing
-from typing import List, Tuple, Dict, Any, Union
+from typing import List
+
 
 # Mock tokenizer
 class MockTokenizer(object):
@@ -31,7 +34,7 @@ class MockTokenizer(object):
         for i, sample_hyp_tk in enumerate(SAMPLE_HYPS_TK):
             if token_ids == sample_hyp_tk:
                 return SAMPLE_HYPS[i]
-        
+
         for i, sample_ref_single_tk in enumerate(SAMPLE_REFS_SINGLE_TK):
             if token_ids == sample_ref_single_tk:
                 return SAMPLE_REFS_SINGLE[i]
@@ -41,28 +44,28 @@ class MockTokenizer(object):
                 if token_ids == SAMPLE_REFS_MULT_TK[i][j]:
                     return SAMPLE_REFS_MULT[i][j]
 
-        raise ValueError('Unknown token_ids_batch')
- 
+        raise ValueError("Unknown token_ids_batch")
+
+
 RUN_ID = str(uuid4())
 
 
 class TestMetricsNLP(TestCase):
-
     def setUp(self):
         """Don't need a setup"""
         pass
 
     def test_metrics_call(self):
-        
+
         # Get metrics data
         metrics_data = get_metrics_data()
         metrics_name = list(metrics_data.keys())
 
         # Check metrics
         for metric in metrics_name:
-            
+
             # Initialize metric component
-            metric_component = metrics_data[metric]['component']()
+            metric_component = metrics_data[metric]["component"]()
 
             # Get test sample
             hypothesis = SAMPLE_HYPS[0]
@@ -72,35 +75,43 @@ class TestMetricsNLP(TestCase):
             # Call metric
 
             # Single reference
-            metric_value = metric_component(hypothesis=hypothesis, references=references_single)
+            metric_value = metric_component(
+                hypothesis=hypothesis, references=references_single
+            )
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
-            if not metrics_data[metric]['single_ref_only']:
-                metric_value = metric_component(hypothesis=hypothesis, references=references_mult)
+            if not metrics_data[metric]["single_ref_only"]:
+                metric_value = metric_component(
+                    hypothesis=hypothesis, references=references_mult
+                )
                 self.assertIsInstance(metric_value, float)
-    
+
     def test_metrics_calculate(self):
-        
+
         # Get metrics data
         metrics_data = get_metrics_data()
         metrics_name = list(metrics_data.keys())
 
         # Check metrics
         for metric in metrics_name:
-            
+
             # Initialize metric component
-            metric_component = metrics_data[metric]['component']()
+            metric_component = metrics_data[metric]["component"]()
 
             # Call metric
 
             # Single reference
-            metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_SINGLE)
+            metric_value = metric_component.calculate(
+                batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_SINGLE
+            )
             self.assertIsInstance(metric_value, float)
 
             # Multiple reference
-            if not metrics_data[metric]['single_ref_only']:
-                metric_value = metric_component.calculate(batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_MULT)
+            if not metrics_data[metric]["single_ref_only"]:
+                metric_value = metric_component.calculate(
+                    batch_hypotheses=SAMPLE_HYPS, batch_references=SAMPLE_REFS_MULT
+                )
                 self.assertIsInstance(metric_value, float)
 
     def test_metrics_wrapper_all(self):
@@ -110,8 +121,10 @@ class TestMetricsNLP(TestCase):
         metrics_name = list(metrics_data.keys())
 
         # Initializate wrappers
-        wrapper_all = MetricsCalculator() # default == all metrics
-        wrapper_all_params = MetricsCalculator(metric_params = {'gleu': {'min_len': 1,'max_len': 3}}) # default == all metrics
+        wrapper_all = MetricsCalculator()  # default == all metrics
+        wrapper_all_params = MetricsCalculator(
+            metric_params={"gleu": {"min_len": 1, "max_len": 3}}
+        )  # default == all metrics
 
         # Check documentation
         self.assertIsInstance(wrapper_all.__str__(), str)
@@ -120,22 +133,34 @@ class TestMetricsNLP(TestCase):
         # Check wrappers #
 
         # All, single reference, text
-        values = wrapper_all.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_SINGLE)
+        values = wrapper_all.calculate_from_texts(
+            hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_SINGLE
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
         # All, single reference, tokens
-        values = wrapper_all.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_SINGLE_TK, tokenizer=MockTokenizer())
+        values = wrapper_all.calculate_from_tokens(
+            hypothesis_tokens=SAMPLE_HYPS_TK,
+            references_tokens=SAMPLE_REFS_SINGLE_TK,
+            tokenizer=MockTokenizer(),
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
         # All, single reference, text
-        values = wrapper_all_params.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_SINGLE)
+        values = wrapper_all_params.calculate_from_texts(
+            hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_SINGLE
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
         # All, single reference, tokens
-        values = wrapper_all_params.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_SINGLE_TK, tokenizer=MockTokenizer())
+        values = wrapper_all_params.calculate_from_tokens(
+            hypothesis_tokens=SAMPLE_HYPS_TK,
+            references_tokens=SAMPLE_REFS_SINGLE_TK,
+            tokenizer=MockTokenizer(),
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(metrics_name))
 
@@ -144,7 +169,11 @@ class TestMetricsNLP(TestCase):
         # Get metrics data
         metrics_data = get_metrics_data()
         metrics_name = list(metrics_data.keys())
-        mult_metrics_name = [metric for metric in metrics_name if not metrics_data[metric]['single_ref_only']]
+        mult_metrics_name = [
+            metric
+            for metric in metrics_name
+            if not metrics_data[metric]["single_ref_only"]
+        ]
 
         # Initializate wrappers
         wrapper_mult = MetricsCalculator(metrics=mult_metrics_name)
@@ -155,12 +184,18 @@ class TestMetricsNLP(TestCase):
         # Check wrappers #
 
         # Mult, multiple reference, text
-        values = wrapper_mult.calculate_from_texts(hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_MULT)
+        values = wrapper_mult.calculate_from_texts(
+            hypothesis=SAMPLE_HYPS, references=SAMPLE_REFS_MULT
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(mult_metrics_name))
 
         # Mult, multiple reference, token
-        values = wrapper_mult.calculate_from_tokens(hypothesis_tokens=SAMPLE_HYPS_TK, references_tokens=SAMPLE_REFS_MULT_TK, tokenizer=MockTokenizer())
+        values = wrapper_mult.calculate_from_tokens(
+            hypothesis_tokens=SAMPLE_HYPS_TK,
+            references_tokens=SAMPLE_REFS_MULT_TK,
+            tokenizer=MockTokenizer(),
+        )
         self.assertIsInstance(values, dict)
         self.assertEqual(len(values), len(mult_metrics_name))
 
@@ -172,29 +207,29 @@ class TestMetricsNLP(TestCase):
 
         # Check metrics
         for metric in metrics_name:
-            
+
             # Initialize metric component
-            metric_component = metrics_data[metric]['component']()
+            metric_component = metrics_data[metric]["component"]()
 
             # Call metric
 
             with self.assertRaises(ValueError):
-                metric_component.calculate(batch_hypotheses=[''], batch_references=[0])
-            
-            with self.assertRaises(ValueError):
-                metric_component.calculate(batch_hypotheses=[0], batch_references=[''])
+                metric_component.calculate(batch_hypotheses=[""], batch_references=[0])
 
-        if 'rouge' in metrics_name:
-            
-            rouge = metrics_data['rouge']['component']()
+            with self.assertRaises(ValueError):
+                metric_component.calculate(batch_hypotheses=[0], batch_references=[""])
+
+        if "rouge" in metrics_name:
+
+            rouge = metrics_data["rouge"]["component"]()
 
             # Invalid rouge metric
             with self.assertRaises(ValueError):
-                rouge('a', 'b', metric = '')
-                
+                rouge("a", "b", metric="")
+
             # Invalid rouge method
             with self.assertRaises(ValueError):
-                rouge('a', 'b', method = '')
+                rouge("a", "b", method="")
 
     def test_metrics_empty_string(self):
 
@@ -204,16 +239,16 @@ class TestMetricsNLP(TestCase):
 
         # Check metrics
         for metric in metrics_name:
-            
+
             # Initialize metric component
-            metric_component = metrics_data[metric]['component']()
+            metric_component = metrics_data[metric]["component"]()
 
             # Call metric
-            value = metric_component(hypothesis='', references='')
-            self.assertIsInstance(value, float)
-            
-            value = metric_component(hypothesis='a', references='')
+            value = metric_component(hypothesis="", references="")
             self.assertIsInstance(value, float)
 
-            value = metric_component(hypothesis='', references='a')
+            value = metric_component(hypothesis="a", references="")
+            self.assertIsInstance(value, float)
+
+            value = metric_component(hypothesis="", references="a")
             self.assertIsInstance(value, float)
