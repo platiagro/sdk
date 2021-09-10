@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import io
 import os
+from platiagro.datasets import PREFIX
 import unittest
 import unittest.mock as mock
 
@@ -29,8 +30,13 @@ class TestDatasets(unittest.TestCase):
         dataset_name = "unk.zip"
 
         result = platiagro.list_datasets()
+
         self.assertTrue(isinstance(result, list))
         self.assertEqual(result, [dataset_name])
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_list_objects.assert_any_call(BUCKET_NAME, f"{PREFIX}/")
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -46,6 +52,13 @@ class TestDatasets(unittest.TestCase):
 
         with self.assertRaises(FileNotFoundError):
             platiagro.load_dataset(name=bad_dataset_name)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_list_objects.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{bad_dataset_name}/{bad_dataset_name}.metadata",
+        )
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -69,6 +82,22 @@ class TestDatasets(unittest.TestCase):
         result = platiagro.load_dataset(name=dataset_name)
         self.assertTrue(hasattr(result, "read"))
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
@@ -90,6 +119,17 @@ class TestDatasets(unittest.TestCase):
 
         result = platiagro.load_dataset(name=dataset_name)
         self.assertIsInstance(result, pd.DataFrame)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -117,6 +157,17 @@ class TestDatasets(unittest.TestCase):
         )
         self.assertIsInstance(result, pd.DataFrame)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}.metadata",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
@@ -132,20 +183,20 @@ class TestDatasets(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             platiagro.get_dataset(name=dataset_name)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    @mock.patch.object(
-        S3FS,
-        "open",
-        return_value=io.BytesIO(util.CSV_DATA),
-    )
-    def test_get_dataset_success(
-        self, mock_s3fs_open, mock_get_object, mock_make_bucket
-    ):
+    def test_get_dataset_success(self, mock_get_object, mock_make_bucket):
         """
         Should return a readable object successfully.
         """
@@ -154,19 +205,21 @@ class TestDatasets(unittest.TestCase):
         result = platiagro.get_dataset(name=dataset_name)
         self.assertTrue(hasattr(result, "read"))
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    @mock.patch.object(
-        S3FS,
-        "open",
-        return_value=io.BytesIO(util.CSV_DATA),
-    )
     def test_get_dataset_with_run_id_and_operator_id_success(
-        self, mock_s3fs_open, mock_get_object, mock_make_bucket
+        self, mock_get_object, mock_make_bucket
     ):
         """
         Should return a readable object when run_id and operator_id exist.
@@ -179,6 +232,13 @@ class TestDatasets(unittest.TestCase):
             name=dataset_name, run_id=run_id, operator_id=operator_id
         )
         self.assertTrue(hasattr(result, "read"))
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}",
+        )
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -201,6 +261,13 @@ class TestDatasets(unittest.TestCase):
         data = io.BytesIO(util.BINARY_DATA)
 
         platiagro.save_dataset(name=dataset_name, data=data)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
 
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
@@ -244,6 +311,13 @@ class TestDatasets(unittest.TestCase):
 
         platiagro.save_dataset(name=dataset_name, data=data)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
         mock_fput_object.assert_any_call(
             bucket_name=BUCKET_NAME,
             object_name=f"datasets/{dataset_name}/{dataset_name}",
@@ -272,20 +346,20 @@ class TestDatasets(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             platiagro.stat_dataset(name=dataset_name)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    @mock.patch.object(
-        S3FS,
-        "open",
-        return_value=io.BytesIO(util.CSV_DATA),
-    )
-    def test_stat_dataset_success(
-        self, mock_s3fs_open, mock_get_object, mock_make_bucket
-    ):
+    def test_stat_dataset_success(self, mock_get_object, mock_make_bucket):
         """
         Should return a dict object successfully.
         """
@@ -296,19 +370,21 @@ class TestDatasets(unittest.TestCase):
         expected = {"filename": dataset_name}
         self.assertDictEqual(result, expected)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.get_object_side_effect,
     )
-    @mock.patch.object(
-        S3FS,
-        "open",
-        return_value=io.BytesIO(util.CSV_DATA),
-    )
     def test_stat_dataset_with_run_id_and_operator_id_success(
-        self, mock_s3fs_open, mock_get_object, mock_make_bucket
+        self, mock_get_object, mock_make_bucket
     ):
         """
         Should return a dict object when run_id and operator_id exist.
@@ -324,13 +400,20 @@ class TestDatasets(unittest.TestCase):
         expected = {"filename": dataset_name}
         self.assertDictEqual(result, expected)
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/runs/{run_id}/operators/{operator_id}/{dataset_name}/{dataset_name}.metadata",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
         MINIO_CLIENT,
         "get_object",
         side_effect=util.NO_SUCH_KEY_ERROR,
     )
-    def test_download_dataset_not_found(self, mock_download_dataset, mock_make_bucket):
+    def test_download_dataset_not_found(self, mock_get_object, mock_make_bucket):
         """
         Should raise an exception when given a dataset name that does not exist.
         """
@@ -339,6 +422,13 @@ class TestDatasets(unittest.TestCase):
 
         with self.assertRaises(FileNotFoundError):
             platiagro.download_dataset(name=bad_dataset_name, path=path)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{bad_dataset_name}/{bad_dataset_name}.metadata",
+        )
 
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
     @mock.patch.object(
@@ -364,20 +454,24 @@ class TestDatasets(unittest.TestCase):
 
         self.assertTrue(os.path.exists(path))
 
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
+
+        mock_s3fs_open.assert_any_call(
+            f"{BUCKET_NAME}/datasets/{dataset_name}/{dataset_name}",
+        )
+
+        mock_get_object.assert_any_call(
+            bucket_name=BUCKET_NAME,
+            object_name=f"datasets/{dataset_name}/{dataset_name}.metadata",
+        )
+
     @mock.patch.object(MINIO_CLIENT, "make_bucket")
-    @mock.patch.object(
-        MINIO_CLIENT,
-        "get_object",
-        side_effect=util.get_object_side_effect,
-    )
     @mock.patch.object(
         MINIO_CLIENT,
         "put_object",
         side_effect=util.put_object_side_effect,
     )
-    def test_update_dataset_metadata(
-        self, mock_put_object, mock_get_object, mock_make_bucket
-    ):
+    def test_update_dataset_metadata(self, mock_put_object, mock_make_bucket):
         """
         Should call .put_object passing using .metadata as object_name.
         """
@@ -393,6 +487,8 @@ class TestDatasets(unittest.TestCase):
         }
 
         platiagro.update_dataset_metadata(name=dataset_name, metadata=metadata)
+
+        mock_make_bucket.assert_any_call(BUCKET_NAME)
 
         mock_put_object.assert_any_call(
             bucket_name=BUCKET_NAME,
