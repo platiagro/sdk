@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import io
 import os
-from platiagro.datasets import PREFIX
 import unittest
 import unittest.mock as mock
 
@@ -9,6 +8,7 @@ import pandas as pd
 from minio.datatypes import Object
 
 import platiagro
+from platiagro.datasets import PREFIX
 from platiagro.util import BUCKET_NAME, DEFAULT_PART_SIZE, MINIO_CLIENT, S3FS
 
 import tests.util as util
@@ -149,7 +149,7 @@ class TestDatasets(unittest.TestCase):
         Should return a pandas DataFrame object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "UNK"
+        run_id = "latest"
         operator_id = "UNK"
 
         result = platiagro.load_dataset(
@@ -225,7 +225,7 @@ class TestDatasets(unittest.TestCase):
         Should return a readable object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "UNK"
+        run_id = "latest"
         operator_id = "UNK"
 
         result = platiagro.get_dataset(
@@ -390,7 +390,7 @@ class TestDatasets(unittest.TestCase):
         Should return a dict object when run_id and operator_id exist.
         """
         dataset_name = "unk.csv"
-        run_id = "UNK"
+        run_id = "latest"
         operator_id = "UNK"
 
         result = platiagro.stat_dataset(
