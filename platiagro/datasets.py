@@ -67,6 +67,8 @@ def load_dataset(
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
+    make_bucket(BUCKET_NAME)
+
     if run_id is None:
         # gets run_id from env variable
         # Attention: returns None if env is unset
@@ -154,6 +156,7 @@ def get_dataset(
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
+    make_bucket(BUCKET_NAME)
 
     # this function serves to cover None and 'latest' cases
     run_id = handle_run_id(name, run_id)
@@ -364,6 +367,8 @@ def stat_dataset(
     Raises:
         FileNotFoundError: If dataset does not exist in the object storage.
     """
+    make_bucket(BUCKET_NAME)
+
     metadata = {}
 
     # remove /tmp/data/ from dataset name
@@ -444,6 +449,8 @@ def update_dataset_metadata(
         run_id (str, optional): the run id of trainning pipeline. Defaults to None.
         operator_id (str, optional): the operator uuid. Defaults to None.
     """
+    make_bucket(BUCKET_NAME)
+
     object_name = _metadata_filepath(name, run_id, operator_id)
 
     # encodes metadata to JSON format
