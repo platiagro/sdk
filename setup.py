@@ -37,8 +37,7 @@ extras = {
         "pytest-cov==2.8.1",
         "pytest-mock==3.5.1",
         "flake8==3.7.9",
-        "black==21.8b0",
-        "typing-extensions==3.10.0.2",
+        "black==21.7b0",
     ]
 }
 
